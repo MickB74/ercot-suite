@@ -17,8 +17,11 @@ import os
 import pathlib
 import sys
 
-HUB = pathlib.Path.home() / "Documents" / "Github" / "Ercot_Data_Hub"
 THIS = pathlib.Path(__file__).resolve().parent
+# Resolve the Hub repo-relative first (sibling in this monorepo), home as fallback.
+_HUB_CANDIDATES = [THIS.parent / "Ercot_Data_Hub",
+                   pathlib.Path.home() / "Documents" / "Github" / "Ercot_Data_Hub"]
+HUB = next((p for p in _HUB_CANDIDATES if p.exists()), _HUB_CANDIDATES[0])
 CACHE_DIR = HUB / "data" / "wind_forecast"
 sys.path.insert(0, str(HUB))                          # ercot_core
 sys.path.insert(0, str(HUB / "datasets" / "wind_forecast"))  # wind_power, etc.

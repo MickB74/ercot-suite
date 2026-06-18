@@ -23,8 +23,13 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+# Repo-relative first (sibling folders in this monorepo), legacy home as fallback.
+_SIBLINGS = Path(__file__).resolve().parents[1]
 _HOME = Path.home() / "Documents" / "Github"
 _WIND_CANDIDATES = [
+    _SIBLINGS / "Ercot_Data_Hub" / "data" / "wind_forecast",
+    _SIBLINGS / "Ercot_Wind_Forecast" / "data",
+    _SIBLINGS / "Ercot_Wind_Forecast" / "data" / "cache",
     _HOME / "Ercot_Data_Hub" / "data" / "wind_forecast",
     _HOME / "Ercot_Wind_Forecast" / "data",
     _HOME / "Ercot_Wind_Forecast" / "data" / "cache",

@@ -49,7 +49,13 @@ GAS_FORWARD_PARQUET = GAS_DIR / "eia_gas_forward.parquet"  # cached EIA fwd stri
 _ALL_DIRS = [DATA, INPUTS_DIR, GAS_DIR, FORECASTS_DIR]
 
 # Candidate locations for the ERCOT hub-price parquet, in preference order.
+# Repo-relative first (sibling folders in this monorepo, so it works wherever the
+# repo is checked out), then the legacy ~/Documents/Github layout as a fallback.
+_SIBLINGS = ROOT.parent
 _HUB_LAKE_CANDIDATES = [
+    _SIBLINGS / "Ercot_Data_Hub" / "data" / "hub_prices",
+    _SIBLINGS / "Ercot_Price_Data" / "data" / "hub_prices",
+    _SIBLINGS / "Ercot_Price_Data" / "data",
     Path.home() / "Documents" / "Github" / "Ercot_Data_Hub" / "data" / "hub_prices",
     Path.home() / "Documents" / "Github" / "Ercot_Price_Data" / "data" / "hub_prices",
     Path.home() / "Documents" / "Github" / "Ercot_Price_Data" / "data",

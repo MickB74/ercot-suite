@@ -16,7 +16,12 @@ from __future__ import annotations
 import pathlib
 import sys
 
-HUB = pathlib.Path.home() / "Documents" / "Github" / "Ercot_Data_Hub"
+# Resolve the Hub repo-relative first (sibling in this monorepo), home as fallback.
+_HUB_CANDIDATES = [
+    pathlib.Path(__file__).resolve().parents[1] / "Ercot_Data_Hub",
+    pathlib.Path.home() / "Documents" / "Github" / "Ercot_Data_Hub",
+]
+HUB = next((p for p in _HUB_CANDIDATES if p.exists()), _HUB_CANDIDATES[0])
 WF_DATASET = HUB / "datasets" / "wind_forecast"
 CACHE_DIR = HUB / "data" / "wind_forecast"
 sys.path.insert(0, str(HUB))         # for ercot_core
