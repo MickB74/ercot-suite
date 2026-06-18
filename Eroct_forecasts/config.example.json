@@ -1,0 +1,5 @@
+{
+  "eia_api_key": "your-free-eia-api-key-from-https://www.eia.gov/opendata/register.php",
+  "hub_lake_dir": "",
+  "_comment": "hub_lake_dir overrides where hub_prices parquet is read from. Leave blank to auto-detect ../Ercot_Data_Hub/data/hub_prices then ../Ercot_Price_Data/data. eia_api_key is optional: without it the Henry Hub gas history falls back to the seed CSV in data/inputs/ and the forward strip falls back to your manual data/inputs/gas_curve.csv."
+}

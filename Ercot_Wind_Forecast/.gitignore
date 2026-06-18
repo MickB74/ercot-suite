@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.venv/
+config.json
+data/
+# reference/uswtdb_*.json IS tracked — it's the bundled turbine database.

@@ -1,0 +1,8 @@
+pandas
+numpy
+pyarrow
+requests
+streamlit
+plotly
+# Optional — unlocks real manufacturer power curves from the OEDB turbine library:
+windpowerlib

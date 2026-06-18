@@ -1,0 +1,31 @@
+# ============================================================================
+# ERCOT monorepo — root ignores (per-folder .gitignore files also still apply)
+# ============================================================================
+
+# Separate project with its own GitHub repo — NOT part of this monorepo.
+/price_settlements/
+
+# macOS
+.DS_Store
+
+# Python virtual envs & caches (each folder ships its own; these are local)
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+
+# Secrets — NEVER commit. The committed *.example.json templates show the shape;
+# each user copies one to config.json locally and fills in their own keys.
+config.json
+.env
+*.secret
+
+# Local Claude Code session / worktree state
+.claude/
+
+# Jupyter / editor cruft
+.ipynb_checkpoints/
+.idea/
+.vscode/

@@ -1,0 +1,18 @@
+# credentials
+config.json
+
+# python
+__pycache__/
+*.pyc
+.venv/
+.DS_Store
+
+# data lake (regenerated / large)
+data/forecasts/
+data/gas/cache/
+data/gas/*.parquet
+data/cache/
+
+# keep input templates and the seed gas history tracked
+!data/inputs/
+!data/inputs/*.csv

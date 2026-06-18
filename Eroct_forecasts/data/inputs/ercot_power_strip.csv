@@ -1,0 +1,7 @@
+# OPTIONAL manual ERCOT power-futures strip ($/MWh) for near-month calibration.
+# Leave empty (header only) to run the pure gas x heat-rate model.
+# ERCOT power futures are not on a free API, so paste ICE ERCOT hub settlements
+# here when you want to anchor the near months to traded forwards. The forecast
+# blends these into near months and fades to the model over --fade-months.
+# block must be one of: peak, offpeak, atc
+month,hub,block,price

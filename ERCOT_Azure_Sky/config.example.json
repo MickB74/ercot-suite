@@ -1,0 +1,12 @@
+{
+  "structure": "VPPA / CfD",
+  "strike": 17.34,
+  "volume_share_pct": 100.0,
+  "settle_at": "hub",
+  "price_floor": 0.0,
+  "apply_floor": true,
+  "settle_below_floor": false,
+  "fee_per_mwh": 0.0,
+  "counterparty": "Customer",
+  "currency": "USD"
+}

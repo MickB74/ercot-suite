@@ -1,0 +1,5 @@
+gridstatus
+pandas
+pyarrow
+streamlit
+plotly

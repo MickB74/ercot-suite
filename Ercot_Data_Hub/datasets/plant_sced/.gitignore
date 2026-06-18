@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.pyc
+disclosure_cache/
+csv_exports/
+interconnection_queue.parquet
+.DS_Store

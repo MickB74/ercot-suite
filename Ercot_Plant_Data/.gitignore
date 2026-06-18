@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.pyc
+disclosure_cache/
+csv_exports/
+interconnection_queue.parquet
+.DS_Store
+
+# derived SCED outputs & registry (regenerable via fetch_plants.py).
+# plant_names_overrides.csv is hand-edited and stays tracked.
+data/
+plants.csv
+plants.parquet
+plant_names.csv

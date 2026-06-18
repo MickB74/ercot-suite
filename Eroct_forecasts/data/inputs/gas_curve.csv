@@ -1,0 +1,6 @@
+# OPTIONAL manual override for the Henry Hub gas forward strip ($/MMBtu).
+# Leave this empty (header only) to let the app pull the curve automatically
+# from EIA (NYMEX Henry Hub futures contracts 1-4 + STEO forecast).
+# Only add rows here if you want to force a specific strip (e.g. paste live
+# NYMEX settlements from CME/Barchart). Rows here override EIA entirely.
+month,gas

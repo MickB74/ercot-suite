@@ -1,0 +1,23 @@
+# venv & caches
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+
+# secrets
+config.json
+.env
+
+# data lake (all regenerable from ERCOT / EIA)
+data/
+logs/
+
+# stray per-dataset artifacts (should land under data/ now)
+datasets/**/*.parquet
+datasets/**/*.csv
+datasets/**/data/
+datasets/**/raw/
+datasets/**/node_data/
+datasets/**/disclosure_cache/
+datasets/**/csv_exports/
+datasets/**/config.json

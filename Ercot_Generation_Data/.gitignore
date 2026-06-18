@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+.env
+
+# Large cached data — regenerate with update_generation.py
+ercot_gen_by_fuel_*.parquet
+
+# On-demand CSV slices — regenerate with export_csv.py
+csv_exports/
+update.log
+
+# Resource-node catalog + pulled per-node data (regenerate with pull_nodes.py)
+resource_node_catalog.parquet
+node_data/

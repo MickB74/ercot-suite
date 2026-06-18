@@ -1,0 +1,6 @@
+{
+  "username": "your-ercot-api-email@example.com",
+  "password": "your-ercot-api-password",
+  "subscription_key": "your-primary-subscription-key",
+  "backfill_start": "2024-01-01"
+}

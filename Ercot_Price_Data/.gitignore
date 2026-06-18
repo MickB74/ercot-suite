@@ -1,0 +1,11 @@
+# Local credentials -- never commit (contains your ERCOT password + key)
+config.json
+
+# Virtual environment
+.venv/
+
+# Downloaded data and logs
+data/
+__pycache__/
+*.pyc
+.DS_Store

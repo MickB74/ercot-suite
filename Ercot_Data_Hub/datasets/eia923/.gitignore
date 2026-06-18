@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+.env
+
+# Cached source ZIPs from eia.gov — re-fetch with build_cache.py
+raw/
+
+# Derived parquet cache — regenerate with build_cache.py
+eia923_*.parquet
+
+# On-demand CSV exports
+*.csv
