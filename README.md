@@ -25,6 +25,11 @@ settlement math, and every material assumption and default baked into the code.
 | `Eroct_forecasts` | Forward power-price forecast (implied heat rate × gas strip + Monte Carlo) |
 | `ERCOT_Markum` | Markum Solar single-asset settlement portal |
 | `ERCOT_Azure_Sky` | Azure Sky Wind single-asset settlement portal |
+| `Ercot_Project Hub` | Data-quality index of every project loaded into the suite — completeness, source verification, calibration, and tool coverage per asset ([README](Ercot_Project%20Hub/README.md) · [CSV](Ercot_Project%20Hub/data_quality.csv)) |
+
+> **Project Hub:** A self-updating quality scorecard for all assets in the shared
+> registry. Regenerate with `python3 "Ercot_Project Hub/build_hub.py"`, or browse
+> it live in the Data Hub app under **Tools → 🗂️ Project Hub**.
 
 > **Not in this repo:** `price_settlements` is a **separate** project with its own
 > GitHub repo. The hub vendors the 18 KB curated asset registry

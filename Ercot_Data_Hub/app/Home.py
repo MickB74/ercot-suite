@@ -63,6 +63,7 @@ nav = st.navigation({
     # Mapping / name-resolution utilities — used occasionally for setup, so kept
     # last and out of the main workflow.
     "Tools": [
+        st.Page(f"{P}/19_Project_Hub.py", title="Project Hub", icon="🗂️"),
         st.Page(f"{P}/6_Project_Lookup.py", title="Project Lookup", icon="🔎"),
         st.Page(f"{P}/12_Name_Resolver.py", title="Name Resolver", icon="🔤"),
         st.Page(f"{P}/11_Auto_Crosswalk.py", title="Auto-Crosswalk", icon="🧩"),

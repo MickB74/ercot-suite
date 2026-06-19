@@ -33,6 +33,11 @@ HUB_MAP = {
     "Houston": "HB_HOUSTON",
     "South": "HB_SOUTH",
     "West": "HB_WEST",
+    # The Panhandle is in the North load zone and ERCOT's HB_PAN settlement point
+    # is not carried by the price-forecast engine, so value Panhandle wind against
+    # HB_NORTH — the conventional proxy. (Slightly optimistic: it omits Panhandle
+    # export congestion, which can depress realized Pan prices vs. North.)
+    "Pan": "HB_NORTH",
 }
 
 

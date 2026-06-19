@@ -1,0 +1,646 @@
+project,resource_name,tech,status,queue_id,capacity_mw,hub,county,grade,overall_score,completeness_pct,verification_score,calibration_score,eia_crosswalk,eia_plant_id,sced_actuals,gen_profile,plant_value,location_confidence,portal,missing_fields,coverage
+Anchor Wind Iii,ANCHOR_WIND5,Wind,operating,,16.0,North,Eastland,C,68.9,66.7,40,100,False,,True,True,True,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; SCED ETL; Plant Value
+Azalea Springs Solar,ASCK_SLR_SOLAR1,Solar,operating,,181.0,Houston,Angelina,B,86.7,80.0,80,100,True,66905,True,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; SCED ETL; Plant Value
+Blevins Solar,BLVN_SLR_SOLAR3,Solar,operating,,271.58,North,Falls,B,86.7,100.0,60,100,False,,True,True,True,medium,,,Registry; Solar Forecast; SCED ETL; Plant Value
+Bynum Solar Project,BYNM_SLR_SOLAR1,Solar,operating,,56.0,North,Coryell,B,86.7,80.0,80,100,True,67459,True,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; SCED ETL; Plant Value
+Diver Solar,DIVR_SLR_SOLAR2,Solar,operating,,225.59,North,Limestone,B,86.7,80.0,80,100,True,68483,True,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; SCED ETL; Plant Value
+Eldora Solar,DORA_SLR_SOLAR2,Solar,operating,,200.94,South,Matagorda,B,86.7,80.0,80,100,True,65847,True,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; SCED ETL; Plant Value
+Dry Creek Solar I,DRCK_SLR_SOLAR1,Solar,operating,,201.06,Houston,Rusk,B,86.7,80.0,80,100,True,64132,True,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; SCED ETL; Plant Value
+Eliza Solar,ELZA_SLR_SOLAR1,Solar,operating,,151.7,North,Kaufman,B,86.7,100.0,60,100,False,,True,True,True,low,,,Registry; Solar Forecast; SCED ETL; Plant Value
+Gaia Solar,GAIA_SLR_SOLAR1,Solar,operating,,144.02,North,Navarro,B,86.7,100.0,60,100,False,,True,True,True,low,,,Registry; Solar Forecast; SCED ETL; Plant Value
+Greyhound Solar,GRYH_SLR_SOLAR8,Solar,operating,,335.45,West,Ector,B,86.7,100.0,60,100,False,,True,True,True,low,,,Registry; Solar Forecast; SCED ETL; Plant Value
+Blue Jay Solar,JKLP_SLR_PV1,Solar,operating,,141.05,North,Robertson,A,100.0,100.0,100,100,True,68474,True,True,True,high,,,Registry; Solar Forecast; SCED ETL; Plant Value
+Long Point Solar,LNP_SOLAR1,Solar,operating,,120.7,Houston,Fort Bend,B,86.7,100.0,60,100,False,,True,True,True,medium,,,Registry; Solar Forecast; SCED ETL; Plant Value
+Midpoint Solar,MIDP_SLR_SOLAR1,Solar,operating,,98.3,North,Hill,B,86.7,80.0,80,100,True,66897,True,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; SCED ETL; Plant Value
+Monte Cristo 1 Wind,MONTECR1_WIND1,Wind,operating,,234.5,South,Hidalgo,A,91.7,75.0,100,100,True,67875,True,True,True,low,,turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; SCED ETL; Plant Value
+Maryneal Wind,MARYNEAL_UNIT1,Wind,operating,,182.4,North,Nolan,A,100.0,100.0,100,100,True,62836,True,True,True,high,,,Registry; Wind Forecast; SCED ETL; Plant Value
+Norton Solar,NRTN_SLR_SOLAR1,Solar,operating,,128.48,West,Runnels,B,86.7,80.0,80,100,True,61967,True,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; SCED ETL; Plant Value
+Roseland Solar,ROSELAND_SOLAR1,Solar,operating,,250.0,North,Falls,A,100.0,100.0,100,100,True,65998,True,True,True,medium,,,Registry; Solar Forecast; SCED ETL; Plant Value
+Trojan Solar Slf,TROJ_SLR_PV2,Solar,operating,,150.59,North,Cooke,A,100.0,100.0,100,100,True,67765,True,True,True,medium,,,Registry; Solar Forecast; SCED ETL; Plant Value
+Wildwind,WILDWIND_UNIT1,Wind,operating,,180.08,West,Cooke,A,100.0,100.0,100,100,True,62715,True,True,True,high,,,Registry; Wind Forecast; SCED ETL; Plant Value
+Markham Solar,MRKM_SLR_PV1,Solar,operating,,161.0,North,Throckmorton,A,93.3,100.0,80,100,True,67580,True,True,True,,Markum Solar,,Registry; Solar Forecast; SCED ETL; Plant Value; Portal (ERCOT_Markum)
+Maryneal Solar,MROW_SLR_SOLAR1,Solar,operating,,182.4,West,Nolan,B,86.7,80.0,80,100,True,66775,True,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; SCED ETL; Plant Value
+Frye Solar,FRYE_SLR_UNIT1,Solar,operating,,200.0,West,Swisher,A,100.0,100.0,100,100,True,64233,True,True,True,high,,,Registry; Solar Forecast; SCED ETL; Plant Value
+Ajax Wind,AJAXWIND_UNIT1,Wind,operating,,200.0,West,Wilbarger,B,86.7,100.0,60,100,False,,True,True,True,high,,,Registry; Wind Forecast; SCED ETL; Plant Value
+Monte Cristo Wind,MONTECR1_WIND1,Wind,operating,,234.5,South,Hidalgo,A,97.2,91.7,100,100,True,67875,True,True,True,high,,rotor_diameter_m,Registry; Wind Forecast; SCED ETL; Plant Value
+Shaffer Wind,SHAFFER_UNIT1,Wind,operating,,200.0,South,Nueces,A,100.0,100.0,100,100,True,58614,True,True,True,high,,,Registry; Wind Forecast; SCED ETL; Plant Value
+Nazareth Solar,AZSP_SLR_SOLAR1,Solar,operating,,203.0,West,Castro,B,86.7,80.0,80,100,True,66905,True,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; SCED ETL; Plant Value
+Castro Solar,AZSP_SLR_SOLAR2,Solar,planned,20INR0050,224.67,West,Castro,B,86.7,80.0,80,100,False,,False,True,True,high,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; Plant Value
+Pine Forest Solar,PISGAH_SOLAR1,Solar,operating,,301.51,Houston,Newton,B,86.7,80.0,80,100,True,65631,True,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; SCED ETL; Plant Value
+Rio Bravo Wind,CABEZON_WIND1,Wind,operating,,237.6,South,Starr,A,94.4,83.3,100,100,True,61865,True,True,True,low,,turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; SCED ETL; Plant Value
+Route 66 Wind,ROUTE_66_WIND1,Wind,operating,,150.0,Pan,Armstrong,B,87.8,83.3,80,100,True,58681,True,True,True,,,turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; SCED ETL; Plant Value
+Los Mirasoles Wind,MIRASOLE_MIR11,Wind,operating,,300.0,South,Hidalgo,B,86.7,100.0,60,100,False,,True,True,True,high,,,Registry; Wind Forecast; SCED ETL; Plant Value
+Hidalgo Wind,HIDALGO_WIND1,Wind,operating,,100.0,South,Hidalgo,B,86.7,100.0,60,100,True,57617,False,True,True,high,,,Registry; Wind Forecast; Plant Value
+Capricorn Ridge,CAPRIDGE_WIND_AGG,Wind,operating,,663.0,West,Sterling,A,100.0,100.0,100,100,True,,True,True,True,low,,,Registry; Wind Forecast; SCED ETL; Plant Value
+Horse Hollow,HHOLLOW2_WIND1,Wind,operating,,735.5,West,Taylor,A,100.0,100.0,100,100,True,56291,True,True,True,high,,,Registry; Wind Forecast; SCED ETL; Plant Value
+South Plains,SPLAIN1_WIND1,Wind,operating,,500.0,Pan,Floyd,B,86.7,100.0,60,100,False,,True,True,True,high,,,Registry; Wind Forecast; SCED ETL; Plant Value
+Green Pastures,GPASTURE_WIND_I,Wind,operating,,300.0,North,Baylor,B,86.7,100.0,60,100,False,,True,True,True,high,,,Registry; Wind Forecast; SCED ETL; Plant Value
+Hereford Wind,HRFDWIND_WIND_G,Wind,operating,,200.0,Pan,Deaf Smith,B,86.7,100.0,60,100,False,,True,True,True,medium,,,Registry; Wind Forecast; SCED ETL; Plant Value
+Cameron Wind,CAMWIND_UNIT1,Wind,operating,,165.0,South,Cameron,B,86.7,100.0,60,100,False,,True,True,True,high,,,Registry; Wind Forecast; SCED ETL; Plant Value
+San Roman Wind,SANROMAN_WIND_1,Wind,operating,,93.0,South,Cameron,B,86.7,100.0,60,100,False,,True,True,True,medium,,,Registry; Wind Forecast; SCED ETL; Plant Value
+Tyler Bluff,TYLRWIND_UNIT1,Wind,operating,,120.0,North,Cooke,B,86.7,100.0,60,100,False,,True,True,True,low,,,Registry; Wind Forecast; SCED ETL; Plant Value
+Flat Top Wind,FTWIND_UNIT_1,Wind,operating,,200.0,North,Mills,B,86.7,100.0,60,100,False,,True,True,True,high,,,Registry; Wind Forecast; SCED ETL; Plant Value
+Bobcat Wind,BCATWIND_WIND_1,Wind,operating,,150.0,West,Glasscock,A,100.0,100.0,100,100,True,57751,True,True,True,high,,,Registry; Wind Forecast; SCED ETL; Plant Value
+Goat Mountain,GOAT_GOATWIND,Wind,operating,,150.0,West,Sterling,B,86.7,100.0,60,100,False,,True,True,True,medium,,,Registry; Wind Forecast; SCED ETL; Plant Value
+South Ranch Wind,SRWE1_SRWE2,Wind,operating,,100.0,South,Hidalgo,B,86.7,100.0,60,100,False,,True,True,True,high,,,Registry; Wind Forecast; SCED ETL; Plant Value
+Vera Wind,VERAWIND_UNIT1,Wind,operating,,240.0,North,Knox,A,100.0,100.0,100,100,True,62411,True,True,True,medium,,,Registry; Wind Forecast; SCED ETL; Plant Value
+Azure Sky Wind,AZURE_SKY_WIND_AGG,Wind,operating,,350.0,North,Throckmorton,A,100.0,100.0,100,100,True,,True,True,True,high,Azure Sky Wind,,Registry; Wind Forecast; SCED ETL; Plant Value; Portal (ERCOT_Azure_Sky)
+Mesquite Star,WH_WIND_UNIT2,Wind,operating,19INR0080,418.9,North,Fisher,A,100.0,100.0,100,100,True,62587,True,True,True,high,,,Registry; Wind Forecast; SCED ETL; Plant Value
+Millers Branch 2,MILLERS_BRANCH_2,Solar,planned,22INR0270,50.0,North,Haskell,B,86.7,80.0,80,100,False,,False,True,True,high,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; Plant Value
+Star Dairy,STAR_DAIRY_SOLAR,Solar,planned,25INR0164,115.61,North,Lamar,A,93.3,100.0,80,100,False,,False,True,True,high,,,Registry; Solar Forecast; Plant Value
+Rosebud,ROSEBUD_SOLAR,Solar,planned,24INR0040,50.0,North,Milam,B,86.7,80.0,80,100,False,,False,True,True,high,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; Plant Value
+Liberty Solar,LIBERTY_SOLAR,Solar,operating,,100.0,Houston,Liberty,B,86.7,100.0,60,100,True,67159,False,True,True,high,,,Registry; Solar Forecast; Plant Value
+Stafford Solar,STAFFORD_SOLAR_AGG,Solar,operating,,250.0,West,Motley,B,86.7,100.0,60,100,True,68458,False,True,True,high,,,Registry; Solar Forecast; Plant Value
+Big Spring Wind Power Facility,EIA_54979,Wind,operating,,34.3,West,Howard,F,35.6,66.7,40,0,True,54979,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+King Mountain Wind Ranch 1,EIA_55581,Wind,operating,,278.0,West,Upton,F,35.6,66.7,40,0,True,55581,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+NWP Indian Mesa Wind Farm,EIA_55747,Wind,operating,,82.5,West,Pecos,F,35.6,66.7,40,0,True,55747,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Woodward Mountain II,EIA_55795,Wind,operating,,78.0,West,Pecos,F,35.6,66.7,40,0,True,55795,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Woodward Mountain I,EIA_55796,Wind,operating,,82.0,West,Pecos,F,35.6,66.7,40,0,True,55796,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Trent Wind Farm,EIA_55968,Wind,operating,,152.0,West,Nolan,F,35.6,66.7,40,0,True,55968,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Desert Sky,EIA_55992,Wind,operating,,167.7,West,Pecos,F,35.6,66.7,40,0,True,55992,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Brazos Wind Farm,EIA_56111,Wind,operating,,182.4,West,Scurry,F,35.6,66.7,40,0,True,56111,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Sweetwater Wind 1 LLC,EIA_56211,Wind,operating,,37.5,West,Nolan,F,35.6,66.7,40,0,True,56211,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Sweetwater Wind 2 LLC,EIA_56212,Wind,operating,,98.8,West,Nolan,F,35.6,66.7,40,0,True,56212,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Buffalo Gap Wind Farm,EIA_56240,Wind,operating,,120.6,West,Taylor,F,35.6,66.7,40,0,True,56240,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Callahan Divide Wind Energy Center,EIA_56270,Wind,operating,,114.0,West,Taylor,F,35.6,66.7,40,0,True,56270,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Sweetwater Wind 3 LLC,EIA_56311,Wind,operating,,135.0,West,Nolan,F,35.6,66.7,40,0,True,56311,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Sweetwater Wind 4 LLC,EIA_56337,Wind,operating,,241.0,West,Nolan,F,35.6,66.7,40,0,True,56337,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Sweetwater Wind 5,EIA_56372,Wind,operating,,80.5,West,Nolan,F,35.6,66.7,40,0,True,56372,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Forest Creek Wind Farm LLC,EIA_56394,Wind,operating,,124.2,West,Glasscock,F,35.6,66.7,40,0,True,56394,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Mesquite Wind Power LLC,EIA_56395,Wind,operating,,200.0,North,Shackelford,F,35.6,66.7,40,0,True,56395,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Post Wind Farm LP,EIA_56457,Wind,operating,,84.0,West,Borden,F,35.6,66.7,40,0,True,56457,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Sand Bluff Wind Farm,EIA_56479,Wind,operating,,89.5,West,Glasscock,F,35.6,66.7,40,0,True,56479,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Post Oak Wind LLC,EIA_56483,Wind,operating,,200.0,North,Shackelford,F,35.6,66.7,40,0,True,56483,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Buffalo Gap 2 Wind Farm,EIA_56484,Wind,operating,,232.5,West,Nolan,F,35.6,66.7,40,0,True,56484,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Scurry County Wind LP,EIA_56506,Wind,operating,,130.5,West,Scurry,F,35.6,66.7,40,0,True,56506,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Champion Wind Farm LLC,EIA_56592,Wind,operating,,126.5,West,Nolan,F,35.6,66.7,40,0,True,56592,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Roscoe Wind Farm LLC,EIA_56593,Wind,operating,,209.0,West,Nolan,F,35.6,66.7,40,0,True,56593,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Buffalo Gap 3 Wind Farm,EIA_56638,Wind,operating,,170.2,West,Nolan,F,35.6,66.7,40,0,True,56638,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Stanton Wind Energy LLC,EIA_56644,Wind,operating,,120.0,West,Martin,F,35.6,66.7,40,0,True,56644,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+South Trent Wind Farm,EIA_56649,Wind,operating,,101.2,West,Nolan,F,35.6,66.7,40,0,True,56649,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Pattern Gulf Wind,EIA_56661,Wind,operating,,283.2,South,Kenedy,F,35.6,66.7,40,0,True,56661,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Whirlwind Energy Center,EIA_56673,Wind,operating,,59.8,West,Floyd,F,35.6,66.7,40,0,True,56673,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Goat Wind LP,EIA_56754,Wind,operating,,149.6,West,Sterling,F,35.6,66.7,40,0,True,56754,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Capricorn Ridge Wind LLC,CAPRIDG4_CR4,Wind,operating,,662.5,West,Sterling,B,82.2,66.7,80,100,True,56763,True,True,True,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; SCED ETL; Plant Value
+Silver Star I Wind Power Project,EIA_56771,Wind,operating,,52.8,North,Erath,F,35.6,66.7,40,0,True,56771,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+McAdoo Wind Energy LLC,EIA_56773,Wind,operating,,150.0,West,Dickens,F,35.6,66.7,40,0,True,56773,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Turkey Track Wind Energy LLC,EIA_56774,Wind,operating,,169.5,West,Nolan,F,35.6,66.7,40,0,True,56774,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Scurry County Wind II,EIA_56775,Wind,operating,,120.0,West,Scurry,F,35.6,66.7,40,0,True,56775,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Gunsight Mountain Wind Energy LLC,EIA_56776,Wind,operating,,120.0,West,Howard,F,35.6,66.7,40,0,True,56776,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Elbow Creek Wind Project LLC,EIA_56783,Wind,operating,,121.9,West,Howard,F,35.6,66.7,40,0,True,56783,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Penascal Wind Power LLC,EIA_56795,Wind,operating,,201.6,South,Kenedy,F,35.6,66.7,40,0,True,56795,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Hackberry Wind Farm,EIA_56823,Wind,operating,,165.6,North,Shackelford,F,35.6,66.7,40,0,True,56823,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Panther Creek Wind Farm I,EIA_56920,Wind,operating,,142.5,West,Howard,F,35.6,66.7,40,0,True,56920,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Panther Creek Wind Farm II,EIA_56921,Wind,operating,,115.5,West,Glasscock,F,35.6,66.7,40,0,True,56921,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Bull Creek Wind,EIA_56956,Wind,operating,,180.0,West,Borden,F,35.6,66.7,40,0,True,56956,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Ocotillo Windpower,EIA_56959,Wind,operating,,58.8,West,Howard,F,35.6,66.7,40,0,True,56959,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Notrees Windpower Hybrid,EIA_56961,Wind,operating,,152.5,West,Ector,F,35.6,66.7,40,0,True,56961,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Panther Creek Wind Farm Three,EIA_56979,Wind,operating,,215.5,West,Sterling,F,35.6,66.7,40,0,True,56979,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Pyron Wind Farm LLC Hybrid,EIA_56981,Wind,operating,,249.0,West,Fisher,F,35.6,66.7,40,0,True,56981,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Papalote Creek I LLC,EIA_56983,Wind,operating,,180.0,South,San Patricio,F,35.6,66.7,40,0,True,56983,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Inadale Wind Farm LLC Hybrid,EIA_56984,Wind,operating,,197.0,West,Nolan,F,35.6,66.7,40,0,True,56984,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Penascal II Wind Project LLC,EIA_57095,Wind,operating,,201.6,South,Kenedy,F,35.6,66.7,40,0,True,57095,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Langford Wind Power,EIA_57153,Wind,operating,,150.0,West,Tom Green,F,35.6,66.7,40,0,True,57153,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Barton Chapel Wind Farm,EIA_57156,Wind,operating,,120.0,North,Jack,F,35.6,66.7,40,0,True,57156,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Blue Wing Solar Energy Generation,EIA_57197,Solar,operating,,13.9,South,Bexar,D,53.3,100.0,60,0,True,57197,False,False,False,high,,,Registry; Solar Forecast
+Papalote Creek II LLC,EIA_57212,Wind,operating,,200.1,South,San Patricio,F,35.6,66.7,40,0,True,57212,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Cedro Hill Wind LLC,EIA_57260,Wind,operating,,300.0,South,Webb,C,68.9,66.7,40,100,True,57260,False,True,True,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; Plant Value
+Loraine Windpark Project LLC,EIA_57303,Wind,operating,,150.0,West,Mitchell,F,35.6,66.7,40,0,True,57303,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Sherbino II,EIA_57415,Wind,operating,,132.0,West,Pecos,F,35.6,66.7,40,0,True,57415,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Trinity Hills,EIA_57520,Wind,operating,,198.0,North,Young,F,35.6,66.7,40,0,True,57520,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Hidalgo Wind Farm LLC,EIA_57617,Wind,operating,,250.0,South,Hidalgo,F,35.6,66.7,40,0,True,57617,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+East Blackland Solar Project 1,EIA_57659,Solar,operating,,144.0,North,Travis,D,53.3,100.0,60,0,True,57659,False,False,False,high,,,Registry; Solar Forecast
+Webberville Solar Project,EIA_57699,Solar,operating,,30.0,North,Travis,D,53.3,100.0,60,0,True,57699,False,False,False,high,,,Registry; Solar Forecast
+Los Vientos Wind 1A,EIA_57751,Wind,operating,,200.0,South,Cameron,F,35.6,66.7,40,0,True,57751,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Los Vientos Wind 1B,EIA_57752,Wind,operating,,201.6,South,Cameron,F,35.6,66.7,40,0,True,57752,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Magic Valley Wind Farm I LLC,EIA_57802,Wind,operating,,203.0,South,Willacy,F,35.6,66.7,40,0,True,57802,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Baffin Wind,EIA_57927,Wind,operating,,188.0,South,Kenedy,F,35.6,66.7,40,0,True,57927,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Bobcat Bluff Wind Project LLC,EIA_57974,Wind,operating,,161.0,North,Archer,F,35.6,66.7,40,0,True,57974,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Senate Wind LLC,EIA_57981,Wind,operating,,150.0,North,Jack,F,35.6,66.7,40,0,True,57981,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Stephens Ranch Wind Energy LLC,EIA_57983,Wind,operating,,376.0,West,Borden,C,68.9,66.7,40,100,True,57983,False,True,True,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; Plant Value
+"Anacacho Wind Farm, LLC",EIA_58000,Wind,operating,,99.8,West,Kinney,F,35.6,66.7,40,0,True,58000,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+SunE CPS3 LLC,EIA_58009,Solar,operating,,10.6,South,Bexar,D,53.3,100.0,60,0,True,58009,False,False,False,high,,,Registry; Solar Forecast
+IKEA Round Rock 027,EIA_58013,Solar,operating,,1.4,North,Williamson,D,53.3,100.0,60,0,True,58013,False,False,False,high,,,Registry; Solar Forecast
+Whitetail,EIA_58021,Wind,operating,,92.0,South,Webb,F,35.6,66.7,40,0,True,58021,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+SunE CPS2 LLC,EIA_58027,Solar,operating,,10.0,South,Bexar,D,53.3,100.0,60,0,True,58027,False,False,False,high,,,Registry; Solar Forecast
+BayWa r.e Mozart LLC,EIA_58048,Wind,operating,,30.0,West,Kent,F,35.6,66.7,40,0,True,58048,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+SunE CPS1 LLC,EIA_58068,Solar,operating,,10.0,South,Bexar,D,53.3,100.0,60,0,True,58068,False,False,False,high,,,Registry; Solar Forecast
+Wolf Ridge Wind,EIA_58080,Wind,operating,,112.5,North,Cooke,F,35.6,66.7,40,0,True,58080,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Pattern Panhandle Wind LLC,EIA_58242,Wind,operating,,218.0,Pan,Carson,F,35.6,66.7,40,0,True,58242,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Goldthwaite Wind Energy Facility,EIA_58321,Wind,operating,,150.0,North,Mills,F,35.6,66.7,40,0,True,58321,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Blue Summit Wind LLC,EIA_58372,Wind,operating,,135.4,North,Wilbarger,F,35.6,66.7,40,0,True,58372,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+"Bryan Solar, LLC",EIA_58488,Solar,operating,,10.0,West,Presidio,D,53.3,100.0,60,0,True,58488,False,False,False,medium,,,Registry; Solar Forecast
+OCI Alamo Solar I Hybrid,EIA_58537,Solar,operating,,40.7,South,Bexar,D,53.3,100.0,60,0,True,58537,False,False,False,high,,,Registry; Solar Forecast
+"Grandview Wind Farm, LLC",EIA_58596,Wind,operating,,211.2,Pan,Carson,F,35.6,66.7,40,0,True,58596,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Patriot Wind Farm,EIA_58614,Wind,operating,,226.1,South,Nueces,F,35.6,66.7,40,0,True,58614,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Route 66 Wind Plant,EIA_58681,Wind,operating,,150.0,Pan,Carson,F,35.6,66.7,40,0,True,58681,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Barilla Solar,EIA_58710,Solar,operating,,30.2,West,Pecos,D,53.3,100.0,60,0,True,58710,False,False,False,high,,,Registry; Solar Forecast
+"OCI Alamo 2, LLC",EIA_58716,Solar,operating,,4.4,South,Bexar,D,53.3,100.0,60,0,True,58716,False,False,False,high,,,Registry; Solar Forecast
+"OCI Alamo 4, LLC",EIA_58717,Solar,operating,,39.6,West,Kinney,D,53.3,100.0,60,0,True,58717,False,False,False,high,,,Registry; Solar Forecast
+Pattern Panhandle Wind 2 LLC,EIA_58720,Wind,operating,,181.7,Pan,Carson,F,35.6,66.7,40,0,True,58720,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Miami Wind Energy Center,EIA_58765,Wind,operating,,288.6,Pan,Roberts,F,35.6,66.7,40,0,True,58765,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Wake Wind Energy Center,EIA_58766,Wind,operating,,443.4,West,Crosby,C,68.9,66.7,40,100,True,58766,False,True,True,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; Plant Value
+Longhorn Wind,EIA_58772,Wind,operating,,200.0,Pan,Briscoe,F,35.6,66.7,40,0,True,58772,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+TX Hereford Wind,EIA_58773,Wind,operating,,200.0,Pan,Deaf Smith,F,35.6,66.7,40,0,True,58773,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Spinning Spur Wind II,EIA_58774,Wind,operating,,161.0,Pan,Oldham,F,35.6,66.7,40,0,True,58774,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Spinning Spur Wind III,EIA_58775,Wind,operating,,194.0,Pan,Oldham,F,35.6,66.7,40,0,True,58775,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Keechi Wind,EIA_58838,Wind,operating,,110.0,North,Jack,F,35.6,66.7,40,0,True,58838,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Mariah del Norte,EIA_59005,Wind,operating,,230.4,Pan,Parmer,F,35.6,66.7,40,0,True,59005,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Shannon Wind,EIA_59034,Wind,operating,,204.0,North,Clay,F,35.6,66.7,40,0,True,59034,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Stella Wind Farm,STELLA_UNIT1,Wind,operating,,201.0,South,Kenedy,D,48.9,66.7,80,0,True,59063,True,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; SCED ETL
+Bruennings Breeze Wind Farm,EIA_59066,Wind,operating,,228.0,South,Willacy,F,35.6,66.7,40,0,True,59066,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+"Colbeck's Corner, LLC",EIA_59068,Wind,operating,,200.0,Pan,Carson,F,35.6,66.7,40,0,True,59068,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Cameron Wind 1 LLC,CAMWIND_ESR1,Wind,operating,,165.0,South,Cameron,D,48.9,66.7,80,0,True,59118,True,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; SCED ETL
+Chapman Ranch Wind I,EIA_59193,Wind,operating,,236.0,South,Nueces,F,35.6,66.7,40,0,True,59193,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+OCI Alamo 3 LLC,EIA_59204,Solar,operating,,5.5,South,Bexar,D,53.3,100.0,60,0,True,59204,False,False,False,high,,,Registry; Solar Forecast
+OCI Alamo 5 LLC,EIA_59205,Solar,operating,,100.0,South,Uvalde,D,53.3,100.0,60,0,True,59205,False,False,False,high,,,Registry; Solar Forecast
+Alamo 6,EIA_59206,Solar,operating,,105.0,West,Pecos,D,53.3,100.0,60,0,True,59206,False,False,False,high,,,Registry; Solar Forecast
+OCI Alamo 7 LLC,EIA_59207,Solar,operating,,100.0,North,Haskell,D,53.3,100.0,60,0,True,59207,False,False,False,medium,,,Registry; Solar Forecast
+Windthorst-2,EIA_59238,Wind,operating,,67.6,North,Archer,F,35.6,66.7,40,0,True,59238,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Fluvanna,FLUVANNA_UNIT1,Wind,operating,,155.4,West,Scurry,D,48.9,66.7,80,0,True,59245,True,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; SCED ETL
+Goodnight,GOODNIT1_UNIT1,Wind,operating,,265.5,Pan,Armstrong,D,48.9,66.7,80,0,True,59246,True,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; SCED ETL
+Los Vientos Windpower III,EIA_59320,Wind,operating,,200.0,South,Starr,F,35.6,66.7,40,0,True,59320,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Los Vientos Windpower IV,EIA_59321,Wind,operating,,200.0,South,Starr,F,35.6,66.7,40,0,True,59321,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Mesquite Creek Wind,WH_WIND_UNIT1,Wind,operating,,211.2,West,Dawson,B,82.2,66.7,80,100,True,59332,True,True,True,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; SCED ETL; Plant Value
+South Plains Wind Phase I,EIA_59384,Wind,operating,,200.0,West,Floyd,F,35.6,66.7,40,0,True,59384,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Logans Gap Wind LLC,EIA_59442,Wind,operating,,200.1,North,Comanche,F,35.6,66.7,40,0,True,59442,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+TX Jumbo Road Wind,EIA_59621,Wind,operating,,299.7,Pan,Deaf Smith,F,35.6,66.7,40,0,True,59621,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Sendero,EIA_59654,Wind,operating,,78.0,South,Jim Hogg,F,35.6,66.7,40,0,True,59654,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+"San Roman Wind I, LLC",EIA_59712,Wind,operating,,95.3,South,Cameron,F,35.6,66.7,40,0,True,59712,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Green Pastures Wind I,EIA_59732,Wind,operating,,150.0,North,Baylor,F,35.6,66.7,40,0,True,59732,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Green Pastures Wind II,EIA_59733,Wind,operating,,150.0,North,Knox,F,35.6,66.7,40,0,True,59733,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Briscoe Wind Farm,EIA_59734,Wind,operating,,150.0,Pan,Briscoe,F,35.6,66.7,40,0,True,59734,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Rattlesnake Den,EIA_59943,Wind,operating,,207.2,West,Glasscock,F,35.6,66.7,40,0,True,59943,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Bearkat,EIA_59972,Wind,operating,,300.1,West,Glasscock,C,68.9,66.7,40,100,True,59972,False,True,True,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; Plant Value
+RE Roserock,EIA_59994,Solar,operating,,160.0,West,Pecos,D,53.3,100.0,60,0,True,59994,False,False,False,high,,,Registry; Solar Forecast
+Buckthorn Westex,WAYMARK_UNIT1,Solar,operating,,154.0,West,Pecos,D,53.3,80.0,80,0,True,60044,True,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; SCED ETL
+Los Vientos V Wind Power,EIA_60059,Wind,operating,,110.0,South,Starr,F,35.6,66.7,40,0,True,60059,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+South Plains II,EIA_60087,Wind,operating,,300.0,West,Floyd,C,68.9,66.7,40,100,True,60087,False,True,True,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; Plant Value
+"Javelina Wind Energy, LLC",EIA_60104,Wind,operating,,249.7,South,Webb,F,35.6,66.7,40,0,True,60104,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Castle Gap Solar Hybrid,EIA_60123,Solar,operating,,180.0,West,Upton,D,53.3,100.0,60,0,True,60123,False,False,False,high,,,Registry; Solar Forecast
+Cotton Plains Wind Farm,EIA_60210,Wind,operating,,50.4,West,Floyd,F,35.6,66.7,40,0,True,60210,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Rocksprings,EIA_60217,Wind,operating,,149.3,West,Val Verde,F,35.6,66.7,40,0,True,60217,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+"Canyon Wind Project, LLC",EIA_60271,Wind,operating,,308.8,West,Scurry,C,68.9,66.7,40,100,True,60271,False,True,True,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; Plant Value
+Electra Wind Farm,EIA_60338,Wind,operating,,230.0,North,Wilbarger,F,35.6,66.7,40,0,True,60338,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Horse Creek Wind Farm,EIA_60339,Wind,operating,,230.0,North,Haskell,F,35.6,66.7,40,0,True,60339,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Old Settler Wind,EIA_60366,Wind,operating,,151.2,West,Floyd,F,35.6,66.7,40,0,True,60366,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Lamesa Solar,EIA_60372,Solar,operating,,202.0,West,Dawson,D,53.3,100.0,60,0,True,60372,False,False,False,high,,,Registry; Solar Forecast
+CoServ Community Solar Station,EIA_60427,Solar,operating,,2.0,North,Denton,D,53.3,100.0,60,0,True,60427,False,False,False,high,,,Registry; Solar Forecast
+East Pecos Solar,EIA_60436,Solar,operating,,118.5,West,Pecos,D,53.3,100.0,60,0,True,60436,False,False,False,high,,,Registry; Solar Forecast
+CPS 1 Community Solar,EIA_60472,Solar,operating,,1.0,South,Bexar,D,53.3,100.0,60,0,True,60472,False,False,False,medium,,,Registry; Solar Forecast
+"Tyler Bluff Wind Project, LLC",EIA_60502,Wind,operating,,125.6,North,Cooke,F,35.6,66.7,40,0,True,60502,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Upton County Solar,EIA_60581,Solar,operating,,150.0,West,Upton,D,53.3,100.0,60,0,True,60581,False,False,False,medium,,,Registry; Solar Forecast
+"Javelina Wind Energy II, LLC",EIA_60645,Wind,operating,,200.0,South,Webb,F,35.6,66.7,40,0,True,60645,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+"Salt Fork Wind Project, LLC",EIA_60657,Wind,operating,,174.0,Pan,Donley,F,35.6,66.7,40,0,True,60657,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Pearl Solar,EIA_60682,Solar,operating,,50.0,West,Pecos,D,53.3,100.0,60,0,True,60682,False,False,False,high,,,Registry; Solar Forecast
+"Rattlesnake Power, LLC",EIA_60743,Wind,operating,,160.0,North,McCulloch,F,35.6,66.7,40,0,True,60743,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Phantom Solar,EIA_60774,Solar,operating,,15.4,North,Bell,D,53.3,100.0,60,0,True,60774,False,False,False,high,,,Registry; Solar Forecast
+Bluebell Solar,EIA_60789,Solar,operating,,30.0,West,Sterling,D,53.3,100.0,60,0,True,60789,False,False,False,high,,,Registry; Solar Forecast
+Astra Wind Farm,EIA_60856,Wind,operating,,163.0,Pan,Randall,F,35.6,66.7,40,0,True,60856,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Willow Springs Wind Farm,EIA_60901,Wind,operating,,250.0,North,Haskell,F,35.6,66.7,40,0,True,60901,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Dermott Wind,EIA_60902,Wind,operating,,253.0,West,Scurry,F,35.6,66.7,40,0,True,60902,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Buckthorn Wind,EIA_60983,Wind,operating,,100.5,North,Erath,F,35.6,66.7,40,0,True,60983,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Santa Rita Wind Energy,EIA_60987,Wind,operating,,300.0,West,Reagan,C,68.9,66.7,40,100,True,60987,False,True,True,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; Plant Value
+SolaireHolman Solar Project,EIA_60989,Solar,operating,,50.0,West,Brewster,D,53.3,100.0,60,0,True,60989,False,False,False,high,,,Registry; Solar Forecast
+Cactus Flats Wind Energy Project,EIA_61001,Wind,operating,,148.4,West,Concho,F,35.6,66.7,40,0,True,61001,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Heart of Texas Wind Project,EIA_61032,Wind,operating,,180.0,North,McCulloch,F,35.6,66.7,40,0,True,61032,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Bandera Electric Coop PV,EIA_61205,Solar,operating,,1.5,North,Real,D,53.3,100.0,60,0,True,61205,False,False,False,high,,,Registry; Solar Forecast
+Flat Top Wind I,EIA_61212,Wind,operating,,200.0,North,Mills,F,35.6,66.7,40,0,True,61212,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+IKEA Grand Prairie Rooftop PV System,EIA_61309,Solar,operating,,1.2,North,Dallas,D,40.0,80.0,40,0,True,61309,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Karankawa Wind LLC,KARAKAW1_UNIT1,Wind,operating,,307.1,South,San Patricio,B,82.2,66.7,80,100,True,61343,True,True,True,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; SCED ETL; Plant Value
+RE Maplewood,EIA_61346,Solar,operating,,550.0,West,Pecos,B,86.7,100.0,60,100,True,61346,False,True,True,high,,,Registry; Solar Forecast; Plant Value
+Midway Solar - TX,EIA_61368,Solar,operating,,182.0,West,Pecos,D,53.3,100.0,60,0,True,61368,False,False,False,high,,,Registry; Solar Forecast
+Walnut Springs Solar,EIA_61370,Solar,operating,,5.0,North,Bosque,D,53.3,100.0,60,0,True,61370,False,False,False,high,,,Registry; Solar Forecast
+Foard City Wind,EIA_61402,Wind,operating,,352.8,North,Foard,C,68.9,66.7,40,100,True,61402,False,True,True,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; Plant Value
+Highway 56 Solar,EIA_61409,Solar,operating,,5.3,North,Grayson,D,53.3,100.0,60,0,True,61409,False,False,False,high,,,Registry; Solar Forecast
+Whitesboro Solar,EIA_61410,Solar,operating,,5.0,North,Grayson,D,53.3,100.0,60,0,True,61410,False,False,False,high,,,Registry; Solar Forecast
+Whitesboro Solar II,EIA_61411,Solar,operating,,5.0,North,Grayson,D,53.3,100.0,60,0,True,61411,False,False,False,high,,,Registry; Solar Forecast
+Gopher Creek Wind Farm,GOPHER_UNIT1,Wind,operating,,158.0,West,Borden,D,48.9,66.7,80,0,True,61417,True,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; SCED ETL
+E-Volve Energy Holdings LLC,EIA_61493,Solar,operating,,1.2,Houston,Austin,D,53.3,100.0,60,0,True,61493,False,False,False,high,,,Registry; Solar Forecast
+Marlin Solar,EIA_61513,Solar,operating,,5.3,North,Limestone,D,53.3,100.0,60,0,True,61513,False,False,False,high,,,Registry; Solar Forecast
+North Gainesville Solar,EIA_61514,Solar,operating,,5.2,North,Cooke,D,53.3,100.0,60,0,True,61514,False,False,False,high,,,Registry; Solar Forecast
+Whitewright Solar,EIA_61524,Solar,operating,,10.0,North,Fannin,D,53.3,100.0,60,0,True,61524,False,False,False,high,,,Registry; Solar Forecast
+Leon Solar,EIA_61532,Solar,operating,,10.0,North,Hunt,D,53.3,100.0,60,0,True,61532,False,False,False,high,,,Registry; Solar Forecast
+West Moore Solar II,EIA_61625,Solar,operating,,5.0,North,Grayson,D,53.3,100.0,60,0,True,61625,False,False,False,high,,,Registry; Solar Forecast
+Lamesa II,EIA_61697,Solar,operating,,50.0,West,Dawson,D,53.3,100.0,60,0,True,61697,False,False,False,high,,,Registry; Solar Forecast
+PowerFin Kingsbery,EIA_61700,Solar,operating,,2.6,North,Travis,D,53.3,100.0,60,0,True,61700,False,False,False,high,,,Registry; Solar Forecast
+"Palmas Wind, LLC",PALMWIND_UNIT1,Wind,operating,,144.9,South,Cameron,D,48.9,66.7,80,0,True,61773,True,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; SCED ETL
+"Midway Wind, LLC",MIDWIND_UNIT1,Wind,operating,,162.9,South,San Patricio,D,48.9,66.7,80,0,True,61776,True,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; SCED ETL
+Live Oak Wind Project,EIA_61782,Wind,operating,,199.5,West,Schleicher,F,35.6,66.7,40,0,True,61782,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Chisum,EIA_61810,Solar,operating,,10.0,North,Lamar,D,53.3,100.0,60,0,True,61810,False,False,False,high,,,Registry; Solar Forecast
+Bovine,EIA_61867,Solar,operating,,10.0,Houston,Austin,D,53.3,100.0,60,0,True,61867,False,False,False,high,,,Registry; Solar Forecast
+Bronson,EIA_61868,Solar,operating,,10.0,South,Fort Bend,D,53.3,100.0,60,0,True,61868,False,False,False,high,,,Registry; Solar Forecast
+Sterling Solar (TX),EIA_61871,Solar,operating,,10.0,North,Hunt,D,53.3,100.0,60,0,True,61871,False,False,False,high,,,Registry; Solar Forecast
+Lampwick,EIA_61872,Solar,operating,,7.5,North,Menard,D,53.3,100.0,60,0,True,61872,False,False,False,high,,,Registry; Solar Forecast
+Yellow Jacket,EIA_61873,Solar,operating,,5.0,North,Bosque,D,53.3,100.0,60,0,True,61873,False,False,False,high,,,Registry; Solar Forecast
+Eddy II,EIA_61874,Solar,operating,,10.0,North,McLennan,D,53.3,100.0,60,0,True,61874,False,False,False,high,,,Registry; Solar Forecast
+Cascade Solar (TX),EIA_61875,Solar,operating,,10.0,South,Wharton,D,53.3,100.0,60,0,True,61875,False,False,False,high,,,Registry; Solar Forecast
+Toyota HQ Plan,EIA_61895,Solar,operating,,7.7,North,Collin,D,53.3,100.0,60,0,True,61895,False,False,False,high,,,Registry; Solar Forecast
+Phoebe Solar,PHOEBE_UNIT1,Solar,operating,,250.0,West,Winkler,C,66.7,100.0,100,0,True,61906,True,False,False,high,,,Registry; Solar Forecast; SCED ETL
+Galloway 1 Solar Farm,GALLOWAY_SOLAR1,Solar,operating,,250.0,North,Concho,C,66.7,100.0,100,0,True,61920,True,False,False,medium,,,Registry; Solar Forecast; SCED ETL
+Tahoka Wind,TAHOKA_UNIT_1,Wind,operating,,300.0,West,Lynn,B,82.2,66.7,80,100,True,61921,True,True,True,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; SCED ETL; Plant Value
+Holstein 1 Solar Farm,HOLSTEIN_SOLAR1,Solar,operating,,200.0,West,Nolan,C,66.7,100.0,100,0,True,61962,True,False,False,high,,,Registry; Solar Forecast; SCED ETL
+"Torrecillas Wind Energy, LLC",TORR_UNIT1_25,Wind,operating,,300.0,South,Webb,B,82.2,66.7,80,100,True,61969,True,True,True,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; SCED ETL; Plant Value
+Blue Summit II Wind,EIA_61970,Wind,operating,,99.4,North,Wilbarger,F,35.6,66.7,40,0,True,61970,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Santa Rita East,EIA_62038,Wind,operating,,302.4,West,Irion,C,68.9,66.7,40,100,True,62038,False,True,True,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; Plant Value
+Rambler,RAMBLER_UNIT1,Solar,operating,,200.0,West,Tom Green,C,63.3,90.0,100,0,True,62141,True,False,False,medium,,tracking_type,Registry; Solar Forecast; SCED ETL
+Amadeus Wind Farm,AMADEUS1_UNIT1,Wind,operating,,250.0,West,Fisher,D,48.9,66.7,80,0,True,62142,True,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; SCED ETL
+IKEA Live Oak Rooftop PV System,EIA_62152,Solar,operating,,1.7,South,Bexar,D,53.3,100.0,60,0,True,62152,False,False,False,medium,,,Registry; Solar Forecast
+Reloj del Sol Wind Farm,RELOJ_UNIT1,Wind,operating,,209.4,South,Zapata,D,48.9,66.7,80,0,True,62207,True,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; SCED ETL
+"Seymour Hills Wind Project, LLC",EIA_62227,Wind,operating,,30.2,North,Baylor,F,35.6,66.7,40,0,True,62227,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Misae Solar,MISAE_UNIT1,Solar,operating,,240.0,Pan,Childress,C,66.7,100.0,100,0,True,62249,True,False,False,medium,,,Registry; Solar Forecast; SCED ETL
+Mesteno,MESTENO_UNIT_1,Wind,operating,,201.6,South,Starr,D,48.9,66.7,80,0,True,62258,True,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; SCED ETL
+Ranchero Wind Farm LLC,RANCHERO_UNIT1,Wind,operating,,300.0,West,Crockett,B,82.2,66.7,80,100,True,62259,True,True,True,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; SCED ETL; Plant Value
+Lockett Windfarm,LOCKETT_UNIT1,Wind,operating,,183.8,North,Wilbarger,D,48.9,66.7,80,0,True,62356,True,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; SCED ETL
+Griffin Trail Wind,GRIF_TRL_UNIT1,Wind,operating,,225.6,North,Knox,B,82.2,66.7,80,100,True,62411,True,True,True,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; SCED ETL; Plant Value
+West of the Pecos Solar,EIA_62415,Solar,operating,,100.0,West,Reeves,D,40.0,80.0,40,0,True,62415,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Cranell Wind Farm LLC,EIA_62416,Wind,operating,,220.0,South,Refugio,F,35.6,66.7,40,0,True,62416,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Peyton Creek Wind Farm LLC,EIA_62417,Wind,operating,,151.2,South,Matagorda,F,35.6,66.7,40,0,True,62417,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Lapetus,LAPETUS_UNIT_1,Solar,operating,,100.0,West,Andrews,C,66.7,100.0,100,0,True,62448,True,False,False,high,,,Registry; Solar Forecast; SCED ETL
+Taygete Energy Project LLC,TAYGETE2_UNIT1,Solar,operating,,255.0,West,Pecos,C,66.7,100.0,100,0,True,62483,True,False,False,medium,,,Registry; Solar Forecast; SCED ETL
+G.S.E. One LLC,EIA_62505,Solar,operating,,83.0,North,Fannin,D,53.3,100.0,60,0,True,62505,False,False,False,medium,,,Registry; Solar Forecast
+"Roadrunner, LLC Hybrid",EIA_62561,Solar,operating,,400.0,West,Upton,B,86.7,100.0,60,100,True,62561,False,True,True,high,,,Registry; Solar Forecast; Plant Value
+"High Lonesome Wind Power, LLC Hybrid",EIA_62562,Wind,operating,,499.5,West,Upton,C,68.9,66.7,40,100,True,62562,False,True,True,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; Plant Value
+Blue Summit III Wind,EIA_62566,Wind,operating,,200.2,North,Hardeman,F,35.6,66.7,40,0,True,62566,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Mesquite Star,EIA_62587,Wind,operating,,418.9,West,Nolan,C,68.9,66.7,40,100,True,62587,False,True,True,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; Plant Value
+Commerce Solar,EIA_62610,Solar,operating,,5.0,South,Bexar,D,53.3,100.0,60,0,True,62610,False,False,False,high,,,Registry; Solar Forecast
+Hidalgo Wind Farm II,EIA_62618,Wind,operating,,50.4,South,Hidalgo,F,35.6,66.7,40,0,True,62618,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Sage Draw Wind,EIA_62620,Wind,operating,,338.4,West,Lynn,C,68.9,66.7,40,100,True,62620,False,True,True,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; Plant Value
+Jumbo Hill Wind Project,BARROW_UNIT1,Wind,operating,,160.7,West,Andrews,D,48.9,66.7,80,0,True,62630,True,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; SCED ETL
+Wildcat Creek Wind Farm LLC,EIA_62715,Wind,operating,,175.3,North,Cooke,F,35.6,66.7,40,0,True,62715,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Prospero Solar,PROSPERO_UNIT1,Solar,operating,,300.0,West,Andrews,A,100.0,100.0,100,100,True,62755,True,True,True,medium,,,Registry; Solar Forecast; SCED ETL; Plant Value
+El Campo Wind,EIA_62765,Wind,operating,,242.8,North,Knox,F,35.6,66.7,40,0,True,62765,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Coniglio Solar,CONIGLIO_UNIT1,Solar,operating,,123.6,North,Fannin,C,66.7,100.0,100,0,True,62772,True,False,False,high,,,Registry; Solar Forecast; SCED ETL
+"BT Cooke Solar, LLC",RIPPEY_UNIT1,Solar,operating,,59.0,North,Cooke,C,66.7,100.0,100,0,True,62773,True,False,False,high,,,Registry; Solar Forecast; SCED ETL
+Kellam Solar,KELAM_SL_UNIT1,Solar,operating,,59.0,North,Van Zandt,C,66.7,100.0,100,0,True,62774,True,False,False,high,,,Registry; Solar Forecast; SCED ETL
+Blackjack Creek Wind Farm,BLACKJAK_UNIT1,Wind,operating,,239.6,South,Bee,D,48.9,66.7,80,0,True,62783,True,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; SCED ETL
+Greasewood Solar,GREASWOD_UNIT1,Solar,operating,,255.0,West,Pecos,C,66.7,100.0,100,0,True,62804,True,False,False,high,,,Registry; Solar Forecast; SCED ETL
+BMP Wind (TX),EIA_62809,Wind,operating,,340.0,North,Callahan,C,68.9,66.7,40,100,True,62809,False,True,True,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; Plant Value
+ENGIE Long Draw Solar LLC,EIA_62845,Solar,operating,,225.0,West,Borden,D,53.3,100.0,60,0,True,62845,False,False,False,high,,,Registry; Solar Forecast
+Maverick Creek Wind,EIA_62853,Wind,operating,,491.6,North,Concho,C,68.9,66.7,40,100,True,62853,False,True,True,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; Plant Value
+West Raymond Wind Farm LLC,TRUENO_UNIT1,Wind,operating,,239.8,South,Willacy,D,48.9,66.7,80,0,True,62855,True,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; SCED ETL
+"Raymond Wind Farm, LLC",EIA_62909,Wind,operating,,200.2,South,Willacy,F,35.6,66.7,40,0,True,62909,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Oberon IB,EIA_62932,Solar,operating,,30.0,West,Ector,D,53.3,100.0,60,0,True,62932,False,False,False,high,,,Registry; Solar Forecast
+Oberon IA,OBERON_UNIT_1_J01,Solar,operating,,150.0,West,Ector,C,66.7,100.0,100,0,True,62933,True,False,False,high,,,Registry; Solar Forecast; SCED ETL
+Fighting Jays Solar Project,EIA_62945,Solar,operating,,227.5,South,Fort Bend,D,53.3,100.0,60,0,True,62945,False,False,False,high,,,Registry; Solar Forecast
+Griffin Solar,EIA_62953,Solar,operating,,5.0,North,McLennan,D,53.3,100.0,60,0,True,62953,False,False,False,high,,,Registry; Solar Forecast
+Mars Solar,EIA_63027,Solar,operating,,10.0,South,Webb,D,53.3,100.0,60,0,True,63027,False,False,False,high,,,Registry; Solar Forecast
+"Canadian Breaks, LLC",EIA_63030,Wind,operating,,210.1,Pan,Deaf Smith,F,35.6,66.7,40,0,True,63030,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Prairie Hill Wind Project,EIA_63100,Wind,operating,,300.0,North,Limestone,C,68.9,66.7,40,100,True,63100,False,True,True,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; Plant Value
+Las Lomas Wind Project,EIA_63101,Wind,operating,,201.6,South,Zapata,F,35.6,66.7,40,0,True,63101,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+"TPE Whitney Solar, LLC",EIA_63180,Solar,operating,,9.9,North,Bosque,D,40.0,80.0,40,0,True,63180,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Delilah Solar Energy LLC,EIA_63194,Solar,operating,,300.0,North,Red River,C,73.3,80.0,40,100,True,63194,False,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; Plant Value
+Aviator Wind,AVIATOR_UNIT1,Wind,operating,,525.0,West,Coke,B,82.2,66.7,80,100,True,63209,True,True,True,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; SCED ETL; Plant Value
+Samson Solar Energy,EIA_63211,Solar,operating,,250.0,North,Franklin,D,40.0,80.0,40,0,True,63211,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Impact Solar 1,IMPACT_UNIT1,Solar,operating,,198.5,North,Lamar,C,66.7,100.0,100,0,True,63222,True,False,False,medium,,,Registry; Solar Forecast; SCED ETL
+Brightside,BRIGHTSD_UNIT1,Solar,operating,,50.7,South,Bee,D,53.3,80.0,80,0,True,63223,True,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; SCED ETL
+Emerald Grove,EIA_63233,Solar,operating,,108.0,West,Pecos,D,53.3,100.0,60,0,True,63233,False,False,False,high,,,Registry; Solar Forecast
+2W Permian Solar Project Hybrid,EUNICE_PV1,Solar,operating,,420.0,West,Andrews,A,100.0,100.0,100,100,True,63255,True,True,True,medium,,,Registry; Solar Forecast; SCED ETL; Plant Value
+Wagyu,EIA_63273,Solar,operating,,120.0,South,Brazoria,D,53.3,100.0,60,0,True,63273,False,False,False,high,,,Registry; Solar Forecast
+Titan Solar Project,EIA_63320,Solar,operating,,260.0,West,Culberson,D,53.3,100.0,60,0,True,63320,False,False,False,medium,,,Registry; Solar Forecast
+Juno Solar Project,EIA_63328,Solar,operating,,305.6,West,Borden,C,73.3,80.0,40,100,True,63328,False,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; Plant Value
+Aragorn Solar Project,ARAGORN_UNIT1,Solar,operating,,187.2,West,Culberson,C,66.7,100.0,100,0,True,63329,True,False,False,high,,,Registry; Solar Forecast; SCED ETL
+Galloway 2 Solar Farm,EIA_63343,Solar,operating,,110.0,North,Concho,D,53.3,100.0,60,0,True,63343,False,False,False,medium,,,Registry; Solar Forecast
+Bluebell Solar II,EIA_63351,Solar,operating,,115.0,West,Sterling,D,53.3,100.0,60,0,True,63351,False,False,False,high,,,Registry; Solar Forecast
+Oxy Renewable Energy - Goldsmith,EIA_63388,Solar,operating,,16.8,West,Ector,D,53.3,100.0,60,0,True,63388,False,False,False,high,,,Registry; Solar Forecast
+Crane Solar Project,FWLR_SLR_UNIT1,Solar,operating,,150.0,West,Crane,C,66.7,100.0,100,0,True,63519,True,False,False,high,,,Registry; Solar Forecast; SCED ETL
+"La Chalupa, LLC",CHALUPA_UNIT1,Wind,operating,,198.5,South,Cameron,D,48.9,66.7,80,0,True,63624,True,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; SCED ETL
+Coyote Wind LLC,COYOTE_W_UNIT1,Wind,operating,,242.5,West,Scurry,D,48.9,66.7,80,0,True,63655,True,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; SCED ETL
+Helena Wind,EIA_63738,Wind,operating,,268.2,South,Bee,F,35.6,66.7,40,0,True,63738,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Las Majadas Wind Farm,EIA_63739,Wind,operating,,272.6,South,Willacy,F,35.6,66.7,40,0,True,63739,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Elm Branch Solar 1,STRATEGC_UNIT1,Solar,operating,,134.7,North,Ellis,C,66.7,100.0,100,0,True,63764,True,False,False,high,,,Registry; Solar Forecast; SCED ETL
+Briar Creek Solar 1,VISION_UNIT1,Solar,operating,,127.0,North,Navarro,C,66.7,100.0,100,0,True,63769,True,False,False,high,,,Registry; Solar Forecast; SCED ETL
+Ellis Solar LLC,EIA_63797,Solar,operating,,80.0,North,Ellis,D,53.3,100.0,60,0,True,63797,False,False,False,high,,,Registry; Solar Forecast
+Sparta Solar,SPARTA_UNIT1,Solar,operating,,250.0,South,Bee,D,53.3,80.0,80,0,True,63840,True,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; SCED ETL
+Samson Solar Energy III LLC,EIA_63883,Solar,operating,,250.0,North,Lamar,D,53.3,100.0,60,0,True,63883,False,False,False,medium,,,Registry; Solar Forecast
+Lily Solar Hybrid,EIA_63892,Solar,operating,,146.7,North,Kaufman,D,53.3,100.0,60,0,True,63892,False,False,False,high,,,Registry; Solar Forecast
+Azure Sky Solar,AZURE_SOLAR1,Solar,operating,,225.0,North,Haskell,C,66.7,100.0,100,0,True,63905,True,False,False,high,,,Registry; Solar Forecast; SCED ETL
+Fort Bend Solar LLC,EIA_63985,Solar,operating,,240.0,South,Fort Bend,D,53.3,100.0,60,0,True,63985,False,False,False,high,,,Registry; Solar Forecast
+"ANSON Solar Center, LLC",ANSON1_UNIT1,Solar,operating,,200.0,North,Jones,C,66.7,100.0,100,0,True,64026,True,False,False,medium,,,Registry; Solar Forecast; SCED ETL
+Taygete II Energy Project,EIA_64075,Solar,operating,,203.8,West,Pecos,D,53.3,100.0,60,0,True,64075,False,False,False,medium,,,Registry; Solar Forecast
+CatanSolar,EIA_64079,Solar,operating,,10.0,South,Karnes,D,53.3,100.0,60,0,True,64079,False,False,False,high,,,Registry; Solar Forecast
+"Old 300 Solar Center, LLC",EIA_64133,Solar,operating,,430.0,South,Fort Bend,B,86.7,100.0,60,100,True,64133,False,True,True,high,,,Registry; Solar Forecast; Plant Value
+"Western Trail Wind, LLC",EIA_64149,Wind,operating,,366.6,North,Wilbarger,C,68.9,66.7,40,100,True,64149,False,True,True,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; Plant Value
+"Azure Sky Wind Project, LLC Hybrid",EIA_64164,Wind,operating,,350.2,North,Throckmorton,C,68.9,66.7,40,100,True,64164,False,True,True,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; Plant Value
+Priddy Wind Project,PRIDDY_UNIT1,Wind,operating,,302.4,North,Mills,B,82.2,66.7,80,100,True,64165,True,True,True,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; SCED ETL; Plant Value
+Elara Solar,ELARA_SL_UNIT1,Solar,operating,,132.4,South,Frio,C,66.7,100.0,100,0,True,64204,True,False,False,medium,,,Registry; Solar Forecast; SCED ETL
+"Alexis Solar, LLC",EIA_64227,Solar,operating,,10.0,South,Brooks,D,53.3,100.0,60,0,True,64227,False,False,False,high,,,Registry; Solar Forecast
+AP Sunray LLC,EIA_64258,Solar,operating,,203.5,South,Uvalde,D,53.3,100.0,60,0,True,64258,False,False,False,high,,,Registry; Solar Forecast
+BPL Crown Solar LLC,GOLINDA_UNIT1,Solar,operating,,100.0,North,Falls,C,63.3,90.0,100,0,True,64259,True,False,False,high,,tracking_type,Registry; Solar Forecast; SCED ETL
+BPL Sol Solar LLC,EIA_64260,Solar,operating,,100.0,North,Falls,D,50.0,90.0,60,0,True,64260,False,False,False,high,,tracking_type,Registry; Solar Forecast
+Prospero Solar II,EIA_64325,Solar,operating,,250.0,West,Andrews,D,53.3,100.0,60,0,True,64325,False,False,False,medium,,,Registry; Solar Forecast
+Mockingbird Solar Center,BAKE_SLR_UNIT1,Solar,operating,,471.0,North,Lamar,B,86.7,80.0,80,100,True,64347,True,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; SCED ETL; Plant Value
+Niagara Bottling - Seguin,EIA_64389,Solar,operating,,4.9,South,Guadalupe,D,53.3,100.0,60,0,True,64389,False,False,False,high,,,Registry; Solar Forecast
+Brazoria West,EIA_64447,Solar,operating,,200.0,South,Brazoria,D,53.3,100.0,60,0,True,64447,False,False,False,medium,,,Registry; Solar Forecast
+Corazon Energy LLC,CORAZON_UNIT1,Solar,operating,,200.0,South,Webb,C,66.7,100.0,100,0,True,64538,True,False,False,medium,,,Registry; Solar Forecast; SCED ETL
+Ranchland Wind Project II,EIA_64544,Wind,operating,,148.0,North,Callahan,F,35.6,66.7,40,0,True,64544,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Ranchland Wind Project I,EIA_64551,Wind,operating,,114.9,North,Callahan,F,35.6,66.7,40,0,True,64551,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+"El Algodon Alto Wind Farm, LLC",ALGODON_UNIT1,Wind,operating,,200.2,South,San Patricio,D,48.9,66.7,80,0,True,64591,True,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; SCED ETL
+TG East,EIA_64639,Wind,operating,,336.0,North,Knox,C,68.9,66.7,40,100,True,64639,False,True,True,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; Plant Value
+White Mesa Wind,EIA_64710,Wind,operating,,500.6,West,Crockett,C,68.9,66.7,40,100,True,64710,False,True,True,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; Plant Value
+FELPS 1 - Calaveras,EIA_64821,Solar,operating,,1.0,South,Wilson,D,53.3,100.0,60,0,True,64821,False,False,False,high,,,Registry; Solar Forecast
+FELPS 2 - Calaveras,EIA_64823,Solar,operating,,1.0,South,Wilson,D,50.0,90.0,60,0,True,64823,False,False,False,high,,dc_ac_ratio,Registry; Solar Forecast
+FELPS 3 - Floresville South,EIA_64824,Solar,operating,,1.0,South,Wilson,D,53.3,100.0,60,0,True,64824,False,False,False,high,,,Registry; Solar Forecast
+FELPS 4 - Floresville South,EIA_64825,Solar,operating,,1.0,South,Wilson,D,53.3,100.0,60,0,True,64825,False,False,False,high,,,Registry; Solar Forecast
+FELPS 5- Floresville South,EIA_64826,Solar,operating,,1.0,South,Wilson,D,53.3,100.0,60,0,True,64826,False,False,False,high,,,Registry; Solar Forecast
+FELPS 6- Floresville West,EIA_64827,Solar,operating,,1.0,South,Wilson,D,53.3,100.0,60,0,True,64827,False,False,False,high,,,Registry; Solar Forecast
+FELPS 7- Floresville West,EIA_64828,Solar,operating,,1.0,South,Wilson,D,53.3,100.0,60,0,True,64828,False,False,False,high,,,Registry; Solar Forecast
+"IP Radian, LLC",RADN_SLR_UNIT1,Solar,operating,,320.0,North,Brown,A,100.0,100.0,100,100,True,64859,True,True,True,medium,,,Registry; Solar Forecast; SCED ETL; Plant Value
+"TPE Erath Solar, LLC",EIA_64892,Solar,operating,,9.9,North,Erath,D,53.3,100.0,60,0,True,64892,False,False,False,high,,,Registry; Solar Forecast
+Aktina Solar,EIA_64927,Solar,operating,,500.0,South,Wharton,B,86.7,100.0,60,100,True,64927,False,True,True,medium,,,Registry; Solar Forecast; Plant Value
+Bernard Creek Solar,EIA_65034,Solar,operating,,230.0,South,Wharton,D,53.3,100.0,60,0,True,65034,False,False,False,high,,,Registry; Solar Forecast
+Hubbard Wind,EIA_65048,Wind,operating,,300.0,North,Limestone,C,68.9,66.7,40,100,True,65048,False,True,True,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; Plant Value
+Austin TX GigaFactory,EIA_65070,Solar,operating,,8.7,North,Travis,D,53.3,100.0,60,0,True,65070,False,False,False,high,,,Registry; Solar Forecast
+Lacy Creek Wind Energy Center,LACY_CRK_UNIT1,Wind,operating,,301.3,West,Sterling,B,82.2,66.7,80,100,True,65162,True,True,True,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; SCED ETL; Plant Value
+Noble Solar,NOBLESLR_SOLAR1,Solar,operating,,275.0,North,Denton,D,53.3,80.0,80,0,True,65271,True,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; SCED ETL
+Sun Valley Solar Project,MLB_SLR_SOLAR1,Solar,operating,,250.0,North,Hill,C,66.7,100.0,100,0,True,65303,True,False,False,medium,,,Registry; Solar Forecast; SCED ETL
+Limestone Wind Project,EIA_65306,Wind,operating,,299.2,North,Navarro,F,35.6,66.7,40,0,True,65306,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Horizon Solar,HRZN_SLR_UNIT1,Solar,operating,,200.0,South,Frio,C,66.7,100.0,100,0,True,65308,True,False,False,high,,,Registry; Solar Forecast; SCED ETL
+Shakes Solar,EIA_65333,Solar,operating,,200.0,South,Dimmit,D,40.0,80.0,40,0,True,65333,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Appaloosa Run Wind,APPALOSA_UNIT1,Wind,operating,,171.8,West,Upton,D,48.9,66.7,80,0,True,65335,True,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; SCED ETL
+"Longbow Solar, LLC",EIA_65521,Solar,operating,,78.1,South,Brazoria,D,50.0,90.0,60,0,True,65521,False,False,False,high,,dc_ac_ratio,Registry; Solar Forecast
+Inertia Wind Project,INRT_W_UNIT1,Wind,operating,,301.0,North,Haskell,B,82.2,66.7,80,100,True,65546,True,True,True,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; SCED ETL; Plant Value
+Verizon Hidden Ridge Solar Project,EIA_65571,Solar,operating,,2.9,North,Dallas,D,53.3,100.0,60,0,True,65571,False,False,False,high,,,Registry; Solar Forecast
+Lumina II Solar Project,EIA_65644,Solar,operating,,326.6,West,Scurry,C,73.3,80.0,40,100,True,65644,False,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; Plant Value
+Lumina Solar Project,EIA_65645,Solar,operating,,326.6,West,Scurry,B,86.7,100.0,60,100,True,65645,False,True,True,medium,,,Registry; Solar Forecast; Plant Value
+Texas Solar Nova 1,EIA_65654,Solar,operating,,252.0,West,Kent,D,50.0,90.0,60,0,True,65654,False,False,False,high,,dc_ac_ratio,Registry; Solar Forecast
+Texas Solar Nova 2,EIA_65660,Solar,operating,,200.0,West,Kent,D,50.0,90.0,60,0,True,65660,False,False,False,high,,dc_ac_ratio,Registry; Solar Forecast
+Nebula Solar,NEBULA_UNIT1,Solar,operating,,135.0,South,Cameron,C,66.7,100.0,100,0,True,65661,True,False,False,high,,,Registry; Solar Forecast; SCED ETL
+Vancourt Solar Interconnections,VANCOURT_UNIT1,Solar,operating,,45.0,South,Cameron,C,66.7,100.0,100,0,True,65662,True,False,False,high,,,Registry; Solar Forecast; SCED ETL
+Waco Solar,EIA_65762,Solar,operating,,400.0,North,Limestone,B,86.7,100.0,60,100,True,65762,False,True,True,high,,,Registry; Solar Forecast; Plant Value
+Young Wind,EIA_65763,Wind,operating,,500.0,North,Young,C,68.9,66.7,40,100,True,65763,False,True,True,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; Plant Value
+Castle Gap Wind,AGUAYO_UNIT1,Wind,operating,,196.8,North,Mills,D,48.9,66.7,80,0,True,65790,True,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; SCED ETL
+"Concho Valley Solar, LLC",RATLIFF_SOLAR1,Solar,operating,,172.8,West,Tom Green,D,53.3,80.0,80,0,True,65793,True,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; SCED ETL
+"Porter Solar, LLC (TX)",EIA_65937,Solar,operating,,245.0,North,Denton,D,53.3,100.0,60,0,True,65937,False,False,False,high,,,Registry; Solar Forecast
+Tres Bahias,EIA_65947,Solar,operating,,196.3,South,Calhoun,D,53.3,100.0,60,0,True,65947,False,False,False,high,,,Registry; Solar Forecast
+Starr Solar Ranch,EIA_65975,Solar,operating,,136.0,South,Starr,D,53.3,100.0,60,0,True,65975,False,False,False,high,,,Registry; Solar Forecast
+Second Division Solar,EIA_65981,Solar,operating,,100.0,South,Brazoria,D,53.3,100.0,60,0,True,65981,False,False,False,high,,,Registry; Solar Forecast
+Brazoria County Solar Project (Danciger),EIA_66046,Solar,operating,,200.0,South,Brazoria,D,53.3,100.0,60,0,True,66046,False,False,False,high,,,Registry; Solar Forecast
+Zier Solar,ZIER_SLR_PV1,Solar,operating,,160.0,West,Kinney,C,66.7,100.0,100,0,True,66137,True,False,False,medium,,,Registry; Solar Forecast; SCED ETL
+Red Tailed Hawk Solar LLC,EIA_66157,Solar,operating,,350.0,South,Wharton,B,86.7,100.0,60,100,True,66157,False,True,True,medium,,,Registry; Solar Forecast; Plant Value
+Cutlass Solar II,EIA_66262,Solar,operating,,202.8,South,Fort Bend,D,53.3,100.0,60,0,True,66262,False,False,False,medium,,,Registry; Solar Forecast
+Cutlass Solar 1 LLC,EIA_66310,Solar,operating,,110.9,South,Fort Bend,D,53.3,100.0,60,0,True,66310,False,False,False,high,,,Registry; Solar Forecast
+"King Creek Wind Farm 1, LLC",EIA_66321,Wind,operating,,184.0,North,Haskell,F,35.6,66.7,40,0,True,66321,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+"King Creek Wind Farm 2, LLC",EIA_66323,Wind,operating,,209.0,North,Throckmorton,F,35.6,66.7,40,0,True,66323,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+BPL Files Solar,FILESSLR_PV1,Solar,operating,,157.5,North,Hill,C,66.7,100.0,100,0,True,66324,True,False,False,high,,,Registry; Solar Forecast; SCED ETL
+Grizzly Ridge Solar,GRIZZLY_SOLAR1,Solar,operating,,100.0,North,Hamilton,C,66.7,100.0,100,0,True,66410,True,False,False,high,,,Registry; Solar Forecast; SCED ETL
+Five Wells Solar Center - Hybrid,EIA_66420,Solar,operating,,355.4,North,Bell,B,86.7,100.0,60,100,True,66420,False,True,True,medium,,,Registry; Solar Forecast; Plant Value
+Eiffel Solar Project,EIA_66471,Solar,operating,,240.0,North,Lamar,D,53.3,100.0,60,0,True,66471,False,False,False,high,,,Registry; Solar Forecast
+Pioneer Hutt Wind Energy,PIONR_DJ_UNIT1,Wind,operating,,140.0,West,Midland,D,48.9,66.7,80,0,True,66531,True,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; SCED ETL
+Shamrock Wind,SHAMROCK_UNIT1,Wind,operating,,223.9,West,Crockett,D,48.9,66.7,80,0,True,66540,True,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; SCED ETL
+BKV-BPP Ponder Solar,EIA_66571,Solar,operating,,2.5,North,Denton,D,53.3,100.0,60,0,True,66571,False,False,False,high,,,Registry; Solar Forecast
+Highpeak Solar 1,EIA_66572,Solar,operating,,10.0,West,Howard,D,53.3,100.0,60,0,True,66572,False,False,False,high,,,Registry; Solar Forecast
+"Fence Post Solar Hybrid Project, LLC",FENCESLR_SOLAR1,Solar,operating,,236.0,North,Navarro,C,66.7,100.0,100,0,True,66801,True,False,False,medium,,,Registry; Solar Forecast; SCED ETL
+Orion III Solar Project,EIA_66821,Solar,operating,,250.0,North,Milam,D,53.3,100.0,60,0,True,66821,False,False,False,high,,,Registry; Solar Forecast
+Orion I Solar Project,EIA_66859,Solar,operating,,200.0,North,Milam,D,53.3,100.0,60,0,True,66859,False,False,False,high,,,Registry; Solar Forecast
+Hayhurst Texas Solar,EIA_66880,Solar,operating,,24.8,West,Culberson,D,53.3,100.0,60,0,True,66880,False,False,False,high,,,Registry; Solar Forecast
+Roadrunner Wind Farm,RRC_WIND_UNIT1,Wind,operating,,256.0,North,Eastland,D,48.9,66.7,80,0,True,66902,True,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; SCED ETL
+Orion II Solar Project,EIA_66941,Solar,operating,,250.0,North,Milam,D,53.3,100.0,60,0,True,66941,False,False,False,high,,,Registry; Solar Forecast
+Greasewood II LLC,EIA_67006,Solar,operating,,306.0,West,Pecos,C,73.3,80.0,40,100,True,67006,False,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; Plant Value
+"Copperhead Solar, LLC",EIA_67019,Solar,operating,,150.0,North,McLennan,D,53.3,100.0,60,0,True,67019,False,False,False,high,,,Registry; Solar Forecast
+Dileo Solar,EIA_67023,Solar,operating,,71.4,North,Hill,D,53.3,100.0,60,0,True,67023,False,False,False,high,,,Registry; Solar Forecast
+Pitts Dudik Solar,EIA_67024,Solar,operating,,49.6,North,Hill,D,53.3,100.0,60,0,True,67024,False,False,False,high,,,Registry; Solar Forecast
+Ganado Solar,EIA_67284,Solar,operating,,150.5,South,Jackson,D,53.3,100.0,60,0,True,67284,False,False,False,high,,,Registry; Solar Forecast
+Hopkins Energy LLC,STAM_SLR_SOLAR1,Solar,operating,,250.0,North,Hopkins,C,66.7,100.0,100,0,True,67424,True,False,False,high,,,Registry; Solar Forecast; SCED ETL
+"Century Oak Wind Project, LLC",ANCHOR_WIND1,Wind,operating,,151.5,North,Eastland,B,82.2,66.7,80,100,True,67425,True,True,True,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; SCED ETL; Plant Value
+BT Signal Ranch,EIA_67849,Solar,operating,,50.0,North,Hunt,D,53.3,100.0,60,0,True,67849,False,False,False,high,,,Registry; Solar Forecast
+Peacock Energy Project,EIA_68474,Solar,operating,,150.0,South,San Patricio,D,53.3,100.0,60,0,True,68474,False,False,False,high,,,Registry; Solar Forecast
+Corpus Refinery,EIA_50026,Solar,operating,,27.5,South,Nueces,D,40.0,80.0,40,0,True,50026,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Changing Winds,EIA_59243,Wind,operating,,288.0,Pan,Castro,F,35.6,66.7,40,0,True,59243,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Easter,EIA_59971,Wind,operating,,150.0,Pan,Castro,F,35.6,66.7,40,0,True,59971,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+"Cone Renewable Energy Project, LLC",EIA_60272,Wind,operating,,150.0,West,Crosby,F,35.6,66.7,40,0,True,60272,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+"Crosby County Wind Farm, LLC",EIA_60273,Wind,operating,,150.0,West,Crosby,F,35.6,66.7,40,0,True,60273,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Water Valley Wind Energy,EIA_62846,Wind,operating,,180.0,West,Tom Green,F,35.6,66.7,40,0,True,62846,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Alira,EIA_63193,Solar,operating,,222.8,West,Andrews,D,40.0,80.0,40,0,True,63193,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+TREX US Red Holly,EIA_63202,Solar,operating,,250.0,West,Lynn,D,40.0,80.0,40,0,True,63202,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+McCrae Wind Energy II,EIA_63342,Wind,operating,,162.1,West,Glasscock,F,35.6,66.7,40,0,True,63342,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Samson Solar Energy II LLC,EIA_63882,Solar,operating,,200.0,North,Lamar,D,53.3,100.0,60,0,True,63882,False,False,False,medium,,,Registry; Solar Forecast
+Delilah Solar Energy II LLC,EIA_63884,Solar,operating,,310.0,North,Red River,B,86.7,100.0,60,100,True,63884,False,True,True,medium,,,Registry; Solar Forecast; Plant Value
+Forest Grove - Dodd,EIA_64131,Solar,operating,,200.0,North,Henderson,D,40.0,80.0,40,0,True,64131,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Oak Hill - Dry Creek,EIA_64132,Solar,operating,,200.0,North,Rusk,D,40.0,80.0,40,0,True,64132,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+"Big Star Solar, LLC (Hybrid)",EIA_64202,Solar,operating,,200.0,North,Bastrop,D,50.0,90.0,60,0,True,64202,False,False,False,high,,tracking_type,Registry; Solar Forecast
+Hecate Energy Harley Hand Solar LLC,EIA_64234,Solar,operating,,514.0,West,Nolan,C,73.3,80.0,40,100,True,64234,False,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; Plant Value
+7V Solar Ranch,EIA_64239,Solar,operating,,240.0,North,Fayette,D,50.0,90.0,60,0,True,64239,False,False,False,high,,tracking_type,Registry; Solar Forecast
+Armadillo Solar Center,EIA_64349,Solar,operating,,175.0,North,Navarro,D,40.0,80.0,40,0,True,64349,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+"Blue Jay Solar I, LLC",EIA_64672,Solar,operating,,210.0,Houston,Grimes,D,53.3,100.0,60,0,True,64672,False,False,False,high,,,Registry; Solar Forecast
+Pecan Prairie South Solar,EIA_64981,Solar,operating,,130.0,North,Leon,D,40.0,80.0,40,0,True,64981,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Pecan Prairie North Solar,EIA_64999,Solar,operating,,350.0,North,Leon,C,73.3,80.0,40,100,True,64999,False,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; Plant Value
+"Roseland Solar Project, LLC",EIA_65028,Solar,operating,,500.0,North,Falls,B,86.7,100.0,60,100,True,65028,False,True,True,medium,,,Registry; Solar Forecast; Plant Value
+Renegade Solar Project (Dawn),EIA_65310,Solar,operating,,515.0,Pan,Deaf Smith,C,73.3,80.0,40,100,True,65310,False,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; Plant Value
+Noria Hondo Solar (Hybrid),EIA_65344,Solar,operating,,145.0,South,Kleberg,D,40.0,80.0,40,0,True,65344,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Hornet Solar (TX),HRNT_SLR_UNIT1,Solar,operating,,600.0,Pan,Swisher,B,86.7,80.0,80,100,True,65463,True,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; SCED ETL; Plant Value
+"El Sauz Ranch Wind, LLC",EIA_65760,Wind,operating,,301.0,South,Willacy,C,68.9,66.7,40,100,True,65760,False,True,True,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; Plant Value
+Clear Fork Creek Solar and BESS SLF,EIA_65842,Solar,operating,,600.0,South,Wilson,C,73.3,80.0,40,100,True,65842,False,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; Plant Value
+Flag City Solar,EIA_65844,Solar,operating,,167.3,South,Jackson,D,40.0,80.0,40,0,True,65844,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Eldora Energy LLC,EIA_65847,Solar,operating,,200.0,South,Matagorda,D,40.0,80.0,40,0,True,65847,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Oriana Solar LLC,EIA_65849,Solar,operating,,180.0,South,Victoria,D,40.0,80.0,40,0,True,65849,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Hollow Branch Creek 2 Solar and BESS SLF,EIA_65851,Solar,operating,,460.0,North,Madison,C,73.3,80.0,40,100,True,65851,False,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; Plant Value
+Lunis Creek Solar and BESS SLF,EIA_65852,Solar,operating,,617.1,South,Jackson,C,73.3,80.0,40,100,True,65852,False,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; Plant Value
+Middlebrook Creek Solar and BESS,EIA_65853,Solar,operating,,609.1,North,Nacogdoches,C,73.3,80.0,40,100,True,65853,False,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; Plant Value
+Rowdy Creek Solar and BESS,EIA_65854,Solar,operating,,700.0,North,Lamar,C,73.3,80.0,40,100,True,65854,False,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; Plant Value
+Tehuacana Creek 1 Solar and BESS,EIA_65855,Solar,operating,,836.8,North,Navarro,B,86.7,100.0,60,100,True,65855,False,True,True,medium,,,Registry; Solar Forecast; Plant Value
+Orange Grove,EIA_65891,Solar,operating,,131.0,South,Jim Wells,D,40.0,80.0,40,0,True,65891,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+OCI SunRoper,EIA_65893,Solar,operating,,260.0,South,Wharton,D,53.3,100.0,60,0,True,65893,False,False,False,medium,,,Registry; Solar Forecast
+OCI Stillhouse Solar,STLHS_SL_PV1,Solar,operating,,210.0,North,Bell,C,66.7,100.0,100,0,True,65894,True,False,False,medium,,,Registry; Solar Forecast; SCED ETL
+Garcitas Creek Solar,EIA_65973,Solar,operating,,201.9,South,Jackson,D,40.0,80.0,40,0,True,65973,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Peregrine Solar,EIA_65979,Solar,operating,,300.0,South,Goliad,B,83.3,90.0,60,100,True,65979,False,True,True,high,,tracking_type,Registry; Solar Forecast; Plant Value
+Prairie Switch Wind LLC,EIA_66123,Wind,operating,,163.2,South,Wharton,F,35.6,66.7,40,0,True,66123,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Trinity River Solar 1,EIA_66132,Solar,operating,,150.0,Houston,Liberty,D,40.0,80.0,40,0,True,66132,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Cattlemen Solar Park,EIA_66168,Solar,operating,,240.0,North,Milam,D,53.3,100.0,60,0,True,66168,False,False,False,medium,,,Registry; Solar Forecast
+Yaupon Solar Project (Hybrid),EIA_66216,Solar,operating,,200.0,North,Milam,D,53.3,100.0,60,0,True,66216,False,False,False,medium,,,Registry; Solar Forecast
+Uvalde Solar 1,EIA_66306,Solar,operating,,150.0,South,Uvalde,D,53.3,100.0,60,0,True,66306,False,False,False,high,,,Registry; Solar Forecast
+Uvalde Solar 2,EIA_66309,Solar,operating,,300.0,South,Uvalde,B,86.7,100.0,60,100,True,66309,False,True,True,high,,,Registry; Solar Forecast; Plant Value
+Eagle Springs Hybrid,EIA_66341,Solar,operating,,110.1,North,Delta,D,40.0,80.0,40,0,True,66341,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Gaia Hybrid,EIA_66342,Solar,operating,,152.7,North,Navarro,D,40.0,80.0,40,0,True,66342,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+MRG Goody Solar Project Hybrid,EIA_66390,Solar,operating,,171.7,North,Lamar,D,40.0,80.0,40,0,True,66390,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Naduah Solar,EIA_66396,Solar,operating,,102.3,North,Limestone,D,40.0,80.0,40,0,True,66396,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Tokio Solar,EIA_66397,Solar,operating,,170.4,North,McLennan,D,40.0,80.0,40,0,True,66397,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Eytcheson Solar,EIA_66398,Solar,operating,,76.4,North,Navarro,D,40.0,80.0,40,0,True,66398,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+OCI Hillsboro,EIA_66401,Solar,operating,,200.0,North,Hill,D,40.0,80.0,40,0,True,66401,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Despain Solar,EIA_66421,Solar,operating,,236.2,West,Kinney,D,40.0,80.0,40,0,True,66421,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Desert Vine Solar,EIA_66493,Solar,operating,,121.3,South,Zapata,D,40.0,80.0,40,0,True,66493,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+TX Dallas 7750 Dynasty Drive,EIA_66516,Solar,operating,,2.3,North,Dallas,D,40.0,80.0,40,0,True,66516,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+TX Houston 7080 Express Lane,EIA_66517,Solar,operating,,1.9,Houston,Harris,D,50.0,90.0,60,0,True,66517,False,False,False,high,,tracking_type,Registry; Solar Forecast
+TX Pasadena 10585 Red Bluff Road Solar,EIA_66519,Solar,operating,,2.3,Houston,Harris,D,40.0,80.0,40,0,True,66519,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+TX Sunnyvale 367 Long Creek Road Solar,EIA_66520,Solar,operating,,2.0,North,Dallas,D,40.0,80.0,40,0,True,66520,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Jones City 1 Solar,EIA_66559,Solar,operating,,215.0,West,Jones,D,53.3,100.0,60,0,True,66559,False,False,False,medium,,,Registry; Solar Forecast
+"Accalia Point Solar, LLC",EIA_66673,Solar,operating,,190.5,South,Cameron,D,53.3,100.0,60,0,True,66673,False,False,False,medium,,,Registry; Solar Forecast
+"Bright Arrow Solar, LLC",EIA_66688,Solar,operating,,300.0,North,Hopkins,C,73.3,80.0,40,100,True,66688,False,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; Plant Value
+"Briggs Solar, LLC",EIA_66691,Solar,operating,,305.0,North,Haskell,C,73.3,80.0,40,100,True,66691,False,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; Plant Value
+"Holly Branch Solar, LLC",EIA_66692,Solar,operating,,230.0,North,Robertson,D,40.0,80.0,40,0,True,66692,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Ash Creek Solar,EIA_66774,Solar,operating,,408.9,North,Hill,B,86.7,100.0,60,100,True,66774,False,True,True,medium,,,Registry; Solar Forecast; Plant Value
+"GulfStar Power, LLC",EIA_66871,Solar,operating,,451.6,South,Wharton,B,86.7,100.0,60,100,True,66871,False,True,True,medium,,,Registry; Solar Forecast; Plant Value
+"Estonian Solar Project, LLC",EIA_66872,Solar,operating,,204.5,North,Delta,D,40.0,80.0,40,0,True,66872,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Indigo Solar & Storage,EIA_66891,Solar,operating,,150.0,West,Fisher,D,40.0,80.0,40,0,True,66891,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Jones City 2 Solar,EIA_66893,Solar,operating,,185.0,North,Jones,D,53.3,100.0,60,0,True,66893,False,False,False,medium,,,Registry; Solar Forecast
+"Albatross Solar, LLC",EIA_66894,Solar,operating,,101.0,North,McLennan,D,40.0,80.0,40,0,True,66894,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+"Lupinus Solar 1, LLC",EIA_66895,Solar,operating,,165.0,Houston,Franklin,D,40.0,80.0,40,0,True,66895,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+"Lupinus Solar 2, LLC",EIA_66896,Solar,operating,,244.0,Houston,Franklin,D,40.0,80.0,40,0,True,66896,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+"Midpoint Solar, LLC",EIA_66897,Solar,operating,,97.5,North,Hill,D,40.0,80.0,40,0,True,66897,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+"BT Hickerson Solar, LLC",HKSN_SLR_UNIT1,Solar,operating,,310.0,North,Bosque,A,100.0,100.0,100,100,True,66903,True,True,True,medium,,,Registry; Solar Forecast; SCED ETL; Plant Value
+"Myrtle Solar, LLC",EIA_66910,Solar,operating,,313.0,South,Brazoria,B,86.7,100.0,60,100,True,66910,False,True,True,high,,,Registry; Solar Forecast; Plant Value
+Hill Solar 1,EIA_66912,Solar,operating,,405.0,North,Hill,B,86.7,100.0,60,100,True,66912,False,True,True,medium,,,Registry; Solar Forecast; Plant Value
+"Danish Fields Solar, LLC",EIA_66914,Solar,operating,,600.0,South,Wharton,C,73.3,80.0,40,100,True,66914,False,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; Plant Value
+Cottonwood Bayou Solar,EIA_66915,Solar,operating,,350.0,South,Brazoria,B,83.3,90.0,60,100,True,66915,False,True,True,medium,,dc_ac_ratio,Registry; Solar Forecast; Plant Value
+La Casa Wind,EIA_66919,Wind,operating,,150.0,North,Stephens,F,35.6,66.7,40,0,True,66919,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Timber Cove Solar,EIA_66922,Solar,operating,,100.0,North,Freestone,D,40.0,80.0,40,0,True,66922,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+"Carol Wind, LLC",EIA_66976,Wind,operating,,167.8,Pan,Potter,F,35.6,66.7,40,0,True,66976,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Grimes County Solar,GRIM_SLR_UNIT1,Solar,operating,,210.0,Houston,Grimes,C,66.7,100.0,100,0,True,67046,True,False,False,medium,,,Registry; Solar Forecast; SCED ETL
+TX Fort Worth 5200 Gold Spike Drive,EIA_67058,Solar,operating,,4.0,North,Tarrant,D,50.0,90.0,60,0,True,67058,False,False,False,high,,tracking_type,Registry; Solar Forecast
+Quarter Ranch Solar,EIA_67078,Solar,operating,,154.1,South,Webb,D,40.0,80.0,40,0,True,67078,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+"Montgomery Ranch Wind Farm, LLC",EIA_67095,Wind,operating,,202.5,North,Foard,F,35.6,66.7,40,0,True,67095,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Fagus Solar Park,EIA_67123,Solar,operating,,331.6,Pan,Childress,C,73.3,80.0,40,100,True,67123,False,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; Plant Value
+Yellow Viking Solar,EIA_67222,Solar,operating,,170.0,North,Somervell,D,40.0,80.0,40,0,True,67222,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Alina Energy LLC,EIA_67250,Solar,operating,,200.0,South,Wilson,D,53.3,100.0,60,0,True,67250,False,False,False,medium,,,Registry; Solar Forecast
+SGT Hoskins Solar Project Hybrid,EIA_67341,Solar,operating,,204.1,North,Lamar,D,53.3,100.0,60,0,True,67341,False,False,False,medium,,,Registry; Solar Forecast
+Erath County Solar,EIA_67353,Solar,operating,,204.0,North,Erath,D,40.0,80.0,40,0,True,67353,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Waco Solar II,EIA_67354,Solar,operating,,200.0,North,Limestone,D,53.3,100.0,60,0,True,67354,False,False,False,medium,,,Registry; Solar Forecast
+Throckmorton Wind,EIA_67356,Wind,operating,,225.0,North,Haskell,F,35.6,66.7,40,0,True,67356,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Tiger Solar,EIA_67357,Solar,operating,,250.0,North,Jones,D,53.3,100.0,60,0,True,67357,False,False,False,medium,,,Registry; Solar Forecast
+Lake Whitney Solar,EIA_67358,Solar,operating,,150.0,North,Bosque,D,40.0,80.0,40,0,True,67358,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Funston Solar,EIA_67359,Solar,operating,,350.0,North,Jones,C,73.3,80.0,40,100,True,67359,False,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; Plant Value
+Lane City Wind,EIA_67443,Wind,operating,,202.5,South,Wharton,F,35.6,66.7,40,0,True,67443,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Blue Hills Wind Project,S_HILLS_UNIT1,Wind,operating,,276.0,West,Val Verde,D,48.9,66.7,80,0,True,67542,True,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; SCED ETL
+Donegal Solar Project,EIA_67543,Solar,operating,,204.2,West,Dickens,D,40.0,80.0,40,0,True,67543,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Leitrim Solar Park,EIA_67544,Solar,operating,,91.2,North,Hill,D,40.0,80.0,40,0,True,67544,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Elm Flats Solar,EIA_67552,Solar,operating,,125.0,North,Navarro,D,53.3,100.0,60,0,True,67552,False,False,False,medium,,,Registry; Solar Forecast
+Dunlay Solar,EIA_67559,Solar,operating,,180.4,South,Medina,D,40.0,80.0,40,0,True,67559,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Edens Solar,EIA_67560,Solar,operating,,70.0,North,Hill,D,40.0,80.0,40,0,True,67560,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Callan Solar,EIA_67561,Solar,operating,,90.0,North,McCulloch,D,40.0,80.0,40,0,True,67561,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Stonewall Solar,EIA_67562,Solar,operating,,63.0,West,Stonewall,D,40.0,80.0,40,0,True,67562,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Ratcliff Solar Park,EIA_67563,Solar,operating,,78.8,Houston,Freestone,D,40.0,80.0,40,0,True,67563,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Reis Solar Park,EIA_67564,Solar,operating,,105.5,South,Atascosa,D,40.0,80.0,40,0,True,67564,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Roscommon Solar Park,EIA_67566,Solar,operating,,82.8,North,Lamar,D,53.3,100.0,60,0,True,67566,False,False,False,medium,,,Registry; Solar Forecast
+Wensowitch Solar Park,EIA_67567,Solar,operating,,145.6,North,Navarro,D,40.0,80.0,40,0,True,67567,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Wittig Solar Park,EIA_67568,Solar,operating,,96.0,South,Wharton,D,40.0,80.0,40,0,True,67568,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+TX Nazareth Solar,EIA_67575,Solar,operating,,201.0,Pan,Swisher,D,40.0,80.0,40,0,True,67575,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Cairos Solar and Storage,EIA_67581,Solar,operating,,153.3,West,Kinney,D,40.0,80.0,40,0,True,67581,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Amerada,EIA_67649,Solar,operating,,300.0,North,Freestone,C,73.3,80.0,40,100,True,67649,False,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; Plant Value
+Hanson,EIA_67657,Solar,operating,,396.0,North,Coleman,C,73.3,80.0,40,100,True,67657,False,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; Plant Value
+Langer,EIA_67659,Solar,operating,,245.0,North,Bosque,D,40.0,80.0,40,0,True,67659,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Soleil,EIA_67664,Solar,operating,,450.0,North,Clay,C,73.3,80.0,40,100,True,67664,False,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; Plant Value
+Peyton Creek Wind Farm II,EIA_67700,Wind,operating,,243.0,South,Matagorda,F,35.6,66.7,40,0,True,67700,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Stampede Solar Hybrid,BR_ARROW_UNIT1,Solar,operating,,255.9,North,Hopkins,D,53.3,80.0,80,0,True,67762,True,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; SCED ETL
+Hart Wind,HART_WND_UNIT1,Wind,operating,,166.4,Pan,Castro,D,48.9,66.7,80,0,True,67763,True,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; SCED ETL
+Compadre Solar,EIA_67765,Solar,operating,,150.0,North,Cooke,D,40.0,80.0,40,0,True,67765,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Braswell Solar,EIA_67772,Solar,operating,,44.2,North,McLennan,D,53.3,100.0,60,0,True,67772,False,False,False,medium,,,Registry; Solar Forecast
+Cosper Solar,EIA_67773,Solar,operating,,148.2,North,Bell,D,40.0,80.0,40,0,True,67773,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Cuchillas PV and BESS,EIA_67776,Solar,operating,,305.6,South,Webb,B,86.7,100.0,60,100,True,67776,False,True,True,medium,,,Registry; Solar Forecast; Plant Value
+Harryoung PV and BESS,EIA_67777,Solar,operating,,190.0,South,Cameron,D,40.0,80.0,40,0,True,67777,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Findley PV and BESS,EIA_67778,Solar,operating,,50.3,North,Limestone,D,40.0,80.0,40,0,True,67778,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Lampe Solar,EIA_67781,Solar,operating,,60.2,North,Washington,D,40.0,80.0,40,0,True,67781,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+RedSun PV and BESS,EIA_67782,Solar,operating,,84.0,North,Burnet,D,40.0,80.0,40,0,True,67782,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Whistle Solar,EIA_67785,Solar,operating,,56.3,North,Navarro,D,40.0,80.0,40,0,True,67785,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Payne Battlecreek Solar,EIA_67788,Solar,operating,,85.0,North,Hill,D,40.0,80.0,40,0,True,67788,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Ray Ranch Solar,EIA_67837,Solar,operating,,255.2,South,Goliad,D,40.0,80.0,40,0,True,67837,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Liberty Hybrid Solar and Storage Project,EIA_67867,Solar,operating,,67.2,Houston,Harris,D,40.0,80.0,40,0,True,67867,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Brittlebush Solar and Battery Storage,EIA_67895,Solar,operating,,400.0,North,Henderson,C,73.3,80.0,40,100,True,67895,False,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; Plant Value
+Vernon Solar and Storage,EIA_67934,Solar,operating,,104.0,North,Wilbarger,D,40.0,80.0,40,0,True,67934,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Concho Pearl Solar and Storage,EIA_67956,Solar,operating,,171.9,North,Concho,D,53.3,100.0,60,0,True,67956,False,False,False,medium,,,Registry; Solar Forecast
+Cattlemen Solar II,EIA_67976,Solar,operating,,200.0,North,Milam,D,40.0,80.0,40,0,True,67976,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Hornet Solar II (TX) (Hybrid),EIA_67985,Solar,operating,,200.0,Pan,Swisher,D,40.0,80.0,40,0,True,67985,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Mystic Springs Renewable Energy (Hybrid),EIA_67987,Solar,operating,,250.0,North,Kaufman,D,40.0,80.0,40,0,True,67987,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Leuven Solar LLC,EIA_67996,Solar,operating,,217.0,West,Nolan,D,40.0,80.0,40,0,True,67996,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Red Hollow Renewable Energy,EIA_68030,Solar,operating,,300.0,North,Archer,D,40.0,80.0,40,0,True,68030,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Sunrose Renewable Energy,EIA_68033,Solar,operating,,300.0,Houston,Austin,D,53.3,100.0,60,0,True,68033,False,False,False,medium,,,Registry; Solar Forecast
+Sunscape Renewable Energy,EIA_68034,Solar,operating,,500.0,South,Nueces,C,73.3,80.0,40,100,True,68034,False,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; Plant Value
+Chillingham Solar,CHIL_SLR_SOLAR1,Solar,operating,,350.0,North,Bell,A,100.0,100.0,100,100,True,68065,True,True,True,medium,,,Registry; Solar Forecast; SCED ETL; Plant Value
+Chisme Solar and Storage,EIA_68078,Solar,operating,,147.0,North,Mills,D,40.0,80.0,40,0,True,68078,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Marcos PV and BESS,EIA_68080,Solar,operating,,115.9,South,Victoria,D,53.3,100.0,60,0,True,68080,False,False,False,medium,,,Registry; Solar Forecast
+Bluebonnet Prairie Wind,EIA_68082,Wind,operating,,170.0,North,Navarro,F,35.6,66.7,40,0,True,68082,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Willow Beach Wind,EIA_68090,Wind,operating,,200.0,South,Brazoria,F,35.6,66.7,40,0,True,68090,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Angelo Solar,EIA_68145,Solar,operating,,195.0,West,Tom Green,D,50.0,90.0,60,0,True,68145,False,False,False,high,,tracking_type,Registry; Solar Forecast
+Rio Lago Solar,EIA_68155,Solar,operating,,123.0,North,Bandera,D,40.0,80.0,40,0,True,68155,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Myers Solar and Storage,EIA_68172,Solar,operating,,100.9,South,Goliad,D,40.0,80.0,40,0,True,68172,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Sandford Solar and Storage,EIA_68173,Solar,operating,,126.2,North,Wise,D,40.0,80.0,40,0,True,68173,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Stegall Solar and Storage,EIA_68174,Solar,operating,,81.6,North,Bell,D,40.0,80.0,40,0,True,68174,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Symank Solar,EIA_68175,Solar,operating,,66.6,North,Bosque,D,40.0,80.0,40,0,True,68175,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Big Elm Solar,EIA_68180,Solar,operating,,200.0,North,Bell,D,50.0,90.0,60,0,True,68180,False,False,False,high,,tracking_type,Registry; Solar Forecast
+Two Rivers Solar,EIA_68198,Solar,operating,,214.0,North,Milam,D,40.0,80.0,40,0,True,68198,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Sequoia 1,EIA_68200,Solar,operating,,401.4,North,Eastland,C,73.3,80.0,40,100,True,68200,False,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; Plant Value
+IP Roman Solar,EIA_68201,Solar,operating,,425.0,Pan,Deaf Smith,C,73.3,80.0,40,100,True,68201,False,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; Plant Value
+IP Roman Wind,EIA_68202,Wind,operating,,575.0,Pan,Deaf Smith,C,68.9,66.7,40,100,True,68202,False,True,True,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; Plant Value
+IP Meitner Solar,EIA_68203,Solar,operating,,340.0,Pan,Gray,C,73.3,80.0,40,100,True,68203,False,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; Plant Value
+IP Meitner Wind,EIA_68204,Wind,operating,,460.0,Pan,Roberts,C,68.9,66.7,40,100,True,68204,False,True,True,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; Plant Value
+Walleye Solar (Sandow II),EIA_68231,Solar,operating,,369.0,North,Milam,B,83.3,90.0,60,100,True,68231,False,True,True,medium,,tracking_type,Registry; Solar Forecast; Plant Value
+"Gransolar Texas One, LLC",EIA_68244,Solar,operating,,50.0,North,Milam,D,50.0,90.0,60,0,True,68244,False,False,False,high,,tracking_type,Registry; Solar Forecast
+BT Jungmann,EIA_68246,Solar,operating,,40.0,North,Milam,D,50.0,90.0,60,0,True,68246,False,False,False,high,,tracking_type,Registry; Solar Forecast
+Erin,EIA_68275,Solar,operating,,202.0,South,Wharton,D,53.3,100.0,60,0,True,68275,False,False,False,medium,,,Registry; Solar Forecast
+Gigawatt Solar,EIA_68305,Solar,operating,,1004.0,North,Parker,C,73.3,80.0,40,100,True,68305,False,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; Plant Value
+Ion Solar (TX),EIA_68306,Solar,operating,,384.0,North,Ellis,B,86.7,100.0,60,100,True,68306,False,True,True,medium,,,Registry; Solar Forecast; Plant Value
+Abeja Solar Farm,EIA_68347,Solar,operating,,200.0,South,Bee,D,40.0,80.0,40,0,True,68347,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Clairemont Solar,EIA_68351,Solar,operating,,500.0,West,Kent,B,83.3,90.0,60,100,True,68351,False,True,True,medium,,tracking_type,Registry; Solar Forecast; Plant Value
+La Salle Solar,EIA_68354,Solar,operating,,500.0,South,LaSalle,C,73.3,80.0,40,100,True,68354,False,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; Plant Value
+Lazy U Solar 1,EIA_68357,Solar,operating,,250.0,North,Hardeman,D,40.0,80.0,40,0,True,68357,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Lazy U Solar 2,EIA_68358,Solar,operating,,250.0,North,Hardeman,D,40.0,80.0,40,0,True,68358,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Pepper Solar Farm,EIA_68359,Solar,operating,,120.0,North,McLennan,D,40.0,80.0,40,0,True,68359,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Isaac Solar,EIA_68380,Solar,operating,,51.6,South,Matagorda,D,40.0,80.0,40,0,True,68380,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Brazoria Solar I,EIA_68410,Solar,operating,,125.0,South,Brazoria,D,40.0,80.0,40,0,True,68410,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Noor Solar,EIA_68411,Solar,operating,,188.2,Houston,Chambers,D,40.0,80.0,40,0,True,68411,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+"Roaring Springs, LLC",EIA_68458,Solar,operating,,250.0,West,Motley,D,40.0,80.0,40,0,True,68458,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+"Bob Creek Wind, LLC",EIA_68459,Wind,operating,,175.0,West,Sterling,F,35.6,66.7,40,0,True,68459,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Azalea Springs Solar Park,EIA_68470,Solar,operating,,180.0,North,Angelina,D,40.0,80.0,40,0,True,68470,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Darkwood Solar,EIA_68478,Solar,operating,,150.7,North,Comanche,D,40.0,80.0,40,0,True,68478,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Short Creek Solar,EIA_68479,Solar,operating,,606.4,North,Wichita,C,73.3,80.0,40,100,True,68479,False,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; Plant Value
+Hill Solar II,EIA_68481,Solar,operating,,200.0,North,Hill,D,40.0,80.0,40,0,True,68481,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+"Diver Solar, LLC",EIA_68483,Solar,operating,,224.0,North,Limestone,D,40.0,80.0,40,0,True,68483,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Swift Air Solar I,SWFT_SLR_UNIT1,Solar,operating,,145.0,West,Ector,C,66.7,100.0,100,0,True,68537,True,False,False,medium,,,Registry; Solar Forecast; SCED ETL
+Swift Air Solar II,EIA_68587,Solar,operating,,100.0,West,Ector,D,40.0,80.0,40,0,True,68587,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Swift Air Solar III,EIA_68588,Solar,operating,,100.0,West,Ector,D,40.0,80.0,40,0,True,68588,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Rockhound A,EIA_68592,Solar,operating,,245.0,West,Ector,D,40.0,80.0,40,0,True,68592,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Rockhound C,EIA_68593,Solar,operating,,61.0,West,Ector,D,40.0,80.0,40,0,True,68593,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Rockhound D,EIA_68594,Solar,operating,,28.0,West,Ector,D,40.0,80.0,40,0,True,68594,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Dahlia Energy,EIA_68604,Solar,operating,,200.0,South,La Salle,D,40.0,80.0,40,0,True,68604,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Cannibal Draw Solar and Storage,EIA_68738,Solar,operating,,149.5,West,Glasscock,D,40.0,80.0,40,0,True,68738,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Uva Creek Solar,EIA_68739,Solar,operating,,301.0,West,Borden,C,73.3,80.0,40,100,True,68739,False,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; Plant Value
+Quantum Solar,QTUM_SLR_UNIT1,Solar,operating,,374.4,North,Haskell,A,100.0,100.0,100,100,True,68760,True,True,True,medium,,,Registry; Solar Forecast; SCED ETL; Plant Value
+Quantum II Solar,EIA_68762,Solar,operating,,374.4,North,Haskell,C,73.3,80.0,40,100,True,68762,False,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; Plant Value
+Hutcherson Solar,EIA_68765,Solar,operating,,123.3,North,Wilbarger,D,40.0,80.0,40,0,True,68765,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Pioneer Field Wind Power,EIA_68766,Wind,operating,,136.2,West,Tom Green,F,35.6,66.7,40,0,True,68766,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Greenalia Solar Power Blackwelder Ranch,EIA_68767,Solar,operating,,199.7,West,Pecos,D,40.0,80.0,40,0,True,68767,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Blackwelder Ranch Wind,EIA_68768,Wind,operating,,110.4,West,Pecos,F,35.6,66.7,40,0,True,68768,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Greenalia Solar Power Misae III,EIA_68769,Solar,operating,,185.4,West,Childress,D,40.0,80.0,40,0,True,68769,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Hecate Energy Outpost Solar LLC,OUTP_SLR_UNIT1,Solar,operating,,515.0,South,Webb,B,86.7,80.0,80,100,True,68838,True,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; SCED ETL; Plant Value
+Hecate Energy Longhorn Solar LLC,EIA_68839,Solar,operating,,650.0,North,Jack,C,73.3,80.0,40,100,True,68839,False,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; Plant Value
+Hermes Solar PV,HRMS_SLR_UNIT1,Solar,operating,,100.4,North,Bell,C,66.7,100.0,100,0,True,68851,True,False,False,medium,,,Registry; Solar Forecast; SCED ETL
+Limewood Bell Renewables Solar,LMWD_SLR_SOLAR1,Solar,operating,,204.0,North,Bell,C,63.3,90.0,100,0,True,68853,True,False,False,medium,,tracking_type,Registry; Solar Forecast; SCED ETL
+Tyson Nick,TYSN_SLR_UNIT1,Solar,operating,,90.5,North,Lamar,D,53.3,80.0,80,0,True,68856,True,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; SCED ETL
+Big Sampson Wind,EIA_68873,Wind,operating,,265.0,West,Crockett,F,35.6,66.7,40,0,True,68873,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Claxton Solar,EIA_68901,Solar,operating,,150.6,North,Hopkins,D,40.0,80.0,40,0,True,68901,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Echols Creek Solar,EIA_68902,Solar,operating,,201.2,North,Lamar,D,53.3,100.0,60,0,True,68902,False,False,False,medium,,,Registry; Solar Forecast
+Musgravite Solar,EIA_68903,Solar,operating,,100.6,North,Henderson,D,40.0,80.0,40,0,True,68903,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Long Point Solar,EIA_68998,Solar,operating,,120.0,South,Brazoria,D,53.3,100.0,60,0,True,68998,False,False,False,high,,,Registry; Solar Forecast
+Hubbard Wind II,EIA_69010,Wind,operating,,304.5,North,Hill,C,68.9,66.7,40,100,True,69010,False,True,True,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast; Plant Value
+"Stoneridge Solar, LLC",EIA_69027,Solar,operating,,100.0,North,Milam,D,50.0,90.0,60,0,True,69027,False,False,False,medium,,tracking_type,Registry; Solar Forecast
+Decker Creek,EIA_3548,Solar,operating,,0.3,North,Travis,D,40.0,80.0,40,0,True,3548,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Majestic 2 Wind Farm,EIA_56658,Wind,operating,,79.2,Pan,Carson,F,35.6,66.7,40,0,True,56658,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Texas Gulf Wind 2,EIA_56662,Wind,operating,,187.2,South,Kenedy,F,35.6,66.7,40,0,True,56662,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Stella Wind Farm II,EIA_59064,Wind,operating,,200.0,South,Kenedy,F,35.6,66.7,40,0,True,59064,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Grandview Wind Farm III LLC,EIA_59067,Wind,operating,,188.0,Pan,Carson,F,35.6,66.7,40,0,True,59067,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+Jayhawk,EIA_59806,Solar,operating,,101.0,West,Mitchell,D,40.0,80.0,40,0,True,59806,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+"Tex-Mex Renewable Energy Project, LLC",EIA_60269,Wind,operating,,80.0,West,Bailey,F,35.6,66.7,40,0,True,60269,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+"Raymond, LLC",EIA_60362,Wind,operating,,200.0,South,Willacy,F,35.6,66.7,40,0,True,60362,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
+West Moore Solar,EIA_61624,Solar,operating,,5.0,North,Grayson,D,53.3,100.0,60,0,True,61624,False,False,False,high,,,Registry; Solar Forecast
+Old Jackson Solar LLC,EIA_62501,Solar,operating,,128.0,North,Van Zandt,D,40.0,80.0,40,0,True,62501,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Solemio LLC,EIA_62522,Solar,operating,,80.0,North,Hopkins,D,40.0,80.0,40,0,True,62522,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Hallmark,EIA_63234,Solar,operating,,42.0,North,Hunt,D,53.3,100.0,60,0,True,63234,False,False,False,medium,,,Registry; Solar Forecast
+Brushy Creek Solar LLC,EIA_64539,Solar,operating,,177.0,West,Tom Green,D,40.0,80.0,40,0,True,64539,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Knickerbocker Solar LLC,EIA_64540,Solar,operating,,200.0,West,Tom Green,D,40.0,80.0,40,0,True,64540,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Dogwood Creek Solar and BESS,EIA_65843,Solar,operating,,435.5,North,Bastrop,C,73.3,80.0,40,100,True,65843,False,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; Plant Value
+Goldenrod Creek Solar and BESS SLF,EIA_65845,Solar,operating,,660.0,South,Jackson,C,73.3,80.0,40,100,True,65845,False,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; Plant Value
+Hollow Branch Creek 1 Solar,EIA_65846,Solar,operating,,460.0,North,Madison,C,73.3,80.0,40,100,True,65846,False,True,True,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast; Plant Value
+Elio Energy LLC,EIA_65850,Solar,operating,,160.0,South,Brazoria,D,53.3,100.0,60,0,True,65850,False,False,False,medium,,,Registry; Solar Forecast
+Tehuacana Creek 2 Solar and BESS,EIA_65856,Solar,operating,,700.0,North,Navarro,B,86.7,100.0,60,100,True,65856,False,True,True,medium,,,Registry; Solar Forecast; Plant Value
+"Rosebud Solar, LLC",EIA_65899,Solar,operating,,132.0,North,Falls,D,40.0,80.0,40,0,True,65899,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Nacero Penwell Solar Energy Center,EIA_65928,Solar,operating,,200.0,Pan,El Paso,D,40.0,80.0,40,0,True,65928,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+"Peeler Solar, LLC",EIA_65932,Solar,operating,,200.0,South,Atascosa,D,40.0,80.0,40,0,True,65932,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+OCI Lone Sun,EIA_66399,Solar,operating,,100.0,North,McLennan,D,40.0,80.0,40,0,True,66399,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+TX LaPort 10060 Porter Road Solar,EIA_66518,Solar,operating,,1.6,Houston,Harris,D,40.0,80.0,40,0,True,66518,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Chiltepin Solar,EIA_66704,Solar,operating,,100.0,West,Reeves,D,53.3,100.0,60,0,True,66704,False,False,False,medium,,,Registry; Solar Forecast
+Cardinal Solar (TX),EIA_67775,Solar,operating,,74.0,North,San Saba,D,40.0,80.0,40,0,True,67775,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Itsee Solar,EIA_67780,Solar,operating,,53.3,North,Navarro,D,53.3,100.0,60,0,True,67780,False,False,False,medium,,,Registry; Solar Forecast
+Tres Margaritas Solar,EIA_67789,Solar,operating,,61.0,South,Dimmit,D,40.0,80.0,40,0,True,67789,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Hooper Solar and Storage,EIA_68167,Solar,operating,,50.5,North,Lee,D,40.0,80.0,40,0,True,68167,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Kobernat Solar and Storage,EIA_68169,Solar,operating,,100.5,South,Starr,D,40.0,80.0,40,0,True,68169,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Cotton Belle Solar,EIA_68383,Solar,operating,,80.0,West,Jones,D,40.0,80.0,40,0,True,68383,False,False,False,,,tracking_type; dc_ac_ratio,Registry; Solar Forecast
+Quick Draw,EIA_68385,Wind,operating,,174.0,West,Fisher,F,35.6,66.7,40,0,True,68385,False,False,False,,,hub_height_m; turbine_model; turbine_manuf; rotor_diameter_m,Registry; Wind Forecast
