@@ -186,6 +186,30 @@ def hub_prices(location: str, start: pd.Timestamp, end_excl: pd.Timestamp,
     return c.prices.hub_store_prices([location], start, end_excl)
 
 
+@lru_cache(maxsize=1)
+def available_locations() -> tuple[str, ...]:
+    """Settlement points the portal can settle at — those cached in the hub-price store.
+
+    These are the only locations with real RT15 prices on hand, so they're the
+    only ones the Contract page offers as a settlement reference. Trading hubs
+    (``HB_*``) are returned; the named averages (``HB_HUBAVG``/``HB_BUSAVG``)
+    sort last. Empty tuple if the store hasn't been pulled yet.
+
+    Note: the four VORTEX units aggregate to ``AZURE_SKY_WIND_AGG``, which has no
+    settlement-point (resource-node) price of its own — only hub prices exist —
+    so node-level settlement isn't an option here.
+    """
+    core()
+    from ercot_core import paths  # noqa: PLC0415
+    if not paths.HUB_PRICES_PARQUET.exists():
+        return ()
+    df = pd.read_parquet(paths.HUB_PRICES_PARQUET, columns=["settlement_point"])
+    pts = sorted(df["settlement_point"].dropna().unique().tolist())
+    avg = [p for p in pts if "AVG" in p.upper()]
+    hubs = [p for p in pts if p not in avg]
+    return tuple(hubs + avg)
+
+
 # --------------------------------------------------------------------------- #
 # Typical-year backbone (modelled) + EIA cross-check
 # --------------------------------------------------------------------------- #

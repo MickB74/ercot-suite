@@ -20,12 +20,13 @@ from markum import analytics, branding, contract, hub  # noqa: E402
 
 terms = contract.load_contract()
 a = contract.ASSET
+loc = contract.settle_location(terms)   # settlement reference (node or a hub)
 
 branding.hero(st, "Past Settlement",
               f"Audit any period · {terms['structure']} at ${terms['strike']:,.2f}/MWh · "
               f"{contract.offtake_label(terms)} offtake")
 
-win_start, win_end = hub.settlement_window(a["resource_node"])
+win_start, win_end = hub.settlement_window(a["resource_node"], loc)
 if win_start is None:
     st.info("No settled data is available yet for this asset.")
     st.stop()
@@ -72,8 +73,8 @@ if start_d > end_d:
              f"({win_start} → {win_end}). Pick another.")
     st.stop()
 
-st.caption(f"Settling **{start_d} → {end_d}** · settles at the plant node "
-           f"**{a['resource_node']}** on real-time (RT15) price.")
+st.caption(f"Settling **{start_d} → {end_d}** · settles at "
+           f"**{loc}** on real-time (RT15) price.")
 
 
 @st.cache_data(show_spinner="Settling…")
@@ -187,7 +188,7 @@ if len(monthly) > 1:
         download_block_m(
             st, monthly, name=f"markum_monthly_{start_d}_{end_d}",
             title=f"Markum Solar — monthly settlement {start_d} → {end_d}",
-            meta={"Asset": a["project_name"], "Node": a["resource_node"],
+            meta={"Asset": a["project_name"], "Settles at": loc,
                   "Structure": terms["structure"], "Strike": f"${terms['strike']:,.2f}/MWh",
                   "Period": f"{start_d} → {end_d}", "Months": f"{len(monthly)}",
                   "Net settlement": branding.signed_money_raw(net)},
@@ -247,7 +248,7 @@ if download_block is not None:
                            "merchant", "ppa_revenue", "cfd"] if c in d.columns]],
         name=f"markum_settlement_{start_d}_{end_d}",
         title=f"Markum Solar settlement — {start_d} → {end_d}",
-        meta={"Asset": a["project_name"], "Node": a["resource_node"],
+        meta={"Asset": a["project_name"], "Settles at": loc,
               "Structure": terms["structure"], "Strike": f"${terms['strike']:,.2f}/MWh",
               "Period": f"{start_d} → {end_d}", "Energy": f"{mwh:,.0f} MWh",
               "Capture price": f"${cap:,.2f}/MWh",

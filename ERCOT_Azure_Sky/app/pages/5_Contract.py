@@ -11,7 +11,7 @@ import streamlit as st
 
 _boot.ensure_hub(st)
 
-from azuresky import branding, contract  # noqa: E402
+from azuresky import branding, contract, hub  # noqa: E402
 
 terms = contract.load_contract()
 a = contract.ASSET
@@ -23,7 +23,9 @@ c = st.columns(4)
 c[0].metric("Project", a["project_name"])
 c[1].metric("Capacity", f"{a['capacity_mw']:,.0f} MW")
 c[2].metric("ERCOT aggregate", a["resource_node"])
-c[3].metric("Hub", a["hub"].replace("HB_", ""))
+c[3].metric("Settles at", contract.settle_location(terms).replace("HB_", ""),
+            help=f"The asset's own hub is {a['hub'].replace('HB_', '')}; "
+                 "change the settlement reference in the Contract form below.")
 st.caption(f"{a['tech']} · {a['turbine_model']} · hub height {a['hub_height_m']:.0f} m · "
            f"{a['county']} · COD {a['cod_year']} · units "
            + ", ".join(a["units"]))
@@ -40,6 +42,25 @@ with st.form("contract"):
         help="VPPA/CfD: settle the difference market − strike. Physical PPA: pay strike "
              "per MWh. Merchant + fee: market revenue ± a management fee.")
     counterparty = c2.text_input("Counterparty label", value=terms.get("counterparty", "Customer"))
+
+    # Settlement reference: which hub the deal settles against. Options are the
+    # locations with cached RT15 prices; the asset's own hub is the default.
+    locs = list(hub.available_locations()) or [a["hub"]]
+    if a["hub"] not in locs:
+        locs = [a["hub"]] + locs
+    cur_loc = contract.settle_location(terms)
+    if cur_loc not in locs:
+        locs = [cur_loc] + locs
+    settle_point = c1.selectbox(
+        "Settlement location", locs, index=locs.index(cur_loc),
+        format_func=lambda p: (p.replace("HB_", "") + (f"  (asset hub)" if p == a["hub"] else "")),
+        help="The trading hub whose RT15 price settles the contract. Defaults to the "
+             f"asset's own hub ({a['hub'].replace('HB_', '')}); switch it to settle the "
+             "deal against another hub (e.g. South). Only hubs with cached prices are "
+             "listed — the aggregate has no node-level price, so node settlement isn't "
+             "available.")
+    c2.caption(f"Asset hub: **{a['hub'].replace('HB_', '')}** · "
+               f"{len(locs)} location(s) with cached prices")
 
     c3, c4 = st.columns(2)
     strike = c3.number_input("Strike / contract price ($/MWh)",
@@ -84,6 +105,9 @@ if saved:
         "strike": float(strike),
         "volume_share_pct": contract.share_pct_for_mw(offtake),
         "settle_at": terms.get("settle_at", "hub"),
+        # Store "" when the choice is the asset's own hub, so the default tracks
+        # the asset if its hub ever changes; otherwise store the chosen point.
+        "settle_point": "" if settle_point == a["hub"] else settle_point,
         "price_floor": float(price_floor),
         "apply_floor": bool(apply_floor),
         "settle_below_floor": settle_below.startswith("Still"),
@@ -92,7 +116,8 @@ if saved:
         "currency": terms.get("currency", "USD"),
     })
     st.success(f"Saved — offtake set to **{offtake:,.0f} MW** "
-               f"({contract.share_pct_for_mw(offtake):.1f}% of the {cap:,.0f} MW plant). "
+               f"({contract.share_pct_for_mw(offtake):.1f}% of the {cap:,.0f} MW plant), "
+               f"settling at **{settle_point.replace('HB_', '')}**. "
                "The new terms apply across all pages.")
     st.cache_data.clear()
 

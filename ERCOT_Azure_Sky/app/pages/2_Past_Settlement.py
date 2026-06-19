@@ -20,12 +20,13 @@ from azuresky import analytics, branding, contract, hub  # noqa: E402
 
 terms = contract.load_contract()
 a = contract.ASSET
+loc = contract.settle_location(terms)   # settlement reference hub (configurable)
 
 branding.hero(st, "Past Settlement",
               f"Audit any period · {terms['structure']} at ${terms['strike']:,.2f}/MWh · "
               f"{contract.offtake_label(terms)} offtake")
 
-win_start, win_end = hub.settlement_window(a["units"], a["hub"])
+win_start, win_end = hub.settlement_window(a["units"], loc)
 if win_start is None:
     st.info("No settled data is available yet for this asset.")
     st.stop()
@@ -188,7 +189,7 @@ if len(monthly) > 1:
         download_block_m(
             st, monthly, name=f"azure_sky_monthly_{start_d}_{end_d}",
             title=f"Azure Sky Wind — monthly settlement {start_d} → {end_d}",
-            meta={"Asset": a["project_name"], "Hub": a["hub"],
+            meta={"Asset": a["project_name"], "Hub": loc,
                   "Structure": terms["structure"], "Strike": f"${terms['strike']:,.2f}/MWh",
                   "Period": f"{start_d} → {end_d}", "Months": f"{len(monthly)}",
                   "Net settlement": branding.signed_money_raw(net)},
@@ -248,7 +249,7 @@ if download_block is not None:
                            "merchant", "ppa_revenue", "cfd"] if c in d.columns]],
         name=f"azure_sky_settlement_{start_d}_{end_d}",
         title=f"Azure Sky Wind settlement — {start_d} → {end_d}",
-        meta={"Asset": a["project_name"], "Hub": a["hub"],
+        meta={"Asset": a["project_name"], "Hub": loc,
               "Structure": terms["structure"], "Strike": f"${terms['strike']:,.2f}/MWh",
               "Period": f"{start_d} → {end_d}", "Energy": f"{mwh:,.0f} MWh",
               "Capture price": f"${cap:,.2f}/MWh",

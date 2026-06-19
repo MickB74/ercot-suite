@@ -75,6 +75,7 @@ def core():
     import ercot_core  # noqa: PLC0415
     import ercot_core.settlement  # noqa: F401,PLC0415
     import ercot_core.invoice  # noqa: F401,PLC0415
+    import ercot_core.prices  # noqa: F401,PLC0415
     import ercot_core.tz  # noqa: F401,PLC0415
     import ercot_core.paths  # noqa: F401,PLC0415
     return ercot_core
@@ -150,6 +151,53 @@ def node_prices(resource_node: str, start: pd.Timestamp, end_excl: pd.Timestamp,
     return df
 
 
+def hub_prices(location: str, start: pd.Timestamp, end_excl: pd.Timestamp,
+               market: str = "RT15") -> pd.DataFrame:
+    """RT15 settlement-point prices at a trading hub from the Hub's rich hub store.
+
+    The node-price lake carries only sparse hub coverage; the full HB_* history
+    lives in the Hub's ``ercot_hub_prices_15min`` store. Same schema as
+    :func:`node_prices` (plus a harmless ``dst_flag``), so the settlement engine
+    consumes either interchangeably.
+    """
+    c = core()
+    return c.prices.hub_store_prices([location], start, end_excl)
+
+
+def settlement_prices(location: str, start: pd.Timestamp, end_excl: pd.Timestamp,
+                      market: str = "RT15") -> pd.DataFrame:
+    """Prices at the settlement reference, routed to the right store.
+
+    Trading hubs (``HB_*``) read the rich hub store; anything else is treated as a
+    resource node and reads the node-price lake. This is the single entry point
+    the pages and analytics use, so settlement follows the contract's chosen
+    ``settle_point`` wherever it points.
+    """
+    if str(location).upper().startswith("HB_"):
+        return hub_prices(location, start, end_excl, market)
+    return node_prices(location, start, end_excl, market)
+
+
+@lru_cache(maxsize=1)
+def available_locations() -> tuple[str, ...]:
+    """Settlement points the portal can settle at — the plant's node + cached hubs.
+
+    The node (``MRKM_SLR_RN``) always leads; the trading hubs are those with
+    cached RT15 prices in the Hub's hub store (so settlement always has a real
+    price). Named averages (``HB_HUBAVG``/``HB_BUSAVG``) sort last.
+    """
+    core()
+    from ercot_core import paths  # noqa: PLC0415
+    node = "MRKM_SLR_RN"
+    hubs: list[str] = []
+    if paths.HUB_PRICES_PARQUET.exists():
+        df = pd.read_parquet(paths.HUB_PRICES_PARQUET, columns=["settlement_point"])
+        pts = sorted(df["settlement_point"].dropna().unique().tolist())
+        avg = [p for p in pts if "AVG" in p.upper()]
+        hubs = [p for p in pts if p not in avg] + avg
+    return tuple([node] + [h for h in hubs if h != node])
+
+
 def solar_tmy_hourly(resource_name: str, capacity_kw: float) -> pd.DataFrame | None:
     """Read the cached PVWatts **TMY** hourly AC profile for the plant, or None.
 
@@ -216,17 +264,41 @@ def _available_span(resource_node: str, key_col: str, template: str):
     return lo, hi
 
 
-def settlement_window(resource_node: str):
-    """(start_date, end_date) where BOTH metered generation and node price exist.
+@lru_cache(maxsize=8)
+def _hub_price_span(location: str):
+    """(min, max) interval-start for a hub in the Hub's rich hub-price store."""
+    core()
+    from ercot_core import paths  # noqa: PLC0415
+    if not paths.HUB_PRICES_PARQUET.exists():
+        return None, None
+    df = pd.read_parquet(paths.HUB_PRICES_PARQUET,
+                         columns=["interval_ending_central", "settlement_point"])
+    df = df[df["settlement_point"] == location]
+    if df.empty:
+        return None, None
+    ie = pd.to_datetime(df["interval_ending_central"])
+    return (ie.min() - pd.Timedelta(minutes=15)), ie.max()
+
+
+def settlement_window(resource_node: str, location: str | None = None):
+    """(start_date, end_date) where BOTH metered generation and the price exist.
 
     This is the span the customer can audit: every day in it settles on real
-    metered output × the node's real-time price.
+    metered output × the settlement reference's real-time price. ``location`` is
+    the settlement reference (defaults to the node); a hub location reads the
+    rich hub store, the node reads the node-price lake.
     """
     core()
+    loc = location or resource_node
     g_lo, g_hi = _available_span(resource_node, "resource_node", "node_generation_{year}.parquet")
-    p_lo, p_hi = _available_span(resource_node, "location", "node_price_{year}.parquet")
+    if str(loc).upper().startswith("HB_"):
+        p_lo, p_hi = _hub_price_span(loc)
+    else:
+        p_lo, p_hi = _available_span(loc, "location", "node_price_{year}.parquet")
     if None in (g_lo, g_hi, p_lo, p_hi):
         return None, None
     lo = max(g_lo, p_lo)
     hi = min(g_hi, p_hi)
+    if lo > hi:
+        return None, None
     return pd.Timestamp(lo).date(), pd.Timestamp(hi).date()

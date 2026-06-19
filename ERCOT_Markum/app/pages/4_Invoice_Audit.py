@@ -24,6 +24,7 @@ INV = core.invoice
 
 terms = contract.load_contract()
 a = contract.ASSET
+loc = contract.settle_location(terms)   # settlement reference (node or a hub)
 
 branding.hero(st, "Invoice Audit",
               "Check settlement statement(s) against ERCOT-published metered data")
@@ -151,10 +152,10 @@ def _audit_one(raw, sinfo):
     lo, hi = inv["interval_start"].min(), inv["interval_start"].max()
     start = pd.Timestamp(lo).tz_localize(None).normalize() - pd.Timedelta(days=1)
     end = pd.Timestamp(hi).tz_localize(None).normalize() + pd.Timedelta(days=2)
-    price = hub.node_prices(a["resource_node"], start, end)
+    price = hub.settlement_prices(loc, start, end)
     if price.empty:
         raise ValueError("no cached ERCOT price for these dates")
-    basis = analytics.pick_time_basis(raw2, mp, price, a["resource_node"])   # ending vs beginning
+    basis = analytics.pick_time_basis(raw2, mp, price, loc)   # ending vs beginning
     if basis != mp.get("time_basis"):
         mp["time_basis"] = basis
         inv = INV.load_invoice(raw2, mp)
@@ -162,10 +163,10 @@ def _audit_one(raw, sinfo):
            if (net_mode or volume_source == "metered") else None)
     if net_mode:
         return analytics.audit_net_settlement(
-            inv, price, terms, location=a["resource_node"], resource_node=a["resource_node"],
+            inv, price, terms, location=loc, resource_node=a["resource_node"],
             units=[a["resource_name"]], gen_df=gen, volume_basis=volume_source, sign=stmt_sign,
             neg_treatment=neg_treatment, neg_floor=neg_floor)
-    return INV.reconcile(inv, price_df=price, gen_df=gen, location=a["resource_node"], market="RT15",
+    return INV.reconcile(inv, price_df=price, gen_df=gen, location=loc, market="RT15",
                          resource_node=a["resource_node"], units=[a["resource_name"]],
                          volume_source=volume_source)
 
@@ -251,7 +252,7 @@ def _run_batch(items):
     if dl is not None:
         dl(st, summ, name="markum_portfolio_audit",
            title="Markum Solar — portfolio invoice audit",
-           meta={"Asset": a["project_name"], "Node": a["resource_node"],
+           meta={"Asset": a["project_name"], "Settles at": loc,
                  "Statements": str(len(items)),
                  "Basis": ("net settlement" if net_mode else "energy value"),
                  "Tie out": f"{n_ok}/{len(items)}"})
@@ -426,17 +427,17 @@ hi = inv["interval_start"].max()
 start = pd.Timestamp(lo).tz_localize(None).normalize() - pd.Timedelta(days=1)
 end_excl = pd.Timestamp(hi).tz_localize(None).normalize() + pd.Timedelta(days=2)
 
-price_df = hub.node_prices(a["resource_node"], start, end_excl)
+price_df = hub.settlement_prices(loc, start, end_excl)
 gen_df = (hub.generation(a["resource_node"], start, end_excl)
           if (net_mode or volume_source == "metered") else None)
 
 if price_df.empty:
-    st.error("No cached ERCOT price covers this statement's dates for Markum — the "
+    st.error(f"No cached ERCOT price covers this statement's dates for {loc} — the "
              "internal Data Hub may need to pull that window first.")
     st.stop()
 
 if _basis_choice == "auto-detect":
-    _b = analytics.pick_time_basis(raw, m, price_df, a["resource_node"])
+    _b = analytics.pick_time_basis(raw, m, price_df, loc)
     if _b != m["time_basis"]:
         m["time_basis"] = _b
         inv = INV.load_invoice(raw, m)
@@ -445,7 +446,7 @@ if _basis_choice == "auto-detect":
 # ── VPPA net-settlement audit (the bill's bottom line) ──────────────────────
 if net_mode:
     res = analytics.audit_net_settlement(
-        inv, price_df, terms, location=a["resource_node"], resource_node=a["resource_node"],
+        inv, price_df, terms, location=loc, resource_node=a["resource_node"],
         units=[a["resource_name"]], gen_df=gen_df, volume_basis=volume_source, sign=stmt_sign,
         neg_treatment=neg_treatment, neg_floor=neg_floor)
     s = res["summary"]
@@ -536,7 +537,7 @@ if net_mode:
         download_block(
             st, intervals, name=f"markum_net_settlement_audit_{pd.Timestamp(lo).date()}",
             title="Markum Solar — net settlement audit",
-            meta={"Asset": a["project_name"], "Node": a["resource_node"], "Statement": src_label or "",
+            meta={"Asset": a["project_name"], "Settles at": loc, "Statement": src_label or "",
                   "Strike": f"${terms['strike']:,.2f}/MWh", "Volume basis": volume_source,
                   "Sign": s.get("sign"), "Neg-price": neg_treatment,
                   "Intervals": f"{s['intervals']:,}", "Flagged": f"{n_flagged:,}",
@@ -549,7 +550,7 @@ if net_mode:
     st.stop()
 
 # ── gross energy-invoice reconcile (amount = price × volume) ────────────────
-res = INV.reconcile(inv, price_df=price_df, gen_df=gen_df, location=a["resource_node"], market="RT15",
+res = INV.reconcile(inv, price_df=price_df, gen_df=gen_df, location=loc, market="RT15",
                     resource_node=a["resource_node"], units=[a["resource_name"]],
                     volume_source=volume_source)
 s = res["summary"]
@@ -590,7 +591,7 @@ if download_block is not None:
     download_block(
         st, intervals, name=f"markum_invoice_audit_{pd.Timestamp(lo).date()}",
         title="Markum Solar — invoice audit",
-        meta={"Asset": a["project_name"], "Node": a["resource_node"], "Statement": src_label or "",
+        meta={"Asset": a["project_name"], "Settles at": loc, "Statement": src_label or "",
               "Volume basis": volume_source, "Intervals": f"{s['intervals']:,}",
               "Flagged": f"{n_flagged:,}", "Variance": branding.signed_money_raw(var)})
 else:

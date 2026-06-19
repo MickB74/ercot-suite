@@ -47,7 +47,8 @@ DEFAULT_CONTRACT = {
     "structure": "VPPA / CfD",   # "VPPA / CfD" | "Physical PPA" | "Merchant + fee"
     "strike": 17.34,             # $/MWh — the fixed contract price
     "volume_share_pct": 100.0,   # offtaker's pro-rata share of the plant's output
-    "settle_at": "hub",          # the aggregate settles at HB_NORTH (no node price)
+    "settle_at": "hub",          # legacy flag; kept for back-compat, superseded by settle_point
+    "settle_point": "",          # settlement reference, e.g. "HB_SOUTH"; "" ⇒ the asset's own hub
     "price_floor": 0.0,          # $/MWh; intervals below this don't settle
     "apply_floor": True,         # ON ⇒ curtailment at negative prices (the default)
     "settle_below_floor": False,  # False: no settlement below floor (curtail)
@@ -79,8 +80,16 @@ def save_contract(terms: dict) -> None:
 
 
 def settle_location(terms: dict) -> str:
-    """Resolve the settlement reference location. The aggregate settles at the hub."""
-    return ASSET["hub"]
+    """Resolve the settlement reference location.
+
+    Honors a ``settle_point`` override in the contract terms (set on the Contract
+    page — e.g. switch the deal from HB_NORTH to HB_SOUTH), falling back to the
+    asset's own trading hub when it's blank. The chosen point must have cached
+    RT15 prices (see :func:`azuresky.hub.available_locations`); the picker only
+    offers locations that do, so settlement always has a real price to settle on.
+    """
+    pt = str(terms.get("settle_point", "") or "").strip()
+    return pt or ASSET["hub"]
 
 
 def floor_args(terms: dict) -> tuple[float | None, bool]:

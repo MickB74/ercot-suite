@@ -11,7 +11,7 @@ import streamlit as st
 
 _boot.ensure_hub(st)
 
-from markum import branding, contract  # noqa: E402
+from markum import branding, contract, hub  # noqa: E402
 
 terms = contract.load_contract()
 a = contract.ASSET
@@ -23,7 +23,9 @@ c = st.columns(4)
 c[0].metric("Project", a["project_name"])
 c[1].metric("Capacity", f"{a['capacity_mw']:,.0f} MW")
 c[2].metric("ERCOT node", a["resource_node"])
-c[3].metric("Hub", a["hub"].replace("HB_", ""))
+c[3].metric("Settles at", contract.settle_location(terms).replace("HB_", ""),
+            help=f"Default is the plant node {a['resource_node']}; "
+                 "change the settlement reference in the Contract form below.")
 st.caption(f"{a['tech']} · {a['tracking_type'].replace('_', '-')} tracking · "
            f"{a['county']} · DC/AC {a['dc_ac_ratio']}")
 
@@ -39,6 +41,24 @@ with st.form("contract"):
         help="VPPA/CfD: settle the difference market − strike. Physical PPA: pay strike "
              "per MWh. Merchant + fee: market revenue ± a management fee.")
     counterparty = c2.text_input("Counterparty label", value=terms.get("counterparty", "Customer"))
+
+    # Settlement reference: the plant's own node, or any trading hub with cached
+    # RT15 prices. The node reads the node-price lake; hubs read the rich hub store.
+    locs = list(hub.available_locations()) or [a["resource_node"]]
+    cur_loc = contract.settle_location(terms)
+    if cur_loc not in locs:
+        locs = [cur_loc] + locs
+    settle_point = c1.selectbox(
+        "Settlement location", locs, index=locs.index(cur_loc),
+        format_func=lambda p: (
+            f"{a['resource_node']} (plant node)" if p == a["resource_node"]
+            else p.replace("HB_", "") + " (hub)"),
+        help="Where the contract settles. Defaults to the plant's own node "
+             f"({a['resource_node']}); switch it to a trading hub (e.g. South) to "
+             "settle against hub price instead of nodal. Only locations with cached "
+             "RT15 prices are listed.")
+    c2.caption(f"Plant node: **{a['resource_node']}** · asset hub: "
+               f"**{a['hub'].replace('HB_', '')}** · {len(locs)} location(s) available")
 
     c3, c4 = st.columns(2)
     strike = c3.number_input("Strike / contract price ($/MWh)",
@@ -79,7 +99,11 @@ if saved:
         "structure": structure,
         "strike": float(strike),
         "volume_share_pct": contract.share_pct_for_mw(offtake),
-        "settle_at": terms.get("settle_at", "node"),
+        # Store "" when the choice is the plant node so the default tracks the
+        # asset; otherwise store the chosen point. Keep settle_at in sync for
+        # back-compat (hub vs node) with anything that still reads it.
+        "settle_at": "hub" if str(settle_point).upper().startswith("HB_") else "node",
+        "settle_point": "" if settle_point == a["resource_node"] else settle_point,
         "price_floor": float(price_floor),
         "apply_floor": bool(apply_floor),
         "settle_below_floor": settle_below.startswith("Still"),
@@ -88,8 +112,8 @@ if saved:
         "currency": terms.get("currency", "USD"),
     })
     st.success(f"Saved — offtake set to **{offtake:,.0f} MW** "
-               f"({contract.share_pct_for_mw(offtake):.1f}% of the {cap:,.0f} MW plant). "
-               "The new terms apply across all pages.")
+               f"({contract.share_pct_for_mw(offtake):.1f}% of the {cap:,.0f} MW plant), "
+               f"settling at **{settle_point}**. The new terms apply across all pages.")
     st.cache_data.clear()
 
 if contract.is_placeholder_strike(contract.load_contract()):

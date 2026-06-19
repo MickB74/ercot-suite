@@ -17,6 +17,7 @@ from markum import analytics, branding, contract, hub  # noqa: E402
 
 terms = contract.load_contract()
 a = contract.ASSET
+loc = contract.settle_location(terms)   # settlement reference (node or a hub)
 
 branding.hero(
     st, "Markum Solar — Settlement Overview",
@@ -29,7 +30,7 @@ if contract.is_placeholder_strike(terms):
                "real contract price on the **Contract Terms** page so the dollar "
                "figures are meaningful.")
 
-win_start, win_end = hub.settlement_window(a["resource_node"])
+win_start, win_end = hub.settlement_window(a["resource_node"], loc)
 if win_start is None:
     st.info("No settled data is available yet for this asset.")
     branding.footer(st)

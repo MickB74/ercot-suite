@@ -40,7 +40,8 @@ DEFAULT_CONTRACT = {
     "structure": "VPPA / CfD",   # "VPPA / CfD" | "Physical PPA" | "Merchant + fee"
     "strike": 35.0,              # $/MWh — the fixed contract price
     "volume_share_pct": 100.0,   # offtaker's pro-rata share of the plant's output
-    "settle_at": "node",         # "node" (MRKM_SLR_RN) or "hub" (HB_NORTH)
+    "settle_at": "node",         # legacy flag; superseded by settle_point (kept for back-compat)
+    "settle_point": "",          # settlement reference, e.g. "HB_SOUTH"; "" ⇒ the node/settle_at default
     "price_floor": 0.0,          # $/MWh; intervals below this don't settle (VPPA norm)
     "apply_floor": True,
     "settle_below_floor": False,  # False: no settlement below floor (most VPPAs)
@@ -72,8 +73,22 @@ def save_contract(terms: dict) -> None:
 
 
 def settle_location(terms: dict) -> str:
-    """Resolve the settlement reference location from the terms."""
+    """Resolve the settlement reference location from the terms.
+
+    Honors an explicit ``settle_point`` (set on the Contract page — the node
+    ``MRKM_SLR_RN`` or any trading hub such as ``HB_SOUTH``). When it's blank,
+    falls back to the legacy ``settle_at`` node/hub flag. The chosen point must
+    have cached RT15 prices (see :func:`markum.hub.available_locations`).
+    """
+    pt = str(terms.get("settle_point", "") or "").strip()
+    if pt:
+        return pt
     return ASSET["hub"] if terms.get("settle_at") == "hub" else ASSET["resource_node"]
+
+
+def is_node_location(location: str) -> bool:
+    """True if ``location`` is the plant's own resource node (vs. a trading hub)."""
+    return str(location) == ASSET["resource_node"]
 
 
 def floor_args(terms: dict) -> tuple[float | None, bool]:

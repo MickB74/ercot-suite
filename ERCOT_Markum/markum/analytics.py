@@ -23,10 +23,10 @@ def settle(start_date: dt.date, end_date: dt.date, terms: dict | None = None) ->
     end_excl = pd.Timestamp(end_date) + pd.Timedelta(days=1)
 
     gen_df = hub.generation(a["resource_node"], start, end_excl)
-    ref = contract.settle_location(terms)
-    # Node settlement reads the node price; hub settlement would need the hub
-    # store — for this single-asset portal we settle at the node by default.
-    price_df = hub.node_prices(a["resource_node"], start, end_excl)
+    ref = contract.settle_location(terms)         # node MRKM_SLR_RN or a trading hub
+    # Price at the settlement reference — node lake for the node, rich hub store
+    # for a hub. Generation is always the plant's node.
+    price_df = hub.settlement_prices(ref, start, end_excl)
     if gen_df.empty or price_df.empty:
         return None
 
@@ -37,7 +37,7 @@ def settle(start_date: dt.date, end_date: dt.date, terms: dict | None = None) ->
     res = core.settlement.compute_settlement(
         gen_df, price_df, a["resource_node"],
         ppa_price=float(terms.get("strike", 0.0)),
-        ref_location=a["resource_node"],          # settle at the plant's own node
+        ref_location=ref,                         # settle at the chosen reference
         market="RT15",
         node_location=a["resource_node"],
         units=[a["resource_name"]],

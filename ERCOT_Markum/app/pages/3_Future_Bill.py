@@ -22,6 +22,7 @@ from markum import analytics, branding, contract, hub  # noqa: E402
 
 terms = contract.load_contract()
 a = contract.ASSET
+loc = contract.settle_location(terms)   # settlement reference (node or a hub)
 strike = float(terms.get("strike", 0.0))
 share = float(terms.get("volume_share_pct", 100.0)) / 100.0
 
@@ -35,7 +36,7 @@ st.info("📌 **Estimate only.** Generation is modelled — by default from a "
         "Actual settlement is finalised from ERCOT-published data on the "
         "**Past Settlement** page.")
 
-win_start, win_end = hub.settlement_window(a["resource_node"])
+win_start, win_end = hub.settlement_window(a["resource_node"], loc)
 if win_start is None:
     st.info("No historical data is available yet to base a projection on.")
     st.stop()
