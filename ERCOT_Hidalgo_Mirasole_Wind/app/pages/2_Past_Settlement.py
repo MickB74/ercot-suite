@@ -43,11 +43,24 @@ def _eom(y, m):
     return dt.date(y, m, calendar.monthrange(y, m)[1])
 
 
+def _last_full_month(we: dt.date) -> tuple[int, int]:
+    """Return (year, month) of the last calendar month fully within we."""
+    import calendar
+    _, last_day = calendar.monthrange(we.year, we.month)
+    if we.day >= last_day:
+        return we.year, we.month
+    prev = we.replace(day=1) - dt.timedelta(days=1)
+    return prev.year, prev.month
+
+
+_lfy, _lfm = _last_full_month(win_end)
+
 if mode == "Month":
     c1, c2 = st.sidebar.columns(2)
-    yr = c1.selectbox("Year", years, index=0)
+    yr_def = years.index(_lfy) if _lfy in years else 0
+    yr = c1.selectbox("Year", years, index=yr_def)
     months = list(range(1, 13))
-    mdef = win_end.month if yr == win_end.year else 12
+    mdef = _lfm if yr == _lfy else (win_end.month if yr == win_end.year else 12)
     mo = c2.selectbox("Month", months, index=mdef - 1,
                       format_func=lambda m: dt.date(2000, m, 1).strftime("%b"))
     start_d, end_d = dt.date(yr, mo, 1), _eom(yr, mo)
