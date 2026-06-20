@@ -112,8 +112,9 @@ def _render_search(df: pd.DataFrame) -> None:
             "county", "entity", "owners", "vppa", "status", "queue_date",
             "proposed_completion", "in_gis", "url"]
     cols = [c for c in cols if c in view.columns]
-    st.dataframe(
+    event = st.dataframe(
         view[cols], hide_index=True, use_container_width=True, height=460,
+        key="queue_search_table", on_select="rerun", selection_mode="single-row",
         column_config={
             "queue_id": "Queue ID", "project_name": "Project", "fuel": "Fuel",
             "technology": "Technology",
@@ -134,8 +135,23 @@ def _render_search(df: pd.DataFrame) -> None:
             "url": st.column_config.LinkColumn("Link", display_text="Open ↗"),
         })
     st.caption(f"Showing {len(view):,} of {len(df):,} projects.  "
+               "**Click a row to open its dossier below.**  "
                "*Owner / Sponsor* and *VPPA announced* are a hand-curated overlay "
                "(`queue_ownership.json`) — blank where not yet researched.")
+
+    # --- Inline dossier for the clicked row ---------------------------------
+    try:
+        sel_rows = list(event.selection["rows"])
+    except Exception:  # noqa: BLE001 — selection shape varies across versions
+        sel_rows = list(getattr(getattr(event, "selection", None), "rows", []) or [])
+    if sel_rows and sel_rows[0] < len(view):
+        row = view.iloc[sel_rows[0]]
+        st.divider()
+        st.markdown(f"### 📋 Dossier — {row['project_name']}  ·  `{row['queue_id']}`")
+        st.caption("Click another row to switch, or clear the selection to hide this. "
+                   "(Also available any time in the **📋 Project Dossier** tab.)")
+        _dossier_body(str(row["queue_id"]), str(row["project_name"]), kp="sel")
+        st.divider()
 
     _export.download_block(
         st, view[cols], name="ercot_queue_search",
@@ -162,8 +178,6 @@ def _render_search(df: pd.DataFrame) -> None:
 
 # ============================================================================
 def _render_dossier(df: pd.DataFrame) -> None:
-    from ercot_core import tx_filings  # noqa: F401 (kept symmetric with engine)
-
     q = st.text_input("Project (queue id or name)", value="",
                       placeholder="e.g. 21INR0477 or “Azure Sky Solar”",
                       key="dossier_query")
@@ -179,11 +193,22 @@ def _render_dossier(df: pd.DataFrame) -> None:
             chosen = labels[pick]
 
     if not q:
-        st.info("Enter a queue id or project name above to build a dossier.")
+        st.info("Enter a queue id or project name above — or click a row in the "
+                "**Search & Analyze** tab — to build a dossier.")
         return
+
+    _dossier_body(chosen, q, kp="tab")
+
+
+def _dossier_body(chosen: str, label: str, *, kp: str) -> None:
+    """Render a full project dossier for ``chosen`` (queue id or name). ``kp`` is a
+    per-context key prefix so the same project can render in two places (the
+    Dossier tab and the inline row-click panel) without widget-id collisions."""
+    from ercot_core import tx_filings  # noqa: F401 (kept symmetric with engine)
 
     d = queue_search.dossier(chosen)
     rec = d.get("record")
+    q = label
 
     if not d["found"]:
         st.warning(f"No queue record found for “{q}”. Showing generic filing "
@@ -216,7 +241,7 @@ def _render_dossier(df: pd.DataFrame) -> None:
         if rec.get("url"):
             st.markdown(f"🔗 [interconnection.fyi project page]({rec['url']})")
 
-        _render_ownership(rec)
+        _render_ownership(rec, kp=kp)
 
         cw = d.get("crosswalk") or {}
         cands = cw.get("candidates") or []
@@ -254,7 +279,7 @@ def _render_dossier(df: pd.DataFrame) -> None:
 
     _export.download_block(
         st, links_df[["label", "kind", "note", "url"]],
-        name=f"dd_links_{(rec or {}).get('queue_id','project')}",
+        name=f"dd_links_{kp}_{(rec or {}).get('queue_id','project')}",
         title=f"Due-diligence links — {(rec or {}).get('project_name', q)}")
 
 
@@ -283,9 +308,10 @@ def _research_links(name: str, entity: str) -> list[tuple[str, str]]:
     return out
 
 
-def _render_ownership(rec: dict) -> None:
+def _render_ownership(rec: dict, *, kp: str = "tab") -> None:
     """On-demand 'research ownership' block: pre-scoped lookups + a save form
-    that writes findings into the shared queue_ownership overlay."""
+    that writes findings into the shared queue_ownership overlay. ``kp`` keeps the
+    form key unique when the dossier renders in more than one place."""
     qid = rec.get("queue_id")
     name = rec.get("project_name") or ""
     entity = rec.get("entity") or ""
@@ -306,7 +332,7 @@ def _render_ownership(rec: dict) -> None:
         st.caption("Saved findings go to the shared `queue_ownership.json` overlay "
                    "and appear in the search table for everyone. Leave VPPA blank if "
                    "none is announced; blank fields don't overwrite existing values.")
-        with st.form(f"own_form_{qid or name}"):
+        with st.form(f"own_form_{kp}_{qid or name}"):
             owners = st.text_area("Owner / Sponsor (company behind the LLC)",
                                   value=cur.get("owners", ""))
             owner_source = st.text_input("Owner source (URL / note)",
