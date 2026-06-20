@@ -282,7 +282,8 @@ def render_near_term_tab(
     x_labels = [str(r["date"]) for _, r in all_df.iterrows()]
 
     fig = go.Figure()
-    # Legend sentinel traces
+
+    # ── settlement bars (primary y-axis) ─────────────────────────────────────
     fig.add_bar(x=[], y=[], name="Settled", marker_color=SOLID_POS, showlegend=True)
     fig.add_bar(x=[], y=[], name=f"Forecast – {cur_month_str}", marker_color=FCAST_CUR_POS, showlegend=True)
     fig.add_bar(x=[], y=[], name=f"Forecast – {next_month_str}", marker_color=FCAST_NEXT_POS, showlegend=True)
@@ -292,7 +293,34 @@ def render_near_term_tab(
         y=all_df["net"].tolist(),
         marker_color=bar_colors,
         showlegend=False,
+        yaxis="y1",
         hovertemplate="%{x}<br>Net: $%{y:,.0f}<extra></extra>",
+    )
+
+    # ── generation line (secondary y-axis) ───────────────────────────────────
+    # Solid line for settled days, dashed for forecast
+    settled_mwh = [v if k == "actual" else None for v, k in zip(all_df["mwh"], all_df["kind"])]
+    fcast_mwh   = [v if k != "actual" else None for v, k in zip(all_df["mwh"], all_df["kind"])]
+
+    fig.add_scatter(
+        x=x_labels, y=settled_mwh,
+        mode="lines+markers",
+        line=dict(color="rgba(0,105,179,0.85)", width=2),
+        marker=dict(size=4),
+        name="Generation (settled)",
+        yaxis="y2",
+        connectgaps=False,
+        hovertemplate="%{x}<br>Gen: %{y:,.0f} MWh<extra></extra>",
+    )
+    fig.add_scatter(
+        x=x_labels, y=fcast_mwh,
+        mode="lines+markers",
+        line=dict(color="rgba(0,105,179,0.45)", width=2, dash="dot"),
+        marker=dict(size=3),
+        name="Generation (forecast)",
+        yaxis="y2",
+        connectgaps=False,
+        hovertemplate="%{x}<br>Gen: %{y:,.0f} MWh<extra></extra>",
     )
 
     # Month-boundary divider
@@ -305,10 +333,23 @@ def render_near_term_tab(
     )
 
     fig.update_layout(
-        height=360,
+        height=400,
         hovermode="x unified",
         margin=dict(t=30, b=10),
-        yaxis=dict(title="Daily net settlement ($)", zeroline=True, zerolinecolor="#ddd"),
+        yaxis=dict(
+            title="Daily net settlement ($)",
+            zeroline=True, zerolinecolor="#ddd",
+            side="left",
+        ),
+        yaxis2=dict(
+            title="Daily generation (MWh)",
+            overlaying="y",
+            side="right",
+            showgrid=False,
+            rangemode="tozero",
+            tickfont=dict(color="rgba(0,105,179,0.8)"),
+            title_font=dict(color="rgba(0,105,179,0.8)"),
+        ),
         legend=dict(orientation="h", y=1.14),
         bargap=0.15,
     )
