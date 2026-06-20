@@ -33,4 +33,7 @@ __all__ = [
     "ifyi",
     "queue_search",
     "tx_filings",
+    "weather_forecast",
+    "gen_forecast",
+    "near_term_bill",
 ]
