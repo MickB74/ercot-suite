@@ -22,7 +22,7 @@ terms = contract.load_contract()
 a = contract.ASSET
 loc = contract.settle_location(terms)   # settlement reference (node or a hub)
 
-branding.hero(st, "Past Settlement",
+branding.hero(st, "Past Settlement Estimate",
               f"Audit any period · {terms['structure']} at ${terms['strike']:,.2f}/MWh · "
               f"{contract.offtake_label(terms)} offtake")
 
@@ -118,7 +118,7 @@ receives = net >= 0
 
 verb = "you **receive**" if receives else "you **pay**"
 st.success(
-    f"Over **{cov_min} → {cov_max}**, Miller produced **{mwh:,.0f} MWh**, captured at "
+    f"Over **{cov_min} → {cov_max}**, Hidalgo Mirasole Wind produced **{mwh:,.0f} MWh**, captured at "
     f"**\\${cap:,.2f}/MWh**. At a **\\${terms['strike']:,.2f}** strike the energy's market "
     f"value is **\\${mktrev:,.0f}** vs **\\${strike_val:,.0f}** at strike, so the net "
     f"settlement is **{branding.signed_money(net)}** — {verb}.")
@@ -200,7 +200,7 @@ if len(monthly) > 1:
     if download_block_m is not None:
         download_block_m(
             st, monthly, name=f"portal_monthly_{start_d}_{end_d}",
-            title=f"Miller — monthly settlement {start_d} → {end_d}",
+            title=f"Hidalgo Mirasole Wind — monthly settlement {start_d} → {end_d}",
             meta={"Asset": a["project_name"], "Settles at": loc,
                   "Structure": terms["structure"], "Strike": f"${terms['strike']:,.2f}/MWh",
                   "Period": f"{start_d} → {end_d}", "Months": f"{len(monthly)}",
@@ -214,7 +214,7 @@ if recon is None:
         st.caption(
             "SCED metered generation can be cross-checked against the plant's own "
             "EIA-923 monthly filing — a useful tiebreaker when a month's output "
-            "looks off. Miller isn't mapped to an EIA plant id yet (there's no "
+            "looks off. Hidalgo Mirasole Wind isn't mapped to an EIA plant id yet (there's no "
             "public ERCOT→EIA crosswalk). Set **`eia_plant_id`** in `config.json` "
             "to that plant's EIA ORIS code to enable this check.")
 elif not recon["table"].empty:
@@ -260,7 +260,7 @@ if download_block is not None:
         st, d[[c for c in ["interval_start", "mw", "mwh", "price_raw", "price",
                            "merchant", "ppa_revenue", "cfd"] if c in d.columns]],
         name=f"portal_settlement_{start_d}_{end_d}",
-        title=f"Miller settlement — {start_d} → {end_d}",
+        title=f"Hidalgo Mirasole Wind settlement — {start_d} → {end_d}",
         meta={"Asset": a["project_name"], "Settles at": loc,
               "Structure": terms["structure"], "Strike": f"${terms['strike']:,.2f}/MWh",
               "Period": f"{start_d} → {end_d}", "Energy": f"{mwh:,.0f} MWh",

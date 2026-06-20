@@ -1,7 +1,7 @@
 """Past Settlement — the auditable record for any historical period.
 
 Pick a period, see exactly how the net settlement was built: metered MWh ×
-real-time hub price vs. the strike, interval by interval, with a downloadable
+real-time node price vs. the strike, interval by interval, with a downloadable
 export for the customer's records.
 """
 
@@ -16,17 +16,17 @@ import streamlit as st
 
 _boot.ensure_hub(st)
 
-from azuresky import analytics, branding, contract, hub  # noqa: E402
+from markum import analytics, branding, contract, hub  # noqa: E402
 
 terms = contract.load_contract()
 a = contract.ASSET
-loc = contract.settle_location(terms)   # settlement reference hub (configurable)
+loc = contract.settle_location(terms)   # settlement reference (node or a hub)
 
-branding.hero(st, "Past Settlement",
+branding.hero(st, "Past Settlement Estimate",
               f"Audit any period · {terms['structure']} at ${terms['strike']:,.2f}/MWh · "
               f"{contract.offtake_label(terms)} offtake")
 
-win_start, win_end = hub.settlement_window(a["units"], loc)
+win_start, win_end = hub.settlement_window(a["resource_node"], loc)
 if win_start is None:
     st.info("No settled data is available yet for this asset.")
     st.stop()
@@ -86,8 +86,8 @@ if start_d > end_d:
              f"({win_start} → {win_end}). Pick another.")
     st.stop()
 
-st.caption(f"Settling **{start_d} → {end_d}** · settles at the trading hub "
-           f"**{a['hub']}** on real-time (RT15) price.")
+st.caption(f"Settling **{start_d} → {end_d}** · settles at "
+           f"**{loc}** on real-time (RT15) price.")
 
 
 @st.cache_data(show_spinner="Settling…")
@@ -118,7 +118,7 @@ receives = net >= 0
 
 verb = "you **receive**" if receives else "you **pay**"
 st.success(
-    f"Over **{cov_min} → {cov_max}**, Azure Sky produced **{mwh:,.0f} MWh**, captured at "
+    f"Over **{cov_min} → {cov_max}**, Markum produced **{mwh:,.0f} MWh**, captured at "
     f"**\\${cap:,.2f}/MWh**. At a **\\${terms['strike']:,.2f}** strike the energy's market "
     f"value is **\\${mktrev:,.0f}** vs **\\${strike_val:,.0f}** at strike, so the net "
     f"settlement is **{branding.signed_money(net)}** — {verb}.")
@@ -126,7 +126,7 @@ st.success(
 m = st.columns(4)
 m[0].metric("Energy", f"{mwh:,.0f} MWh")
 m[1].metric("Capture price", f"${cap:,.2f}/MWh", help="Generation-weighted market price.")
-m[2].metric("Market value", f"${mktrev:,.0f}", help="Σ MWh × real-time hub price.")
+m[2].metric("Market value", f"${mktrev:,.0f}", help="Σ MWh × real-time node price.")
 m[3].metric("Value at strike", f"${strike_val:,.0f}",
             help="Σ MWh × strike — the contract reference value.")
 m2 = st.columns(4)
@@ -137,10 +137,9 @@ m2[0].metric("Net settlement", branding.signed_money(net),
 m2[1].metric("Settled intervals", f"{s['intervals']:,}")
 excl = s.get("excluded_mwh", 0.0) or 0.0
 if excl > 0:
-    m2[2].metric("Curtailed (price < floor)", f"{excl:,.0f} MWh",
+    m2[2].metric("Unsettled (price < floor)", f"{excl:,.0f} MWh",
                  help=f"Generation in intervals below the ${terms.get('price_floor', 0):,.2f} "
-                      "floor — curtailed, not part of the swap (standard wind VPPA "
-                      "treatment at negative prices).")
+                      "floor — not part of the swap (standard VPPA treatment).")
 m2[3].metric("Avg net $/MWh", f"${(net / mwh if mwh else 0):,.2f}",
              help="Net settlement per settled MWh.")
 
@@ -200,9 +199,9 @@ if len(monthly) > 1:
     download_block_m = hub.export_block()
     if download_block_m is not None:
         download_block_m(
-            st, monthly, name=f"azure_sky_monthly_{start_d}_{end_d}",
-            title=f"Azure Sky Wind — monthly settlement {start_d} → {end_d}",
-            meta={"Asset": a["project_name"], "Hub": loc,
+            st, monthly, name=f"markum_monthly_{start_d}_{end_d}",
+            title=f"Markum Solar — monthly settlement {start_d} → {end_d}",
+            meta={"Asset": a["project_name"], "Settles at": loc,
                   "Structure": terms["structure"], "Strike": f"${terms['strike']:,.2f}/MWh",
                   "Period": f"{start_d} → {end_d}", "Months": f"{len(monthly)}",
                   "Net settlement": branding.signed_money_raw(net)},
@@ -215,7 +214,7 @@ if recon is None:
         st.caption(
             "SCED metered generation can be cross-checked against the plant's own "
             "EIA-923 monthly filing — a useful tiebreaker when a month's output "
-            "looks off. Azure Sky isn't mapped to an EIA plant id yet (there's no "
+            "looks off. Markum isn't mapped to an EIA plant id yet (there's no "
             "public ERCOT→EIA crosswalk). Set **`eia_plant_id`** in `config.json` "
             "to that plant's EIA ORIS code to enable this check.")
 elif not recon["table"].empty:
@@ -260,9 +259,9 @@ if download_block is not None:
     download_block(
         st, d[[c for c in ["interval_start", "mw", "mwh", "price_raw", "price",
                            "merchant", "ppa_revenue", "cfd"] if c in d.columns]],
-        name=f"azure_sky_settlement_{start_d}_{end_d}",
-        title=f"Azure Sky Wind settlement — {start_d} → {end_d}",
-        meta={"Asset": a["project_name"], "Hub": loc,
+        name=f"markum_settlement_{start_d}_{end_d}",
+        title=f"Markum Solar settlement — {start_d} → {end_d}",
+        meta={"Asset": a["project_name"], "Settles at": loc,
               "Structure": terms["structure"], "Strike": f"${terms['strike']:,.2f}/MWh",
               "Period": f"{start_d} → {end_d}", "Energy": f"{mwh:,.0f} MWh",
               "Capture price": f"${cap:,.2f}/MWh",
@@ -270,7 +269,7 @@ if download_block is not None:
 else:
     st.download_button("⬇ Download interval CSV",
                        d.to_csv(index=False).encode("utf-8"),
-                       file_name=f"azure_sky_settlement_{start_d}_{end_d}.csv",
+                       file_name=f"markum_settlement_{start_d}_{end_d}.csv",
                        mime="text/csv")
 
 branding.footer(st)
