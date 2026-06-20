@@ -123,15 +123,24 @@ with tab_long:
         base = float(tmy_mwh.get(cal_month, tmy_mwh.mean()))
         return base * cal_factor if basis == "Calibrated model" else base
 
+    hist_cap = (
+        m.groupby("cal_month")["Capture_$/MWh"].mean()
+        if "Capture_$/MWh" in m.columns
+        else m.groupby("cal_month")["Market_value"].sum() / m.groupby("cal_month")["MWh"].sum()
+    )
+
     start_month = (win_end.replace(day=1) + pd.offsets.MonthBegin(1)).date()
     rows = []
     for i in range(n_months):
         mdate = (pd.Timestamp(start_month) + pd.offsets.MonthBegin(i)).date()
         deg = (1.0 - degr) ** (i / 12.0)
         e_mwh = _expected_mwh(mdate.month) * deg
+        hist_p = float(hist_cap.get(mdate.month, float(hist_cap.mean())))
         rows.append({
             "Month": mdate.strftime("%Y-%m"),
             "Expected MWh": e_mwh,
+            "Fwd price ($/MWh)": fwd,
+            "Hist. capture ($/MWh)": hist_p,
             "Net @ low": e_mwh * ((fwd - band) - strike),
             "Net (expected)": e_mwh * (fwd - strike),
             "Net @ high": e_mwh * ((fwd + band) - strike),
@@ -186,6 +195,8 @@ with tab_long:
     with st.expander("Projection detail"):
         show = proj.copy()
         show["Expected MWh"] = show["Expected MWh"].map(lambda v: f"{v:,.0f}")
+        show["Fwd price ($/MWh)"] = show["Fwd price ($/MWh)"].map(lambda v: f"${v:,.2f}")
+        show["Hist. capture ($/MWh)"] = show["Hist. capture ($/MWh)"].map(lambda v: f"${v:,.2f}")
         for c in ("Net @ low", "Net (expected)", "Net @ high"):
             show[c] = show[c].map(branding.signed_money_raw)
         st.dataframe(show, hide_index=True, use_container_width=True)
