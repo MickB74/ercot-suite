@@ -86,6 +86,10 @@ def _resolve_asset_registry() -> Path:
 
 PRICE_SETTLEMENTS_ASSETS = _resolve_asset_registry()
 
+# Hand-curated owner/offtaker overlay for the interconnection queue (the queue
+# itself only names the project LLC). See ercot_core/queue_ownership.py.
+QUEUE_OWNERSHIP_JSON = ROOT / "ercot_core" / "registry" / "queue_ownership.json"
+
 _ALL_DIRS = [
     DATA, SYSTEM_GEN_DIR, NODE_DATA_DIR, EIA_DIR, EIA_RAW_DIR,
     PLANT_SCED_DIR, PLANT_DATA_DIR, HUB_PRICES_DIR, SCED_CACHE_DIR,

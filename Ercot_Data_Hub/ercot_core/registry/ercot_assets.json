@@ -371,7 +371,7 @@
     "hub": "Houston",
     "lat": 30.6724,
     "lon": -93.8837,
-    "county": "Newton",
+    "county": "Hopkins",
     "project_name": "Pine Forest Solar"
   },
   "Rio Bravo Wind": {
@@ -585,7 +585,7 @@
     "hub": "West",
     "lat": 33.5035496,
     "lon": -98.5787138,
-    "county": "Glasscock",
+    "county": "Archer",
     "hub_height_m": 80.0,
     "turbine_model": "GE1.62-91",
     "rotor_diameter_m": 90.82608695652173,

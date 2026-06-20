@@ -149,7 +149,13 @@ def cmd_dossier(a):
               + (f"  (GIS: {rec.get('gis_status')})" if rec.get('gis_status') else "")
               + ("" if rec.get("in_gis") else "   ⚠ not in current GIS queue"))
         print(f"  County      : {rec.get('county','?')}")
-        print(f"  Entity      : {rec.get('entity','?')}")
+        print(f"  Entity (LLC): {rec.get('entity','?')}")
+        if rec.get("owners"):
+            print(f"  Owner       : {rec['owners']}"
+                  + (f"   [{rec['owner_source']}]" if rec.get("owner_source") else ""))
+        if rec.get("vppa"):
+            print(f"  VPPA        : {rec['vppa']}"
+                  + (f"   [{rec['vppa_source']}]" if rec.get("vppa_source") else ""))
         print(f"  POI         : {rec.get('poi','?')}")
         print(f"  Queue date  : {rec.get('queue_date') or '?'}    "
               f"Proposed COD: {rec.get('proposed_completion') or '?'}    "

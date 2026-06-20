@@ -11,14 +11,16 @@ both entrypoints do that bootstrap before importing this module.
 
 from __future__ import annotations
 
+import datetime
 import pathlib
+import urllib.parse
 
 import pandas as pd
 import streamlit as st
 
 import _common
 import _export
-from ercot_core import paths, queue_search
+from ercot_core import paths, queue_ownership, queue_search
 
 
 @st.cache_data(show_spinner="Loading interconnection queue…")
@@ -107,20 +109,33 @@ def _render_search(df: pd.DataFrame) -> None:
     m3.metric("Median size", f"{vmw.median():,.0f} MW" if len(view) else "—")
 
     cols = ["queue_id", "project_name", "fuel", "technology", "capacity_mw",
-            "county", "entity", "status", "queue_date", "proposed_completion",
-            "in_gis", "url"]
+            "county", "entity", "owners", "vppa", "status", "queue_date",
+            "proposed_completion", "in_gis", "url"]
+    cols = [c for c in cols if c in view.columns]
     st.dataframe(
         view[cols], hide_index=True, use_container_width=True, height=460,
         column_config={
             "queue_id": "Queue ID", "project_name": "Project", "fuel": "Fuel",
             "technology": "Technology",
             "capacity_mw": st.column_config.NumberColumn("MW", format="%.1f"),
-            "county": "County", "entity": "Entity", "status": "Status",
+            "county": "County",
+            "entity": st.column_config.TextColumn(
+                "Interconnecting LLC",
+                help="The project entity ERCOT lists on the queue — not necessarily the owner."),
+            "owners": st.column_config.TextColumn(
+                "Owner / Sponsor",
+                help="Curated: the company(ies) behind the LLC. Blank = not researched / not found."),
+            "vppa": st.column_config.TextColumn(
+                "VPPA announced",
+                help="Curated: any announced offtake deal (VPPA/PPA). Blank = none found."),
+            "status": "Status",
             "queue_date": "Queued", "proposed_completion": "Proposed COD",
             "in_gis": st.column_config.CheckboxColumn("GIS"),
             "url": st.column_config.LinkColumn("Link", display_text="Open ↗"),
         })
-    st.caption(f"Showing {len(view):,} of {len(df):,} projects.")
+    st.caption(f"Showing {len(view):,} of {len(df):,} projects.  "
+               "*Owner / Sponsor* and *VPPA announced* are a hand-curated overlay "
+               "(`queue_ownership.json`) — blank where not yet researched.")
 
     _export.download_block(
         st, view[cols], name="ercot_queue_search",
@@ -185,7 +200,9 @@ def _render_dossier(df: pd.DataFrame) -> None:
         i4.metric("County", str(rec.get("county") or "?"))
 
         info = {
-            "Interconnecting entity": rec.get("entity"),
+            "Interconnecting LLC": rec.get("entity"),
+            "Owner / Sponsor": rec.get("owners"),
+            "VPPA announced": rec.get("vppa"),
             "POI": rec.get("poi"),
             "Technology": rec.get("technology") or rec.get("gen_type")
             or (f"{d.get('inferred_tech')} (inferred)" if d.get("inferred_tech") else None),
@@ -198,6 +215,8 @@ def _render_dossier(df: pd.DataFrame) -> None:
             columns=["Field", "Value"]), hide_index=True, use_container_width=True)
         if rec.get("url"):
             st.markdown(f"🔗 [interconnection.fyi project page]({rec['url']})")
+
+        _render_ownership(rec)
 
         cw = d.get("crosswalk") or {}
         cands = cw.get("candidates") or []
@@ -237,3 +256,73 @@ def _render_dossier(df: pd.DataFrame) -> None:
         st, links_df[["label", "kind", "note", "url"]],
         name=f"dd_links_{(rec or {}).get('queue_id','project')}",
         title=f"Due-diligence links — {(rec or {}).get('project_name', q)}")
+
+
+# ============================================================================
+def _research_links(name: str, entity: str) -> list[tuple[str, str]]:
+    """Pre-scoped web searches for who owns the LLC and any announced offtake.
+    Navigational aids, mirroring the filing-links philosophy — the app can't run
+    an LLM at runtime, so it hands you the right query to read."""
+    def g(q):  # Google web
+        return "https://www.google.com/search?q=" + urllib.parse.quote(q)
+
+    def gn(q):  # Google News
+        return "https://news.google.com/search?q=" + urllib.parse.quote(q)
+
+    nm, ent, out = (name or "").strip(), (entity or "").strip(), []
+    if nm:
+        out.append(("Owner / developer (web)",
+                    g(f'"{nm}" (developer OR owner OR sponsor OR parent OR acquired)')))
+        out.append(("VPPA / offtake (web)",
+                    g(f'"{nm}" ("VPPA" OR "virtual power purchase" OR "power purchase agreement" OR offtake)')))
+        out.append(("VPPA / offtake (news)",
+                    gn(f'"{nm}" (VPPA OR "power purchase agreement" OR offtake)')))
+    if ent:
+        out.append(("LLC ownership chain (web)",
+                    g(f'"{ent}" (parent OR owner OR subsidiary OR developer)')))
+    return out
+
+
+def _render_ownership(rec: dict) -> None:
+    """On-demand 'research ownership' block: pre-scoped lookups + a save form
+    that writes findings into the shared queue_ownership overlay."""
+    qid = rec.get("queue_id")
+    name = rec.get("project_name") or ""
+    entity = rec.get("entity") or ""
+    cur = queue_ownership.get(queue_id=qid, project_name=name)
+
+    header = "🏢 Ownership & offtake (VPPA)" + (" — curated" if cur else " — not yet researched")
+    with st.expander(header, expanded=not cur):
+        if cur.get("ownership_updated"):
+            st.caption(f"Overlay last updated {cur['ownership_updated']}.")
+        if cur.get("owner_source") or cur.get("vppa_source"):
+            srcs = [s for s in (cur.get("owner_source"), cur.get("vppa_source")) if s]
+            st.caption("Sources: " + " · ".join(srcs))
+
+        st.markdown("**Research links** — open, read the result, then record what you find:")
+        for label, url in _research_links(name, entity):
+            st.markdown(f"- 🔎 [{label}]({url})")
+
+        st.caption("Saved findings go to the shared `queue_ownership.json` overlay "
+                   "and appear in the search table for everyone. Leave VPPA blank if "
+                   "none is announced; blank fields don't overwrite existing values.")
+        with st.form(f"own_form_{qid or name}"):
+            owners = st.text_area("Owner / Sponsor (company behind the LLC)",
+                                  value=cur.get("owners", ""))
+            owner_source = st.text_input("Owner source (URL / note)",
+                                         value=cur.get("owner_source", ""))
+            vppa = st.text_area("VPPA / offtake announced",
+                                value=cur.get("vppa", ""))
+            vppa_source = st.text_input("VPPA source (URL / note)",
+                                        value=cur.get("vppa_source", ""))
+            saved = st.form_submit_button("💾 Save to overlay")
+        if saved:
+            queue_ownership.upsert(
+                {"owners": owners, "owner_source": owner_source,
+                 "vppa": vppa, "vppa_source": vppa_source, "project_name": name},
+                queue_id=qid, project_name=name,
+                updated=datetime.date.today().isoformat())
+            queue_search._cache.clear()   # rebuild the unified frame with the new overlay
+            st.cache_data.clear()         # drop the page's cached _load()
+            st.success("Saved to the ownership overlay. Reloading…")
+            st.rerun()

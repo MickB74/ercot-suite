@@ -26,14 +26,16 @@ import re
 
 import pandas as pd
 
-from ercot_core import paths, project_lookup, tx_filings
+from ercot_core import paths, project_lookup, queue_ownership, tx_filings
 
-# Canonical column set of the unified view.
+# Canonical column set of the unified view. The trailing owner/VPPA columns come
+# from the hand-curated ownership overlay (queue_ownership), not the queue feeds.
 COLUMNS = [
     "queue_id", "project_name", "entity", "county", "poi",
     "capacity_mw", "fuel", "technology", "gen_type",
     "status", "gis_status", "queue_date", "proposed_completion",
     "actual_completion", "in_gis", "url",
+    *queue_ownership.COLUMNS,
 ]
 
 
@@ -136,6 +138,8 @@ def unified_queue(allow_fetch: bool = False, refresh: bool = False) -> pd.DataFr
         # tidy date columns to date-only strings
         for c in ("queue_date", "proposed_completion", "actual_completion"):
             df[c] = df[c].apply(lambda v: str(v)[:10] if v not in (None, "") else None)
+    # Overlay the curated owner / VPPA fields (left-join, blanks where unknown).
+    df = queue_ownership.annotate(df)
     _cache["u"] = df
     return df
 
