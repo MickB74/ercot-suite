@@ -31,8 +31,13 @@ except Exception:
 
 _BASE_URL = "https://api.open-meteo.com/v1/forecast"
 _ARCHIVE_URL = "https://archive-api.open-meteo.com/v1/archive"
+_ENSEMBLE_URL = "https://ensemble-api.open-meteo.com/v1/ensemble"
 _SOLAR_VARS = "shortwave_radiation,direct_radiation,diffuse_radiation,temperature_2m"
 _WIND_VARS = "wind_speed_80m,wind_speed_120m,wind_direction_80m"
+# GEFS ensemble: 80m wind only (120m not in GEFS); solar shares same var names
+_ENS_SOLAR_VARS = "shortwave_radiation"
+_ENS_WIND_VARS = "wind_speed_80m,wind_direction_80m"
+_ENS_MODEL = "gfs05"  # GFS ensemble: base + 30 members, 35-day horizon
 
 
 def _cache_path(lat: float, lon: float, tech: str, past_days: int, forecast_days: int) -> Path:
@@ -170,4 +175,99 @@ def fetch_archive(
     df = df.set_index("time")
     numeric_cols = df.select_dtypes("number").columns
     df[numeric_cols] = df[numeric_cols].fillna(0.0).clip(lower=0.0)
+    return df
+
+
+def fetch_medium_range(
+    lat: float,
+    lon: float,
+    tech: str,
+    *,
+    forecast_days: int = 35,
+    cache_hours: float = 6.0,
+) -> pd.DataFrame:
+    """Fetch GEFS ensemble P50 forecast out to 35 days (vs 16-day standard limit).
+
+    Uses Open-Meteo's ensemble API with the GEFS05 model (31 members).  Returns
+    the ensemble mean so the DataFrame has the same column structure as
+    :func:`fetch` and can be passed directly to ``gen_forecast`` functions.
+
+    GEFS doesn't have 120 m wind, so ``wind_speed_120m`` is extrapolated from
+    80 m using the 1/7 Hellmann power law so the calling code never sees a gap.
+
+    Parameters
+    ----------
+    lat, lon:
+        Plant coordinates.
+    tech:
+        ``"solar"`` or ``"wind"``.
+    forecast_days:
+        Forward horizon; max 35 for GEFS.
+    cache_hours:
+        File-cache TTL (6 h default — ensemble updates 4× daily).
+    """
+    tech = tech.lower()
+    if tech not in ("solar", "wind"):
+        raise ValueError(f"tech must be 'solar' or 'wind', got {tech!r}")
+
+    forecast_days = min(forecast_days, 35)
+    _CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    cpath = _CACHE_DIR / f"{lat:.4f}_{lon:.4f}_{tech}_ens_f{forecast_days}.json"
+    if _is_fresh(cpath, cache_hours):
+        raw = json.loads(cpath.read_text())
+    else:
+        hourly_vars = _ENS_SOLAR_VARS if tech == "solar" else _ENS_WIND_VARS
+        params = (
+            f"latitude={lat}&longitude={lon}"
+            f"&hourly={hourly_vars}"
+            f"&models={_ENS_MODEL}"
+            f"&forecast_days={forecast_days}"
+            f"&timezone=UTC"
+            f"&wind_speed_unit=ms"
+        )
+        url = f"{_ENSEMBLE_URL}?{params}"
+        with urllib.request.urlopen(url, timeout=20) as resp:
+            raw = json.loads(resp.read())
+        cpath.write_text(json.dumps(raw))
+
+    h = raw["hourly"]
+    times = pd.to_datetime(h["time"], utc=True)
+
+    if tech == "solar":
+        base_vars = ["shortwave_radiation"]
+    else:
+        base_vars = ["wind_speed_80m", "wind_direction_80m"]
+
+    records: dict = {"time": times}
+    for var in base_vars:
+        # Collect base column (control run) + all perturbation members
+        all_runs = []
+        if var in h:
+            all_runs.append(h[var])
+        all_runs += [h[k] for k in h if k.startswith(var + "_member")]
+        if all_runs:
+            n = len(all_runs)
+            mean_vals = [sum((r[i] or 0.0) for r in all_runs) / n for i in range(len(times))]
+            records[var] = mean_vals
+
+    df = pd.DataFrame(records).set_index("time")
+
+    # Extrapolate 120 m wind from 80 m so gen_forecast sees the expected column
+    if tech == "wind" and "wind_speed_80m" in df.columns:
+        df["wind_speed_120m"] = df["wind_speed_80m"] * (120.0 / 80.0) ** (1.0 / 7.0)
+
+    numeric_cols = df.select_dtypes("number").columns
+    df[numeric_cols] = df[numeric_cols].fillna(0.0).clip(lower=0.0)
+
+    # GEFS zeroes out the trailing partial day at the model boundary; drop it.
+    # Group by Central local date so the dusk-UTC-hours don't make a zeroed
+    # local day look non-zero.
+    signal_col = "shortwave_radiation" if tech == "solar" else "wind_speed_80m"
+    if signal_col in df.columns:
+        local_dates = df.index.tz_convert("America/Chicago").date
+        daily_sum = df[signal_col].groupby(local_dates).sum()
+        last_good = daily_sum[daily_sum > 0].index[-1] if (daily_sum > 0).any() else None
+        if last_good is not None:
+            df = df[pd.Index(df.index.tz_convert("America/Chicago").date) <= last_good]
+
     return df

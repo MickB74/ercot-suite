@@ -93,11 +93,18 @@ def render_near_term_tab(
     cur_month_str = month_start_ct.strftime("%Y-%m")
     next_month_str = next_month_start.strftime("%Y-%m")
 
-    # ── fetch weather forecast (current + next 16 days) ─────────────────────
+    # ── fetch weather forecast (standard 16-day + GEFS ensemble 35-day) ─────
     @st.cache_data(show_spinner="Fetching weather forecast…", ttl=7200)
     def _weather(lat, lon, tech_key):
         try:
             return wf.fetch(lat, lon, tech_key, past_days=7, forecast_days=16), None
+        except Exception as exc:  # noqa: BLE001
+            return None, str(exc)
+
+    @st.cache_data(show_spinner="Fetching medium-range forecast (GEFS 35-day)…", ttl=21600)
+    def _medium_range(lat, lon, tech_key):
+        try:
+            return wf.fetch_medium_range(lat, lon, tech_key, forecast_days=35), None
         except Exception as exc:  # noqa: BLE001
             return None, str(exc)
 
@@ -109,6 +116,15 @@ def render_near_term_tab(
             "Check your internet connection or try again shortly."
         )
         return
+
+    # Extend with GEFS ensemble beyond the 16-day standard horizon
+    med_df, _ = _medium_range(float(a["lat"]), float(a["lon"]), tech)
+    if med_df is not None and not weather_df.empty:
+        std_end = weather_df.index[-1]
+        ext = med_df[med_df.index > std_end]
+        if not ext.empty:
+            shared_cols = weather_df.columns.intersection(ext.columns)
+            weather_df = pd.concat([weather_df, ext[shared_cols]])
 
     # ── calibrate against SCED using archive API ─────────────────────────────
     # The forecast endpoint's past_days returns 0 for shortwave_radiation
