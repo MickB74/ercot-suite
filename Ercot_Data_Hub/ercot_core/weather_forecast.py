@@ -30,13 +30,14 @@ except Exception:
     _CACHE_DIR = Path.home() / ".cache" / "ercot_weather_forecast"
 
 _BASE_URL = "https://api.open-meteo.com/v1/forecast"
+_ARCHIVE_URL = "https://archive-api.open-meteo.com/v1/archive"
 _SOLAR_VARS = "shortwave_radiation,direct_radiation,diffuse_radiation,temperature_2m"
 _WIND_VARS = "wind_speed_80m,wind_speed_120m,wind_direction_80m"
 
 
-def _cache_path(lat: float, lon: float, tech: str) -> Path:
+def _cache_path(lat: float, lon: float, tech: str, past_days: int, forecast_days: int) -> Path:
     _CACHE_DIR.mkdir(parents=True, exist_ok=True)
-    return _CACHE_DIR / f"{lat:.4f}_{lon:.4f}_{tech}.json"
+    return _CACHE_DIR / f"{lat:.4f}_{lon:.4f}_{tech}_p{past_days}_f{forecast_days}.json"
 
 
 def _is_fresh(path: Path, max_age_hours: float) -> bool:
@@ -82,7 +83,7 @@ def fetch(
     if tech not in ("solar", "wind"):
         raise ValueError(f"tech must be 'solar' or 'wind', got {tech!r}")
 
-    cpath = _cache_path(lat, lon, tech)
+    cpath = _cache_path(lat, lon, tech, past_days, forecast_days)
     if _is_fresh(cpath, cache_hours):
         raw = json.loads(cpath.read_text())
     else:
@@ -104,6 +105,69 @@ def fetch(
     df["time"] = pd.to_datetime(df["time"], utc=True)
     df = df.set_index("time")
     # Fill any gaps (API sometimes returns null for very recent hours)
+    numeric_cols = df.select_dtypes("number").columns
+    df[numeric_cols] = df[numeric_cols].fillna(0.0).clip(lower=0.0)
+    return df
+
+
+def fetch_archive(
+    lat: float,
+    lon: float,
+    tech: str,
+    start_date: str,
+    end_date: str,
+    *,
+    cache_hours: float = 24.0,
+) -> pd.DataFrame:
+    """Fetch ERA5 reanalysis data from the Open-Meteo archive API.
+
+    Unlike :func:`fetch`, this uses the archive endpoint which provides complete
+    ERA5-backed shortwave radiation for any historical period.  The forecast
+    endpoint's ``past_days`` parameter returns zeros for radiation beyond ~30 days,
+    making it unusable for calibration against SCED history that lags ~60 days.
+
+    Parameters
+    ----------
+    lat, lon:
+        Plant coordinates.
+    tech:
+        ``"solar"`` or ``"wind"``.
+    start_date, end_date:
+        ISO date strings (``"YYYY-MM-DD"``).
+    cache_hours:
+        File-cache TTL.  Archive data is historical so 24 h is fine.
+
+    Returns
+    -------
+    pd.DataFrame with UTC tz-aware DatetimeIndex and the same columns as
+    :func:`fetch`.
+    """
+    tech = tech.lower()
+    if tech not in ("solar", "wind"):
+        raise ValueError(f"tech must be 'solar' or 'wind', got {tech!r}")
+
+    _CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    cpath = _CACHE_DIR / f"{lat:.4f}_{lon:.4f}_{tech}_arch_{start_date}_{end_date}.json"
+    if _is_fresh(cpath, cache_hours):
+        raw = json.loads(cpath.read_text())
+    else:
+        hourly_vars = _SOLAR_VARS if tech == "solar" else _WIND_VARS
+        params = (
+            f"latitude={lat}&longitude={lon}"
+            f"&hourly={hourly_vars}"
+            f"&start_date={start_date}&end_date={end_date}"
+            f"&timezone=UTC"
+            f"&wind_speed_unit=ms"
+        )
+        url = f"{_ARCHIVE_URL}?{params}"
+        with urllib.request.urlopen(url, timeout=15) as resp:
+            raw = json.loads(resp.read())
+        cpath.write_text(json.dumps(raw))
+
+    h = raw["hourly"]
+    df = pd.DataFrame(h)
+    df["time"] = pd.to_datetime(df["time"], utc=True)
+    df = df.set_index("time")
     numeric_cols = df.select_dtypes("number").columns
     df[numeric_cols] = df[numeric_cols].fillna(0.0).clip(lower=0.0)
     return df

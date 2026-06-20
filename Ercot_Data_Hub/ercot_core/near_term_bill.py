@@ -93,11 +93,11 @@ def render_near_term_tab(
     cur_month_str = month_start_ct.strftime("%Y-%m")
     next_month_str = next_month_start.strftime("%Y-%m")
 
-    # ── fetch weather ────────────────────────────────────────────────────────
+    # ── fetch weather forecast (current + next 16 days) ─────────────────────
     @st.cache_data(show_spinner="Fetching weather forecast…", ttl=7200)
     def _weather(lat, lon, tech_key):
         try:
-            return wf.fetch(lat, lon, tech_key, past_days=60, forecast_days=16), None
+            return wf.fetch(lat, lon, tech_key, past_days=7, forecast_days=16), None
         except Exception as exc:  # noqa: BLE001
             return None, str(exc)
 
@@ -110,42 +110,52 @@ def render_near_term_tab(
         )
         return
 
-    # ── calibrate against SCED ───────────────────────────────────────────────
-    # gen_kwargs snapshot for the closure (Streamlit can't cache mutable dicts directly)
+    # ── calibrate against SCED using archive API ─────────────────────────────
+    # The forecast endpoint's past_days returns 0 for shortwave_radiation
+    # beyond ~30 days. SCED lags ~60 days, so we use the ERA5 archive endpoint
+    # which provides accurate historical radiation for any date range.
     _units = list(gen_kwargs.get("units", []))  # empty list = single-unit portal
     _is_multi_unit = bool(_units)
 
+    win_end_date = win_end if isinstance(win_end, dt.date) else pd.Timestamp(win_end).date()
+    win_start_date = win_start if isinstance(win_start, dt.date) else pd.Timestamp(win_start).date()
+    cal_start_date = max(win_start_date, win_end_date - dt.timedelta(days=60))
+
+    @st.cache_data(show_spinner="Loading calibration weather (ERA5 archive)…", ttl=86400)
+    def _archive(lat, lon, tech_key, start_str, end_str):
+        try:
+            return wf.fetch_archive(lat, lon, tech_key, start_str, end_str), None
+        except Exception as exc:  # noqa: BLE001
+            return None, str(exc)
+
     @st.cache_data(show_spinner="Calibrating against SCED history…", ttl=3600)
-    def _calibrate(lat, lon, tech_key, win_end_str, rnode, units_tuple):
-        w, err = _weather(lat, lon, tech_key)
-        if w is None:
+    def _calibrate(lat, lon, tech_key, cal_start_str, win_end_str, rnode, units_tuple):
+        arch_df, err = _archive(lat, lon, tech_key, cal_start_str, win_end_str)
+        if arch_df is None:
             return 1.0, 0
+        cal_start_d = dt.date.fromisoformat(cal_start_str)
         win_end_d = dt.date.fromisoformat(win_end_str)
-        cal_start = max(
-            win_start if isinstance(win_start, dt.date) else pd.Timestamp(win_start).date(),
-            win_end_d - dt.timedelta(days=60),
-        )
-        if cal_start >= win_end_d:
+        if cal_start_d >= win_end_d:
             return 1.0, 0
-        t_start = pd.Timestamp(cal_start)
+        t_start = pd.Timestamp(cal_start_d)
         t_end = pd.Timestamp(win_end_d) + pd.Timedelta(days=1)
         if units_tuple:
-            # Multi-unit portal (Azure Sky): positional units arg
             gen_raw = hub.generation(rnode, list(units_tuple), t_start, t_end)
         else:
             gen_raw = hub.generation(rnode, t_start, t_end)
         if gen_raw.empty:
             return 1.0, 0
         gen_raw = gen_raw.copy()
-        gen_raw["mwh"] = gen_raw.get("mwh", gen_raw["mw"] * 0.25)  # 15-min → MWh
+        gen_raw["mwh"] = gen_raw.get("mwh", gen_raw["mw"] * 0.25)
         gen_raw["date"] = pd.to_datetime(gen_raw["interval_start"]).dt.date
         sced_daily = gen_raw.groupby("date")["mwh"].sum() * share
-        factor = gf.calibrate(w, sced_daily, cap_share, tech_key, hub_height_m=hub_h)
+        factor = gf.calibrate(arch_df, sced_daily, cap_share, tech_key, hub_height_m=hub_h)
         return factor, int(len(sced_daily))
 
     cal_factor, n_cal_days = _calibrate(
         float(a["lat"]), float(a["lon"]), tech,
-        str(win_end if isinstance(win_end, dt.date) else pd.Timestamp(win_end).date()),
+        str(cal_start_date),
+        str(win_end_date),
         a["resource_node"],
         tuple(_units),
     )
