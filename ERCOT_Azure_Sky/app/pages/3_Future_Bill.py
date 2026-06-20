@@ -89,9 +89,10 @@ if basis == "Calibrated model":
              f"over the {cal['months'] if cal else 0} overlapping calendar months. "
              "Editable — raise/lower to stress availability.")
 degr = st.sidebar.slider(
-    "Annual degradation (%/yr)", 0.0, 2.0, 0.3, 0.1,
-    help="Output decline applied forward from the latest settled month "
-         "(wind fleets ≈0.2–0.5%/yr).") / 100.0
+    "Annual degradation (%/yr)", 0.0, 2.0, 0.0, 0.1,
+    help="Output decline applied forward from the latest settled month. Wind turbines "
+         "show little systematic degradation, so this defaults to 0% — raise it only to "
+         "stress wear or availability.") / 100.0
 
 st.sidebar.header("Price assumptions")
 n_months = st.sidebar.slider("Months to project", 1, 12, 6)

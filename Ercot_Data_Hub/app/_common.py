@@ -107,6 +107,28 @@ def data_status(st, *, path=None, rows=None, span=None, fresh_within_days=None):
         st.caption(f"{icon}  " + "  ·  ".join(bits))
 
 
+def controls_panel(st, label: str = "⚙️ Assumptions & filters", expanded: bool = True):
+    """A top-of-page container for a page's inputs.
+
+    Drop-in replacement for ``with st.sidebar:`` — use ``with controls_panel(st):``
+    so a page's assumptions sit at the **top of the main area** instead of buried
+    under the navigation in the sidebar (which then stays nav-only and consistent).
+    """
+    return st.expander(label, expanded=expanded)
+
+
+def assumptions_bar(st, items) -> None:
+    """One-line summary of the active selections, shown up top under the title.
+
+    ``items``: a dict or list of (label, value) pairs; empty values are skipped.
+    e.g. ``assumptions_bar(st, {"📅": "Mar 2025", "🏷️ Node": "MIRASOLE_GEN"})``.
+    """
+    pairs = list(items.items()) if isinstance(items, dict) else list(items)
+    parts = [f"{lbl} **{val}**".strip() for lbl, val in pairs if val not in (None, "", [])]
+    if parts:
+        st.caption("  ·  ".join(parts))
+
+
 def empty_state(st, message: str, *, hint=None, page=None, page_label=None, icon="➡️",
                 stop: bool = True):
     """Consistent 'no data here yet' block with an optional recovery link.
@@ -166,7 +188,7 @@ def universal_plant_label(a: dict) -> str:
             f"({a['capacity_mw']:,.0f} MW · {str(a.get('tech', '')).title()} · {a['hub']})")
 
 
-def universal_plant_picker(st, *, sidebar: bool = True, label: str = "🌎 Universal plant"):
+def universal_plant_picker(st, *, sidebar: bool = False, label: str = "🌎 Universal plant"):
     """Render the shared plant selector; return the chosen registry asset (or None).
 
     Lists every registry plant (both techs) so the shared pick is always valid on

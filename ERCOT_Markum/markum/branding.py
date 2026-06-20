@@ -107,10 +107,17 @@ def hero(st, title: str, subtitle: str = "") -> None:
     """Render the SR-branded page header with the asset's headline facts as chips."""
     inject_css(st)
     a = contract.ASSET
+    _is_wind = "wind" in str(a.get("tech", "")).lower()
+    if _is_wind:  # wind has no tracking/DC-AC; show turbine model if known
+        _tm = a.get("turbine_model")
+        tech_chip = f"🌬️ {a['tech']}" + (f" · {_tm}" if _tm else "")
+    else:
+        _tr = str(a.get("tracking_type", "")).replace("_", "-")
+        tech_chip = f"☀️ {a['tech']}" + (f" · {_tr}" if _tr else "")
     chips = "".join(
         f'<span class="markum-chip">{c}</span>' for c in (
             f"⚡ {a['capacity_mw']:,.0f} MW",
-            f"☀️ {a['tech']} · {a['tracking_type'].replace('_', '-')}",
+            tech_chip,
             f"📍 {a['county']}",
             f"🔌 {a['hub'].replace('HB_', '')} hub",
             f"🏷️ Node {a['resource_node']}",

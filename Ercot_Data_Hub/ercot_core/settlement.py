@@ -159,6 +159,11 @@ def compute_settlement(
     settle_below_floor: bool = False,
     mw_scale: float = 1.0,
     mw_cap: float | None = None,
+    price_ceiling: float | None = None,
+    exclude_negative: bool = False,
+    rec_per_mwh: float = 0.0,
+    escalation_pct: float = 0.0,
+    escalation_base_year: int | None = None,
 ) -> dict:
     """Interval-level settlement + summary for one asset.
 
@@ -192,6 +197,14 @@ def compute_settlement(
     df["price"] = pd.to_numeric(df["price"], errors="coerce")
     df["price_raw"] = df["price"]
 
+    # Negative-price exclusion (VPPA term: no settlement in intervals where the
+    # real-time price is < $0, independent of any floor). Off by default.
+    n_negative = int((df["price_raw"] < 0).sum())
+    excluded_neg_mwh = 0.0
+    if exclude_negative:
+        excluded_neg_mwh = float(df.loc[df["price_raw"] < 0, "mwh"].sum())
+        df = df[df["price_raw"] >= 0].copy()
+
     below = ((df["price_raw"] < price_floor) if price_floor is not None
              else pd.Series(False, index=df.index))
     n_below = int(below.sum())
@@ -203,11 +216,26 @@ def compute_settlement(
     elif price_floor is not None and settle_below_floor:
         # Still settle, but floor the market leg (CfD pays PPA − floor there).
         df["price"] = df["price"].clip(lower=price_floor)
+
+    # Price ceiling (the upper rail of a collar): cap the settled market price.
+    if price_ceiling is not None:
+        df["price"] = df["price"].clip(upper=price_ceiling)
+
+    # Strike escalation: the contract strike steps up `escalation_pct` per year
+    # from `escalation_base_year`. With pct=0 (default) the strike is flat.
+    if escalation_pct and escalation_base_year:
+        _yr = pd.to_datetime(df["interval_start"]).dt.year
+        _exp = (_yr - int(escalation_base_year)).clip(lower=0)
+        df["strike"] = float(ppa_price) * (1.0 + float(escalation_pct)) ** _exp
+    else:
+        df["strike"] = float(ppa_price)
+
     df["merchant"] = df["mwh"] * df["price"]
-    df["ppa_revenue"] = df["mwh"] * ppa_price
-    # CfD signed from the OFFTAKER's perspective: market − strike, ×MWh.
+    df["ppa_revenue"] = df["mwh"] * df["strike"]
+    # CfD signed from the OFFTAKER's perspective: market − strike, ×MWh, plus any
+    # fixed REC/green-attribute value per MWh (rec_per_mwh, 0 by default).
     # Positive ⇒ offtaker receives (market above strike); negative ⇒ offtaker pays.
-    df["cfd"] = df["mwh"] * (df["price"] - ppa_price)
+    df["cfd"] = df["mwh"] * (df["price"] - df["strike"]) + df["mwh"] * float(rec_per_mwh)
 
     # Locational basis: node price minus hub price (independent of settlement ref).
     if node_location and hub_location and node_location != hub_location:
@@ -223,6 +251,7 @@ def compute_settlement(
     total_mwh = float(df["mwh"].sum())
     merchant = float(df["merchant"].sum())
     ppa_rev = float(df["ppa_revenue"].sum())
+    rec_value = total_mwh * float(rec_per_mwh)   # REC/green-attribute value to offtaker
     summary = {
         "resource_node": resource_node,
         "reference": ref_location,
@@ -233,8 +262,17 @@ def compute_settlement(
         "capture_price": (merchant / total_mwh) if total_mwh else 0.0,  # gen-weighted market $/MWh
         "merchant_revenue": merchant,
         "ppa_revenue": ppa_rev,
-        "cfd_settlement": merchant - ppa_rev,   # offtaker frame: + => offtaker receives
+        # offtaker frame: + => offtaker receives. Includes REC value (0 by default).
+        "cfd_settlement": merchant - ppa_rev + rec_value,
         "ppa_vs_merchant": ppa_rev - merchant,  # seller frame: + => PPA beats merchant
+        "price_ceiling": price_ceiling,
+        "exclude_negative": exclude_negative,
+        "negative_intervals": n_negative,
+        "negative_excluded_mwh": excluded_neg_mwh,
+        "rec_per_mwh": rec_per_mwh,
+        "rec_value": rec_value,
+        "escalation_pct": escalation_pct,
+        "escalation_base_year": escalation_base_year,
         "units": list(units) if units is not None else None,
         "mw_scale": mw_scale,
         "mw_cap": mw_cap,

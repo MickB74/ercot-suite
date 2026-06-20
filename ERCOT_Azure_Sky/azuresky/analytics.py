@@ -19,6 +19,19 @@ def settle(start_date: dt.date, end_date: dt.date, terms: dict | None = None) ->
     """Settle Azure Sky over [start_date, end_date] inclusive. None if no data."""
     terms = terms or contract.load_contract()
     a = contract.ASSET
+    # Clamp the window to the contract term when set (off by default).
+    if terms.get("term_start"):
+        try:
+            start_date = max(start_date, dt.date.fromisoformat(str(terms["term_start"])))
+        except ValueError:
+            pass
+    if terms.get("term_end"):
+        try:
+            end_date = min(end_date, dt.date.fromisoformat(str(terms["term_end"])))
+        except ValueError:
+            pass
+    if start_date > end_date:
+        return None
     start = pd.Timestamp(start_date)
     end_excl = pd.Timestamp(end_date) + pd.Timedelta(days=1)
 
@@ -41,6 +54,7 @@ def settle(start_date: dt.date, end_date: dt.date, terms: dict | None = None) ->
         price_floor=floor,
         settle_below_floor=settle_below,
         mw_scale=mw_scale,
+        **contract.engine_kwargs(terms),     # ceiling / negatives / REC / escalation
     )
     res["ref_location"] = ref
     return res

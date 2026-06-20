@@ -39,14 +39,14 @@ with st.container(border=True):
     st.markdown("**What do you want to do?**")
     q1, q2, q3 = st.columns(3)
     with q1:
-        st.page_link("pages/7_PPA_Settlement.py", label="Settle a PPA", icon="🧾")
-        st.page_link("pages/2_Hub_Prices.py", label="Explore hub prices", icon="💵")
+        st.page_link("screens/7_PPA_Settlement.py", label="Settle a PPA", icon="🧾")
+        st.page_link("screens/2_Hub_Prices.py", label="Explore hub prices", icon="💵")
     with q2:
-        st.page_link("pages/8_Reconciliation.py", label="Reconcile a plant", icon="🔁")
-        st.page_link("pages/5_Node_Explorer.py", label="Explore a node", icon="📈")
+        st.page_link("screens/8_Reconciliation.py", label="Reconcile a plant", icon="🔁")
+        st.page_link("screens/5_Node_Explorer.py", label="Explore a node", icon="📈")
     with q3:
-        st.page_link("pages/6_Project_Lookup.py", label="Find a project's node", icon="🔎")
-        st.page_link("pages/13_Solar_Forecast.py", label="Forecast solar (lat/long)", icon="☀️")
+        st.page_link("screens/6_Project_Lookup.py", label="Find a project's node", icon="🔎")
+        st.page_link("screens/13_Solar_Forecast.py", label="Forecast solar (lat/long)", icon="☀️")
 
 # --------------------------------------------------------------------------
 # Credentials (shared config.json) — only hub_prices + system_gen wind/solar need it
@@ -268,7 +268,7 @@ with st.container(border=True):
                 "⬇ hourly CSV", res.reset_index().to_csv(index=False),
                 file_name=f"solar_{s_lat:.3f}_{s_lon:.3f}_{lbl}.csv", mime="text/csv")
 
-    st.page_link("pages/13_Solar_Forecast.py",
+    st.page_link("screens/13_Solar_Forecast.py",
                  label="Open full Solar Forecast page (tilt, module, losses, compare TMY vs actual)",
                  icon="☀️")
 

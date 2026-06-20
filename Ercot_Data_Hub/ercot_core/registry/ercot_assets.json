@@ -400,31 +400,9 @@
     "turbine_model": "Vestas V110-2.0",
     "project_name": "Route 66 Wind"
   },
-  "Los Mirasoles Wind": {
-    "resource_name": "MIRASOLE_MIR11",
-    "sced_units": [
-      "MIRASOLE_MIR11",
-      "MIRASOLE_MIR12",
-      "MIRASOLE_MIR13",
-      "MIRASOLE_MIR21"
-    ],
-    "project_name": "Los Mirasoles Wind Farm",
-    "tech": "Wind",
-    "capacity_mw": 300.0,
-    "hub": "South",
-    "lat": 26.5,
-    "lon": -98.6,
-    "county": "Hidalgo",
-    "hub_height_m": 95.0,
-    "turbine_model": "V110-2.0",
-    "rotor_diameter_m": 110.0,
-    "turbine_manuf": "Vestas",
-    "location_confidence": "high",
-    "location_source": "USWTDB: Los Vientos III (0.8 km)"
-  },
   "Hidalgo Wind": {
     "resource_name": "HIDALGO_WIND1",
-    "project_name": "Hidalgo Wind Farm",
+    "project_name": "Hidalgo Wind",
     "tech": "Wind",
     "capacity_mw": 100.0,
     "hub": "South",
@@ -434,9 +412,11 @@
     "hub_height_m": 80.0,
     "turbine_model": "Vestas V100-2.0",
     "location_confidence": "high",
-    "location_source": "EIA 57617 Hidalgo Wind Farm (registry coords were ~26km off)",
+    "location_source": "UNVERIFIED \u2014 see notes",
     "turbine_manuf": "Vestas",
-    "rotor_diameter_m": 110.0
+    "rotor_diameter_m": 110.0,
+    "eia_crosswalk_status": "disputed",
+    "notes": "FLAG (2026-06-19): the prior 'EIA 57617' mapping is WRONG \u2014 EIA 57617 (Hidalgo Wind Farm LLC) belongs to the MIRASOLE_GEN node (see 'Los Mirasoles Wind'), confirmed by generation reconciliation. HIDALGO_WIND1 is also not present in the ERCOT resource-node catalog. Treat this entry as unverified / likely conflated with Los Mirasoles until its own node + EIA id are confirmed."
   },
   "Capricorn Ridge": {
     "resource_name": "CAPRIDGE_WIND_AGG",
@@ -812,5 +792,82 @@
     "dc_ac_ratio": 1.3,
     "location_confidence": "high",
     "location_source": "user-provided coordinates"
+  },
+  "mockingbird": {
+    "resource_name": "MLB_SLR_RN",
+    "project_name": "mockingbird",
+    "tech": "Solar",
+    "capacity_mw": 471.0,
+    "hub": "North",
+    "county": "Lamar",
+    "lat": 33.39167,
+    "lon": -95.42519,
+    "tracking_type": "single_axis",
+    "dc_ac_ratio": 1.3,
+    "sced_units": [
+      "MLB_SLR_SOLAR1",
+      "MLB_SLR_SOLAR2",
+      "MLB_SLR_SOLAR3"
+    ]
+  },
+  "MOCKINGBIRD": {
+    "resource_name": "MLB_SLR_RN",
+    "project_name": "MOCKINGBIRD",
+    "tech": "Solar",
+    "capacity_mw": 471.0,
+    "hub": "North",
+    "county": "Lamar",
+    "lat": 33.39167,
+    "lon": -95.42519,
+    "tracking_type": "single_axis",
+    "dc_ac_ratio": 1.3,
+    "sced_units": [
+      "MLB_SLR_SOLAR1",
+      "MLB_SLR_SOLAR2",
+      "MLB_SLR_SOLAR3"
+    ]
+  },
+  "Hidalgo Mirasole Wind": {
+    "resource_name": "MIRASOLE_GEN",
+    "sced_units": [
+      "MIRASOLE_MIR11",
+      "MIRASOLE_MIR12",
+      "MIRASOLE_MIR13",
+      "MIRASOLE_MIR21"
+    ],
+    "project_name": "Hidalgo Mirasole Wind",
+    "tech": "Wind",
+    "capacity_mw": 300.0,
+    "hub": "South",
+    "lat": 26.465556,
+    "lon": -98.411111,
+    "county": "Hidalgo",
+    "hub_height_m": 95.0,
+    "turbine_model": "V110-2.0",
+    "rotor_diameter_m": 110.0,
+    "turbine_manuf": "Vestas",
+    "location_confidence": "high",
+    "location_source": "EIA 57617 Hidalgo Wind Farm LLC + 62618 Hidalgo Wind Farm II (verified by SCED\u2194EIA-923 reconciliation, 0.2%)",
+    "resource_node": "MIRASOLE_GEN",
+    "eia_plant_id": 57617,
+    "eia_plant_id_secondary": 62618,
+    "eia_prime_mover": "WT",
+    "notes": "ERCOT node MIRASOLE_GEN (units MIRASOLE_MIR11/12/13/21) = EIA 'Hidalgo Wind Farm LLC' (57617, 250 MW) + 'Hidalgo Wind Farm II' (62618, 50 MW), ~300 MW. 'Los Mirasoles' is the ERCOT/commercial name; EIA files it under the LLC. Crosswalk confirmed 2026-06-19 by generation reconciliation: MIRASOLE_GEN SCED Q2-2024 = 248,590 MWh vs EIA-923 57617+62618 = 248,995 MWh (0.2%).",
+    "aka": "Los Mirasoles Wind Farm (commercial) \u00b7 Hidalgo Wind Farm LLC (EIA 57617)"
+  },
+  "Miller": {
+    "resource_name": "MIL_MILG1_2",
+    "project_name": "Miller",
+    "tech": "Solar",
+    "capacity_mw": 178.0,
+    "hub": "North",
+    "county": "Haskell",
+    "queue_id": "24INR0044",
+    "tracking_type": "single_axis",
+    "dc_ac_ratio": 1.3,
+    "sced_units": [
+      "MIL_MILLERG1",
+      "MIL_MILLERG2"
+    ]
   }
 }

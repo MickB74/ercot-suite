@@ -32,8 +32,12 @@ nav = st.navigation({
     "Audit": [
         st.Page("pages/4_Invoice_Audit.py", title="Invoice Audit", icon="🔍"),
     ],
-    "Settings": [
+    "Data": [
+        st.Page("pages/6_Update_Data.py", title="Update data", icon="⬇️"),
+    ],
+    "About": [
         st.Page("pages/5_Contract.py", title="Contract Terms", icon="📄"),
+        st.Page("pages/0_How_It_Works.py", title="How it works", icon="📘"),
     ],
 })
 nav.run()

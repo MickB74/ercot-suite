@@ -339,7 +339,7 @@ def render() -> None:
         st.error("No ercot_hub_prices_15min.parquet found. Set `hub_lake_dir` in config.json.")
         return
 
-    with st.sidebar:
+    with st.container(border=True):
         st.header("Forecast settings")
         st.caption("🔗 Hub, as-of, horizon & simulations are shared with the Plant "
                    "Value and Wind Capture pages.")

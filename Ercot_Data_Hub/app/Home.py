@@ -25,7 +25,8 @@ import streamlit as st  # noqa: E402
 
 from ercot_core import paths  # noqa: E402
 
-st.set_page_config(page_title="ERCOT Data Hub", page_icon="⚡", layout="wide")
+st.set_page_config(page_title="ERCOT Data Hub", page_icon="⚡", layout="wide",
+                   initial_sidebar_state="expanded")
 paths.ensure_dirs()
 
 # --------------------------------------------------------------------------
@@ -33,7 +34,10 @@ paths.ensure_dirs()
 # knows where to start and what feeds what. Titles/icons live here now that the
 # pages no longer call st.set_page_config.
 # --------------------------------------------------------------------------
-P = "pages"  # page files keep their numeric filenames; titles set explicitly here
+# Page scripts live in app/screens/ (NOT app/pages/): a folder literally named
+# "pages" makes Streamlit auto-generate a second, flat sidebar nav that conflicts
+# with this grouped st.navigation. Renaming it leaves this as the only nav.
+P = "screens"  # page files keep their numeric filenames; titles set explicitly here
 
 nav = st.navigation({
     "Start Here": [
@@ -52,19 +56,24 @@ nav = st.navigation({
         st.Page(f"{P}/13_Solar_Forecast.py", title="Solar Forecast", icon="☀️"),
         st.Page(f"{P}/14_Wind_Forecast.py", title="Wind Forecast", icon="🌬️"),
         st.Page(f"{P}/16_Price_Forecast.py", title="Price Forecast", icon="📉"),
-        st.Page(f"{P}/17_Plant_Value.py", title="Plant Value", icon="🔆"),
-        st.Page(f"{P}/18_Wind_Capture.py", title="Wind Capture & Revenue", icon="💨"),
+        st.Page(f"{P}/17_Plant_Value.py", title="Predicted Solar Settlement", icon="🔆"),
+        st.Page(f"{P}/18_Wind_Capture.py", title="Predicted Wind Settlement", icon="💨"),
     ],
     "Analyze": [
         st.Page(f"{P}/7_PPA_Settlement.py", title="PPA Settlement", icon="🧾"),
+        st.Page(f"{P}/15_Invoice_Validation.py", title="Invoice Validation", icon="✅"),
         st.Page(f"{P}/8_Reconciliation.py", title="Reconciliation", icon="🔁"),
         st.Page(f"{P}/9_Fleet_Reconciliation.py", title="Fleet Reconciliation", icon="🛰️"),
     ],
-    # Mapping / name-resolution utilities — used occasionally for setup, so kept
-    # last and out of the main workflow.
-    "Tools": [
+    # Onboard a new project and manage the registry it feeds.
+    "Build a Project": [
+        st.Page(f"{P}/20_Queue_Explorer.py", title="Queue Explorer", icon="🔌"),
+        st.Page(f"{P}/6_Project_Lookup.py", title="Project Builder", icon="🏗️"),
         st.Page(f"{P}/19_Project_Hub.py", title="Project Hub", icon="🗂️"),
-        st.Page(f"{P}/6_Project_Lookup.py", title="Project Lookup", icon="🔎"),
+    ],
+    # Back-end name/EIA matching that feeds the registry & reconciliation. Rarely
+    # needed by hand, so kept last and out of the main workflow.
+    "Crosswalk Tools": [
         st.Page(f"{P}/12_Name_Resolver.py", title="Name Resolver", icon="🔤"),
         st.Page(f"{P}/11_Auto_Crosswalk.py", title="Auto-Crosswalk", icon="🧩"),
     ],

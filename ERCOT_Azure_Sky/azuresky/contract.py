@@ -55,7 +55,43 @@ DEFAULT_CONTRACT = {
     "fee_per_mwh": 0.0,          # only used for "Merchant + fee"
     "counterparty": "Customer",  # label shown on the bill
     "currency": "USD",
+
+    # ── extended VPPA levers (all OFF / neutral by default) ──────────────────
+    "apply_ceiling": False,
+    "price_ceiling": 0.0,
+    "exclude_negative_prices": False,
+    "escalation_pct": 0.0,           # %/yr (e.g. 2.0); 0 = flat
+    "escalation_base_year": 0,       # 0 ⇒ use term-start year, else this year
+    "rec_per_mwh": 0.0,              # REC value to offtaker, $/MWh (+ receive, − pay)
+    "term_start": "",                # "YYYY-MM-DD"
+    "term_end": "",
+    # ── recorded for reference, NOT yet applied to interval math ─────────────
+    "annual_volume_cap_mwh": 0.0,
+    "settlement_frequency": "Monthly",
+    "notional_type": "As-generated",
 }
+
+
+def engine_kwargs(terms: dict) -> dict:
+    """Map contract terms to the extra ``compute_settlement`` kwargs (off ⇒ omitted)."""
+    kw: dict = {}
+    if terms.get("apply_ceiling") and float(terms.get("price_ceiling", 0) or 0) > 0:
+        kw["price_ceiling"] = float(terms["price_ceiling"])
+    if terms.get("exclude_negative_prices"):
+        kw["exclude_negative"] = True
+    if float(terms.get("rec_per_mwh", 0) or 0):
+        kw["rec_per_mwh"] = float(terms["rec_per_mwh"])
+    esc = float(terms.get("escalation_pct", 0) or 0)
+    base = int(terms.get("escalation_base_year", 0) or 0)
+    if not base and terms.get("term_start"):
+        try:
+            base = int(str(terms["term_start"])[:4])
+        except ValueError:
+            base = 0
+    if esc and base:
+        kw["escalation_pct"] = esc / 100.0
+        kw["escalation_base_year"] = base
+    return kw
 
 CONFIG_PATH = Path(__file__).resolve().parents[1] / "config.json"
 

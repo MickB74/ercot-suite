@@ -12,6 +12,10 @@ One place for the things the four datasets used to each reinvent:
   - plant_names    resource-code -> human plant-name crosswalk
   - tz             canonical US/Central timezone helpers (DST-correct), the one
                    place naive-Central <-> tz-aware <-> UTC conversion lives
+  - project_lookup interconnection queue / name -> resource node, curated registry
+  - ifyi           interconnection.fyi client (queue id -> canonical name + dates)
+  - queue_search   search / analyze the merged queue + per-project DD dossier
+  - tx_filings     Texas county/state filing deep-links + DD checklists
 """
 
 from __future__ import annotations
@@ -25,4 +29,8 @@ __all__ = [
     "sced_disclosure",
     "plant_names",
     "tz",
+    "project_lookup",
+    "ifyi",
+    "queue_search",
+    "tx_filings",
 ]

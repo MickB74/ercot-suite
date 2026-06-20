@@ -205,7 +205,7 @@ def render(st, wiring: Wiring) -> None:
 
     wiring.cache_dir.mkdir(parents=True, exist_ok=True)
 
-    with st.sidebar:
+    with st.container(border=True):
         st.header("Location")
 
         # session_state holds the working lat/lon/capacity so the project picker

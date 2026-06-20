@@ -22,6 +22,7 @@ from markum import analytics, branding, contract, hub  # noqa: E402
 
 terms = contract.load_contract()
 a = contract.ASSET
+is_wind = "wind" in str(a.get("tech", "")).lower()
 loc = contract.settle_location(terms)   # settlement reference (node or a hub)
 strike = float(terms.get("strike", 0.0))
 share = float(terms.get("volume_share_pct", 100.0)) / 100.0
@@ -29,12 +30,14 @@ share = float(terms.get("volume_share_pct", 100.0)) / 100.0
 branding.hero(st, "Projected Bill",
               f"Forward estimate · {terms['structure']} at ${strike:,.2f}/MWh · "
               f"{contract.offtake_label(terms)} offtake")
-st.info("📌 **Estimate only.** Generation is modelled — by default from a "
-        "weather-calibrated production model (PVWatts typical year, anchored to "
-        "Markum's real metered output) — and the market price is your forward "
-        "assumption. Switch the basis and tune the assumptions in the sidebar. "
-        "Actual settlement is finalised from ERCOT-published data on the "
-        "**Past Settlement** page.")
+_gen_basis_txt = ("the project's historical metered output shape"
+                  if is_wind else
+                  "a weather-calibrated production model (PVWatts typical year, anchored "
+                  "to the plant's real metered output)")
+st.info(f"📌 **Estimate only.** Generation is modelled — from {_gen_basis_txt} — and the "
+        "market price is your forward assumption. Tune the assumptions in the sidebar. "
+        "Actual settlement is finalised from ERCOT-published data on the **Past "
+        "Settlement** page. See **How it works** for the full methodology.")
 
 win_start, win_end = hub.settlement_window(a["resource_node"], loc)
 if win_start is None:
@@ -72,9 +75,11 @@ st.sidebar.header("Generation assumptions")
 bases = ["Calibrated model", "Physical model (TMY)", "Historical shape"]
 if tmy_mwh is None:
     bases = ["Historical shape"]
-    st.sidebar.caption("No TMY weather profile is cached for this plant yet, so "
-                       "only the historical shape is available. Run the Hub's "
-                       "plant-value step to enable the calibrated model.")
+    st.sidebar.caption(
+        "Generation is projected from the historical metered shape (mean of each "
+        "calendar month across settled history)." if is_wind else
+        "No TMY weather profile is cached for this plant yet, so only the historical "
+        "shape is available. Run the Hub's plant-value step to enable the calibrated model.")
 basis = st.sidebar.radio(
     "Generation basis", bases, index=0,
     help="**Calibrated model** — PVWatts typical-meteorological-year shape, "
@@ -93,9 +98,11 @@ if basis == "Calibrated model":
              f"over the {cal['months'] if cal else 0} overlapping calendar months. "
              "Editable — raise/lower to stress availability.")
 degr = st.sidebar.slider(
-    "Annual degradation (%/yr)", 0.0, 2.0, 0.5, 0.1,
-    help="PV output decline applied forward from the latest settled month "
-         "(industry norm ≈0.5%/yr).") / 100.0
+    "Annual degradation (%/yr)", 0.0, 2.0, 0.0 if is_wind else 0.5, 0.1,
+    help=("Output decline applied forward from the latest settled month. "
+          + ("Wind turbines show little systematic degradation — default 0%; "
+             "raise only to stress availability/wear." if is_wind
+             else "Solar PV industry norm ≈0.5%/yr."))) / 100.0
 
 st.sidebar.header("Price assumptions")
 n_months = st.sidebar.slider("Months to project", 1, 12, 6)

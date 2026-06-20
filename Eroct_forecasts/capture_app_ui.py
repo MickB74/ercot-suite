@@ -64,10 +64,12 @@ def render(resolve_name=None, preferred=None) -> None:
     When given, the wind-site picker defaults to the cached run nearest that
     coordinate (within 25 km), so picking a plant elsewhere carries here.
     """
-    st.title("💨 Wind Capture & Revenue")
-    st.caption("Overlays the ERCOT price forecast on a wind-production run to get "
-               "capture price, cannibalization, revenue and VPPA settlement — with "
-               "P10/P50/P90 scenario bands.")
+    st.title("💨 Predicted Wind Settlement")
+    st.caption("Predict a wind project's forward **VPPA settlement**: overlays the ERCOT price "
+               "forecast on a wind-production run, nets it against your strike, and shows the "
+               "**🧾 VPPA settlement** tab (＋ offtaker receives · − pays) plus capture price, "
+               "cannibalization and revenue — with P10/P50/P90 scenario bands. Set the strike "
+               "in the sidebar; leave it 0 to see just capture/revenue.")
 
     sites = wr.list_wind_sites()
     if not sites:
@@ -110,57 +112,62 @@ def render(resolve_name=None, preferred=None) -> None:
             pref_note = (f"🌎 Universal plant **{plabel}** has no cached wind run within 25 km — "
                          "run it on the **Wind Forecast** page and it'll appear here.")
 
-    with st.sidebar:
-        st.header("Wind project")
-        if pref_note:
-            st.caption(pref_note)
-        labels = [s["display"] for s in sites]
-        sel = st.selectbox("Wind site", labels, index=default_ix,
-                           help="A wind location from the Wind Forecast page. All its "
-                                "cached weather years are blended into one month × hour "
-                                "capacity-factor shape, which drives capture. Names are "
-                                "the nearest ERCOT plant (EIA-860) to the run coordinate.")
-        site = sites[labels.index(sel)]
-        if len(site["years"]) > 1:
-            st.caption(f"Blending {len(site['years'])} weather years: {', '.join(site['years'])}.")
-        default_mw = float(site["nameplate_mw"]) if not np.isnan(site["nameplate_mw"]) else 100.0
-        nameplate = st.number_input("Nameplate (MW)", min_value=1.0, value=default_mw,
-                                    step=10.0, help="Scales generation and revenue. "
-                                    "Defaults to the cached fleet size; capture price "
-                                    "and cannibalization don't depend on it.")
-        st.header("Price")
-        st.caption("🔗 Hub, as-of, horizon, simulations & strike are shared with the "
-                   "Price Forecast and Plant Value pages.")
-        # Shared "forecast context" (fx_*) — persists hub/as-of/horizon/sims/strike
-        # across the Price Forecast and Plant Value pages too. Seed from
-        # session_state, write the live value back.
-        _hubs = list(pf_history.HUBS)
-        _fx_hub = st.session_state.get("fx_hub", _hubs[0])
-        hub = st.selectbox("Settlement hub", _hubs,
-                           index=_hubs.index(_fx_hub) if _fx_hub in _hubs else 0,
-                           help="Which ERCOT hub the project settles against.")
-        st.session_state["fx_hub"] = hub
-        asof = st.date_input("As of", value=st.session_state.get("fx_asof", pd.Timestamp.today().date()))
-        st.session_state["fx_asof"] = asof
-        horizon = st.slider("Horizon (months)", 12, 60,
-                            min(max(int(st.session_state.get("fx_horizon", 24)), 12), 60), step=6)
-        st.session_state["fx_horizon"] = horizon
-        _simopts = [1000, 2000, 5000, 10000]
-        _fx_sims = st.session_state.get("fx_sims", 2000)
-        sims = st.select_slider("Simulations", _simopts,
-                                value=_fx_sims if _fx_sims in _simopts else 2000)
-        st.session_state["fx_sims"] = sims
-        st.header("VPPA (optional)")
-        strike = st.number_input("Strike price ($/MWh)", min_value=0.0,
-                                 value=float(st.session_state.get("fx_strike", 0.0)), step=5.0,
-                                 help="Fixed price in a virtual PPA. Settlement = "
-                                      "(captured market price − strike) × generation. "
-                                      "Leave 0 to skip settlement.")
-        st.session_state["fx_strike"] = strike
-        go_btn = st.button("Run capture analysis", type="primary")
+    # Layout mirrors the Predicted Solar Settlement page: a full-width site picker,
+    # a context caption, then tidy 2-column rows of inputs, then the run button.
+    if pref_note:
+        st.caption(pref_note)
+    labels = [s["display"] for s in sites]
+    sel = st.selectbox("Wind site", labels, index=default_ix,
+                       help="A wind location from the Wind Forecast page. All its cached "
+                            "weather years are blended into one month × hour capacity-factor "
+                            "shape, which drives capture. Names are the nearest ERCOT plant "
+                            "(EIA-860) to the run coordinate.")
+    site = sites[labels.index(sel)]
+    _blend = (f" · blending {len(site['years'])} weather years ({', '.join(site['years'])})"
+              if len(site["years"]) > 1 else "")
+    st.caption(f"**{sel}** · {site['lat']:.3f}, {site['lon']:.3f}{_blend}")
+    st.caption("🔗 Hub, as-of, horizon, simulations & strike are shared with the Price "
+               "Forecast and Predicted Solar Settlement pages.")
+
+    default_mw = float(site["nameplate_mw"]) if not np.isnan(site["nameplate_mw"]) else 100.0
+    _hubs = list(pf_history.HUBS)
+    _fx_hub = st.session_state.get("fx_hub", _hubs[0])
+
+    c1, c2 = st.columns(2)
+    nameplate = c1.number_input("Nameplate (MW)", min_value=1.0, value=default_mw, step=10.0,
+                                help="Scales generation and revenue. Defaults to the cached "
+                                     "fleet size; capture price and cannibalization don't "
+                                     "depend on it.")
+    hub = c2.selectbox("Settlement hub", _hubs,
+                       index=_hubs.index(_fx_hub) if _fx_hub in _hubs else 0,
+                       help="Which ERCOT hub the project settles against.")
+    st.session_state["fx_hub"] = hub
+
+    d1, d2 = st.columns(2)
+    asof = d1.date_input("As of", value=st.session_state.get("fx_asof", pd.Timestamp.today().date()),
+                         help="Forecast start date. Shared across the forecast pages.")
+    st.session_state["fx_asof"] = asof
+    horizon = d2.slider("Horizon (months)", 12, 60,
+                        min(max(int(st.session_state.get("fx_horizon", 24)), 12), 60), step=6,
+                        help="Months of forward price curve to value the project against.")
+    st.session_state["fx_horizon"] = horizon
+
+    e1, e2 = st.columns(2)
+    _simopts = [1000, 2000, 5000, 10000]
+    _fx_sims = st.session_state.get("fx_sims", 2000)
+    sims = e1.select_slider("Simulations", _simopts, value=_fx_sims if _fx_sims in _simopts else 2000,
+                            help="Monte Carlo price paths behind the P10/P50/P90 bands.")
+    st.session_state["fx_sims"] = sims
+    strike = e2.number_input("Strike price ($/MWh)", min_value=0.0,
+                             value=float(st.session_state.get("fx_strike", 0.0)), step=5.0,
+                             help="Fixed VPPA price. Settlement = (captured market price − "
+                                  "strike) × generation. Leave 0 to skip settlement.")
+    st.session_state["fx_strike"] = strike
+
+    go_btn = st.button("⚡ Run capture analysis", type="primary")
 
     if not go_btn:
-        st.info("Pick a wind run + hub on the left, then **Run capture analysis**.")
+        st.info("Pick a wind run + hub above, then **Run capture analysis**.")
         st.stop()
 
     with st.spinner("Forecasting prices and computing capture…"):

@@ -48,9 +48,55 @@ DEFAULT_CONTRACT = {
     "fee_per_mwh": 0.0,          # only used for "Merchant + fee"
     "counterparty": "Customer",  # label shown on the bill
     "currency": "USD",
+
+    # ── extended VPPA levers (all OFF / neutral by default) ──────────────────
+    # Price ceiling (upper rail of a collar): cap the settled market price.
+    "apply_ceiling": False,
+    "price_ceiling": 0.0,
+    # Negative-price exclusion: no settlement when RT price < $0 (common term).
+    "exclude_negative_prices": False,
+    # Strike escalation: strike steps up this %/yr from the base year.
+    "escalation_pct": 0.0,           # %/yr (e.g. 2.0); 0 = flat
+    "escalation_base_year": 0,       # 0 ⇒ use term-start year, else this year
+    # REC / green-attribute value to the offtaker, $/MWh (+ receive, − pay).
+    "rec_per_mwh": 0.0,
+    # Contract term: settlement is clamped to [term_start, term_end] when set.
+    "term_start": "",                # "YYYY-MM-DD"
+    "term_end": "",
+    # ── recorded for the record, NOT yet applied to interval math ────────────
+    "annual_volume_cap_mwh": 0.0,    # 0 = no cap
+    "settlement_frequency": "Monthly",
+    "notional_type": "As-generated",  # vs "Fixed shape"
 }
 
 CONFIG_PATH = Path(__file__).resolve().parents[1] / "config.json"
+
+
+def engine_kwargs(terms: dict) -> dict:
+    """Map contract terms to the extra ``compute_settlement`` kwargs.
+
+    Returns only the levers that are switched ON, so settlement stays identical to
+    the base CfD until a term is enabled. Escalation needs a base year — it uses the
+    explicit one, else the term-start year; if neither, escalation stays off.
+    """
+    kw: dict = {}
+    if terms.get("apply_ceiling") and float(terms.get("price_ceiling", 0) or 0) > 0:
+        kw["price_ceiling"] = float(terms["price_ceiling"])
+    if terms.get("exclude_negative_prices"):
+        kw["exclude_negative"] = True
+    if float(terms.get("rec_per_mwh", 0) or 0):
+        kw["rec_per_mwh"] = float(terms["rec_per_mwh"])
+    esc = float(terms.get("escalation_pct", 0) or 0)
+    base = int(terms.get("escalation_base_year", 0) or 0)
+    if not base and terms.get("term_start"):
+        try:
+            base = int(str(terms["term_start"])[:4])
+        except ValueError:
+            base = 0
+    if esc and base:
+        kw["escalation_pct"] = esc / 100.0
+        kw["escalation_base_year"] = base
+    return kw
 
 
 def load_contract() -> dict:

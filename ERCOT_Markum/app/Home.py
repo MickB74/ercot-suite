@@ -20,11 +20,16 @@ if str(ROOT) not in sys.path:
 
 import streamlit as st  # noqa: E402
 
-st.set_page_config(page_title="Markum Solar · Settlement Portal",
-                   page_icon="☀️", layout="wide")
+from markum import contract  # noqa: E402
+
+# Title/icon follow the asset so the same template reads right for solar or wind.
+_name = str(contract.ASSET.get("project_name", "Settlement Portal"))
+_is_wind = "wind" in str(contract.ASSET.get("tech", "")).lower()
+_icon = "🌬️" if _is_wind else "☀️"
+st.set_page_config(page_title=f"{_name} · Settlement Portal", page_icon=_icon, layout="wide")
 
 nav = st.navigation({
-    "Markum Solar": [
+    _name: [
         st.Page("pages/1_Overview.py", title="Overview", icon="📊", default=True),
         st.Page("pages/2_Past_Settlement.py", title="Past Settlement", icon="🧾"),
         st.Page("pages/3_Future_Bill.py", title="Projected Bill", icon="🔮"),
@@ -32,8 +37,12 @@ nav = st.navigation({
     "Audit": [
         st.Page("pages/4_Invoice_Audit.py", title="Invoice Audit", icon="🔍"),
     ],
-    "Settings": [
+    "Data": [
+        st.Page("pages/6_Update_Data.py", title="Update data", icon="⬇️"),
+    ],
+    "About": [
         st.Page("pages/5_Contract.py", title="Contract Terms", icon="📄"),
+        st.Page("pages/0_How_It_Works.py", title="How it works", icon="📘"),
     ],
 })
 nav.run()

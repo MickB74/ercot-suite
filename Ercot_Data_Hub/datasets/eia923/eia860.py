@@ -47,8 +47,14 @@ GEN_COLS = {
 
 
 def _zip_candidates(year: int) -> list[str]:
+    # Final annual file first; fall back to the "Early Release" (preliminary
+    # prior-year data EIA publishes mid-year, named ...{year}ER.zip) so the most
+    # recent year is available months before its final file exists. Current year
+    # lives under /xls/; older years under /archive/xls/.
     return [f"{BASE_URL}/xls/eia860{year}.zip",
-            f"{BASE_URL}/archive/xls/eia860{year}.zip"]
+            f"{BASE_URL}/xls/eia860{year}ER.zip",
+            f"{BASE_URL}/archive/xls/eia860{year}.zip",
+            f"{BASE_URL}/archive/xls/eia860{year}ER.zip"]
 
 
 def fetch_zip(year: int, force: bool = False) -> "os.PathLike":
@@ -109,6 +115,8 @@ def build_year(year: int, region: str = "ercot", force_download: bool = False) -
     """Download + parse EIA-860 for `year`, ERCO-filter, cache parquet."""
     zpath = fetch_zip(year, force=force_download)
     with zipfile.ZipFile(zpath) as zf:
+        # Early Release workbooks carry "Early_Release" in their member names.
+        is_early = any("early_release" in n.lower() for n in zf.namelist())
         plant_raw = _read_sheet(zf, "plant", must_not="generator")
         gen_raw = _read_sheet(zf, "generator",
                               want_sheets=["Operable", "Proposed", "Retired and Canceled"])
@@ -134,12 +142,13 @@ def build_year(year: int, region: str = "ercot", force_download: bool = False) -
         pd.to_numeric(df.get("planned_month"), errors="coerce")).fillna(1)
     df["online_date"] = pd.to_datetime(dict(year=yr, month=mo.clip(1, 12), day=1), errors="coerce")
     df["data_year"] = int(year)
+    df["release"] = "early" if is_early else "final"
 
     df = _filter_region(df, region)
     order = ["data_year", "plant_id", "plant_name", "generator_id", "state", "county",
              "latitude", "longitude", "ba_code", "nerc_region", "sector", "technology",
              "prime_mover", "energy_source", "fuel_category", "nameplate_mw", "status",
-             "status_group", "online_date"]
+             "status_group", "online_date", "release"]
     df = df[[c for c in order if c in df.columns]].reset_index(drop=True)
 
     paths.EIA_DIR.mkdir(parents=True, exist_ok=True)

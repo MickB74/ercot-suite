@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.pyc
+# Contract terms (deal-specific) stay local.
+config.json
+settings.json
+.DS_Store

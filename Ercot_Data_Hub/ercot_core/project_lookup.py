@@ -17,6 +17,7 @@ For operational projects missing from the queue, search by name directly.
 from __future__ import annotations
 
 import glob
+import json
 import os
 import re
 
@@ -212,6 +213,52 @@ def persist_to_crosswalk(units: list[str], plant_name: str, queue_id=None,
     rows = [{"resource_name": u, "plant_name": plant_name, "queue_id": queue_id,
              "url": url, "county": county, "capacity_mw": capacity_mw} for u in units]
     return plant_names.record_ifyi_names(rows)
+
+
+# --------------------------------------------------------------------------
+# Curated asset registry (ercot_assets.json)
+# --------------------------------------------------------------------------
+# This is the source of truth that powers every analysis page (Plant Value,
+# Wind Capture, PPA Settlement, the forecasts) and the standalone project
+# portals (Markham, Azure Sky). Registering a project here is what turns a bare
+# ERCOT node into something the whole Hub can see and a portal can be built on.
+
+def load_registry() -> dict:
+    """The curated asset registry as a name -> record dict ({} if not present)."""
+    p = paths.PRICE_SETTLEMENTS_ASSETS
+    if not p.exists():
+        return {}
+    try:
+        return json.loads(p.read_text())
+    except Exception:
+        return {}
+
+
+def registered_projects() -> list[dict]:
+    """Every registered project, each record carrying its ``project_name`` key."""
+    out = []
+    for name, rec in load_registry().items():
+        r = dict(rec)
+        r.setdefault("project_name", name)
+        out.append(r)
+    out.sort(key=lambda r: str(r.get("project_name") or r.get("resource_name", "")))
+    return out
+
+
+def upsert_asset(project_name: str, record: dict) -> str:
+    """Insert or update one project in the curated registry, keyed by project_name.
+
+    Empty/None fields are dropped; existing fields are preserved unless the new
+    record overwrites them. Returns the registry file path that was written.
+    """
+    p = paths.PRICE_SETTLEMENTS_ASSETS
+    reg = load_registry()
+    clean = {k: v for k, v in record.items() if v not in (None, "", [])}
+    clean.setdefault("project_name", project_name)
+    reg[project_name] = {**reg.get(project_name, {}), **clean}
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps(reg, indent=2))
+    return str(p)
 
 
 def lookup(query: str, allow_fetch: bool = True) -> dict:

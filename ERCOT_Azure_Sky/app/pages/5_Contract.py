@@ -97,6 +97,44 @@ with st.form("contract"):
              "‘no settlement’, intervals where HB_NORTH is below $0 don't settle "
              "(no electrons sold).")
 
+    st.markdown("**Advanced VPPA terms** — optional; all off / neutral by default.")
+    with st.expander("Collar · negative prices · escalation · RECs · term · volume"):
+        ac1, ac2 = st.columns(2)
+        apply_ceiling = ac1.checkbox("Apply a price ceiling (collar cap)",
+                                     value=bool(terms.get("apply_ceiling", False)),
+                                     help="Upper rail of a collar — caps the settled market price.")
+        price_ceiling = ac2.number_input("Ceiling ($/MWh)",
+                                         value=float(terms.get("price_ceiling", 0.0)), step=5.0)
+        exclude_neg = st.checkbox(
+            "Exclude negative-price intervals (no settlement when RT price < $0)",
+            value=bool(terms.get("exclude_negative_prices", False)),
+            help="A common VPPA term, separate from the floor.")
+        es1, es2 = st.columns(2)
+        escalation = es1.number_input("Strike escalation (%/yr)",
+                                      value=float(terms.get("escalation_pct", 0.0)), step=0.25,
+                                      help="Strike steps up this % per year from the base year.")
+        esc_base = es2.number_input("Escalation base year (0 = term-start year)",
+                                    value=int(terms.get("escalation_base_year", 0) or 0),
+                                    step=1, format="%d")
+        rec = st.number_input("REC / green-attribute value ($/MWh)",
+                              value=float(terms.get("rec_per_mwh", 0.0)), step=0.5,
+                              help="Added to the offtaker's net (+ receive, − pay).")
+        tm1, tm2 = st.columns(2)
+        term_start = tm1.text_input("Term start (YYYY-MM-DD)", value=str(terms.get("term_start", "")))
+        term_end = tm2.text_input("Term end (YYYY-MM-DD)", value=str(terms.get("term_end", "")))
+        st.caption("⬇ Recorded for reference — **not yet applied** to the interval math:")
+        rc1, rc2, rc3 = st.columns(3)
+        ann_cap = rc1.number_input("Annual volume cap (MWh, 0 = none)",
+                                   value=float(terms.get("annual_volume_cap_mwh", 0.0)), step=1000.0)
+        _freqs = ["Monthly", "Quarterly", "Annual"]
+        freq = rc2.selectbox("Settlement frequency", _freqs,
+                             index=_freqs.index(terms.get("settlement_frequency", "Monthly"))
+                             if terms.get("settlement_frequency", "Monthly") in _freqs else 0)
+        _nots = ["As-generated", "Fixed shape"]
+        notional = rc3.selectbox("Notional type", _nots,
+                                 index=_nots.index(terms.get("notional_type", "As-generated"))
+                                 if terms.get("notional_type", "As-generated") in _nots else 0)
+
     saved = st.form_submit_button("💾 Save contract", type="primary")
 
 if saved:
@@ -114,6 +152,18 @@ if saved:
         "fee_per_mwh": float(fee),
         "counterparty": counterparty,
         "currency": terms.get("currency", "USD"),
+        # extended VPPA levers
+        "apply_ceiling": bool(apply_ceiling),
+        "price_ceiling": float(price_ceiling),
+        "exclude_negative_prices": bool(exclude_neg),
+        "escalation_pct": float(escalation),
+        "escalation_base_year": int(esc_base),
+        "rec_per_mwh": float(rec),
+        "term_start": term_start.strip(),
+        "term_end": term_end.strip(),
+        "annual_volume_cap_mwh": float(ann_cap),
+        "settlement_frequency": freq,
+        "notional_type": notional,
     })
     st.success(f"Saved — offtake set to **{offtake:,.0f} MW** "
                f"({contract.share_pct_for_mw(offtake):.1f}% of the {cap:,.0f} MW plant), "

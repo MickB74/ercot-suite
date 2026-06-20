@@ -379,7 +379,7 @@ def render(st, wiring: Wiring) -> None:
                "air-density-corrected power curves · multi-source weather · ERCOT calibration.")
     wiring.cache_dir.mkdir(parents=True, exist_ok=True)
 
-    with st.sidebar:
+    with st.container(border=True):
         p = _render_sidebar(st, wiring)
 
     fleet = _build_fleet(p["seg_rows"], p["losses"])
