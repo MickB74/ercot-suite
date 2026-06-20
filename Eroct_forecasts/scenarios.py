@@ -26,11 +26,18 @@ PRICE_CAP_DEFAULT = 5000.0   # ERCOT system-wide offer cap ($/MWh), 2024+ HCAP
 PCT = [5, 10, 25, 50, 75, 90, 95]
 
 
-def _lognorm_from_samples(samples: np.ndarray, rng, n: int, *, floor_cv: float = 0.10):
+def _lognorm_from_samples(samples: np.ndarray, rng, n: int, *, floor_cv: float = 0.10,
+                          tail_boost: float = 1.0):
     """Sample a lognormal calibrated to realized heat-rate samples.
 
     Centered on the *median* (robust to a single scarcity year), with log-space
     sigma from the samples but floored so thin buckets keep some spread.
+
+    ``tail_boost`` (>=1.0) widens **only the far-upper** tail: the log-deviation
+    *beyond +1σ* is stretched by the boost, while everything from the lower tail
+    through ~P84 (median, P75) is left untouched. Driven by the ERCOT reserve-
+    margin scarcity overlay so tight forward years carry a fatter P90/P95 without
+    moving the central P50.
     """
     s = np.asarray(samples, dtype=float)
     s = s[s > 0]
@@ -40,15 +47,20 @@ def _lognorm_from_samples(samples: np.ndarray, rng, n: int, *, floor_cv: float =
     logs = np.log(s)
     sigma = float(np.std(logs, ddof=1)) if s.size > 1 else floor_cv
     sigma = max(sigma, floor_cv)
-    return med * np.exp(rng.normal(0.0, sigma, n))
+    z = rng.normal(0.0, sigma, n)
+    if tail_boost and tail_boost > 1.0:
+        excess = np.maximum(z - sigma, 0.0)          # only draws beyond +1σ
+        z = z + (float(tail_boost) - 1.0) * excess   # stretch the far-upper tail
+    return med * np.exp(z)
 
 
 def simulate_month(gas_central: float, ihr_samples, t_years: float, *,
-                   rng, n: int, gas_vol: float, price_cap: float | None) -> np.ndarray:
+                   rng, n: int, gas_vol: float, price_cap: float | None,
+                   tail_boost: float = 1.0) -> np.ndarray:
     """Vector of n simulated prices for one month/block."""
     gv = gas_vol * np.sqrt(max(t_years, 1e-6))          # cumulative log-vol
     gas = gas_central * np.exp(rng.normal(-0.5 * gv * gv, gv, n))  # martingale mean
-    ihr = _lognorm_from_samples(ihr_samples, rng, n)
+    ihr = _lognorm_from_samples(ihr_samples, rng, n, tail_boost=tail_boost)
     price = gas * ihr
     if price_cap:
         price = np.minimum(price, price_cap)
@@ -75,6 +87,7 @@ def run(curve_inputs: pd.DataFrame, *, n_sims: int = 5000, gas_vol: float = 0.5,
         sims = simulate_month(
             float(row["gas"]), row["ihr_samples"], float(row["t_years"]),
             rng=rng, n=n_sims, gas_vol=gas_vol, price_cap=price_cap,
+            tail_boost=float(row.get("tail_boost", 1.0)),
         )
         rec = {k: row[k] for k in ("month", "block", "gas", "ihr_p50", "t_years")
                if k in row}

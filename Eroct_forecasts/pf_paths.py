@@ -43,8 +43,11 @@ def _input(name: str) -> Path:
 HENRY_HUB_SEED_CSV = _input("henry_hub_monthly_seed.csv")
 GAS_CURVE_CSV = _input("gas_curve.csv")            # manual forward strip
 POWER_STRIP_CSV = _input("ercot_power_strip.csv")  # manual power futures
+ERCOT_CDR_CSV = _input("ercot_cdr.csv")            # manual ERCOT reserve-margin table
 HENRY_HUB_DAILY_PARQUET = GAS_DIR / "henry_hub_daily.parquet"
 GAS_FORWARD_PARQUET = GAS_DIR / "eia_gas_forward.parquet"  # cached EIA fwd strip
+AEO_GAS_PARQUET = GAS_DIR / "eia_aeo_gas.parquet"          # cached EIA AEO long-term gas
+STEO_POWER_PARQUET = GAS_DIR / "eia_steo_power.parquet"    # cached EIA STEO power (cross-check)
 
 _ALL_DIRS = [DATA, INPUTS_DIR, GAS_DIR, FORECASTS_DIR]
 

@@ -1,0 +1,24 @@
+# ERCOT reserve-margin table for the forward-scarcity overlay (ships empty).
+#
+# Source: ERCOT "Capacity, Demand and Reserves (CDR) Report" — published twice a
+# year (May & December) at https://www.ercot.com/gridinfo/resource. ERCOT posts
+# it as an XLSX with no free JSON API, so transcribe the per-year summer planning
+# reserve margin here. The summer peak is the binding scarcity season in ERCOT.
+#
+# Columns:
+#   year                 calendar year of the forward summer peak
+#   reserve_margin_pct   planning reserve margin for that year (percent, e.g. 12.5)
+#
+# How it is used: in forecast years with a reserve margin below ~15% the heat-rate
+# UPPER tail is widened (P75–P95 fatten) while the median P50 is left unchanged —
+# i.e. tighter forward grids carry more scarcity-price risk, not a higher base case.
+# The overlay is OFF unless you pass --scarcity (CLI) or enable it in the app, and
+# is a no-op until you uncomment/fill real rows below.
+#
+# Example (replace with the current CDR — these are illustrative, not authoritative):
+# year,reserve_margin_pct
+# 2026,18.5
+# 2027,16.0
+# 2028,14.0
+# 2029,12.5
+year,reserve_margin_pct

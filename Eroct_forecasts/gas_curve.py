@@ -31,7 +31,8 @@ EIA_SPOT_DAILY = "NG.RNGWHHD.D"
 EIA_NYMEX_CONTRACTS = ["NG.RNGC1.D", "NG.RNGC2.D", "NG.RNGC3.D", "NG.RNGC4.D"]
 # STEO Henry Hub spot price forecast, monthly ($/MMBtu). The exact mnemonic has
 # drifted across EIA releases, so we try candidates and use the first that hits.
-EIA_STEO_HH_CANDIDATES = ["STEO.NGHHMCF.M", "STEO.NGHHUUS.M", "STEO.NGHHPUS.M"]
+# NGHHUUS is the current $/MMBtu series; NGHHMCF ($/mcf) and others are fallbacks.
+EIA_STEO_HH_CANDIDATES = ["STEO.NGHHUUS.M", "STEO.NGHHMCF.M", "STEO.NGHHPUS.M"]
 
 # how stale the cached EIA forward can get before an auto-refresh (days)
 FORWARD_CACHE_DAYS = 3
@@ -223,7 +224,9 @@ def _seasonal_factors() -> dict:
 
 def forward_strip(asof: pd.Timestamp, horizon_months: int, *,
                   auto_fetch: bool = True, lt_anchor: float | None = None,
-                  revert_months: int = REVERT_MONTHS_DEFAULT) -> tuple[pd.DataFrame, str]:
+                  revert_months: int = REVERT_MONTHS_DEFAULT,
+                  aeo_anchor: bool = True, aeo_weight: float = 0.0
+                  ) -> tuple[pd.DataFrame, str]:
     """Monthly gas forward over [asof_month .. asof_month+horizon). (df, source).
 
     Precedence:
@@ -231,13 +234,18 @@ def forward_strip(asof: pd.Timestamp, horizon_months: int, *,
       2. fresh EIA cache (NYMEX 1-4 + STEO), auto-refreshed when stale & keyed
       3. seed-history seasonal hold (no key / offline) -- last resort
 
-    Beyond the last quoted month the curve mean-reverts: the de-seasonalized
-    level fades from the last quote toward ``lt_anchor`` ($/MMBtu) over
-    ~``revert_months``, and the normal monthly seasonal shape is re-applied — so
-    the far tail keeps winter/summer structure instead of going flat.
+    Public-forecast blend (selectable):
+      * NYMEX near contracts (1-4) are always pure traded — never diluted.
+      * In the STEO mid-range, the level is blended ``(1-aeo_weight)`` × STEO/market
+        + ``aeo_weight`` × the EIA AEO long-term path (when AEO is available).
+      * Beyond the last quoted month the de-seasonalized level mean-reverts toward
+        the **AEO year-varying anchor** (``aeo_anchor=True``) instead of the flat
+        ``lt_anchor`` constant, over ~``revert_months``, with seasonality re-applied.
 
     df columns: month, gas. Always spans the full horizon.
     """
+    import public_forecasts  # lazy to avoid an import cycle
+
     asof = pd.Timestamp(asof)
     first = asof.normalize().replace(day=1)
     months = pd.date_range(first, periods=horizon_months, freq="MS")
@@ -262,25 +270,52 @@ def forward_strip(asof: pd.Timestamp, horizon_months: int, *,
             source if "failed" in source
             else "seasonal hold (no EIA key — add one to use live futures)")
 
+    seas = _seasonal_factors()
+
+    def _aeo_month(m: pd.Timestamp) -> float | None:
+        if not aeo_anchor:
+            return None
+        a = public_forecasts.aeo_anchor_for(m)
+        return a[0] * seas.get(int(m.month), 1.0) if a is not None else None
+
     out = target.merge(src, on="month", how="left")
     last_obs = pd.Timestamp(src["month"].max())
     within = out["month"] <= last_obs
     out.loc[within, "gas"] = out.loc[within, "gas"].interpolate().ffill().bfill()
 
+    # NYMEX near contracts (the first ~4 quoted months) stay pure traded.
+    nymex_last = first + pd.DateOffset(months=len(EIA_NYMEX_CONTRACTS) - 1)
+    aeo_used = False
+    if aeo_weight > 0 and aeo_anchor:
+        wa = min(max(float(aeo_weight), 0.0), 1.0)
+        mid = within & (out["month"] > nymex_last)
+        for idx in out.index[mid]:
+            m = pd.Timestamp(out.at[idx, "month"])
+            av = _aeo_month(m)
+            if av is not None:
+                out.at[idx, "gas"] = (1 - wa) * float(out.at[idx, "gas"]) + wa * av
+                aeo_used = True
+
     beyond = out["month"] > last_obs
     if beyond.any():
-        anchor = LT_GAS_ANCHOR_DEFAULT if lt_anchor is None else float(lt_anchor)
-        seas = _seasonal_factors()
+        const_anchor = LT_GAS_ANCHOR_DEFAULT if lt_anchor is None else float(lt_anchor)
         last_val = float(src.sort_values("month")["gas"].iloc[-1])
         last_level = last_val / seas.get(int(last_obs.month), 1.0)
+        anchor_lab = f"${const_anchor:.2f}"
         for idx in out.index[beyond]:
             m = pd.Timestamp(out.at[idx, "month"])
+            a = public_forecasts.aeo_anchor_for(m) if aeo_anchor else None
+            anchor_level = a[0] if a is not None else const_anchor
+            if a is not None:
+                aeo_used = True
+                anchor_lab = a[1]
             k = (m.to_period("M") - last_obs.to_period("M")).n
             w = math.exp(-k / max(float(revert_months), 1e-6))
-            level = anchor + (last_level - anchor) * w
+            level = anchor_level + (last_level - anchor_level) * w
             out.at[idx, "gas"] = level * seas.get(int(m.month), 1.0)
-        source += (f" · seasonal mean-reversion → ${anchor:.2f} beyond "
-                   f"{last_obs.strftime('%Y-%m')}")
+        source += f" · mean-reversion → {anchor_lab} beyond {last_obs.strftime('%Y-%m')}"
+    if aeo_used and aeo_weight > 0:
+        source += f" · STEO/AEO blend (aeo_w={aeo_weight:.0%})"
     return out, source
 
 

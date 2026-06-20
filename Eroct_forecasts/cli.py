@@ -18,6 +18,7 @@ import forecast_store
 import gas_curve
 import pf_history
 import pf_paths
+import public_forecasts
 import shape as shaping
 
 
@@ -31,7 +32,16 @@ def main() -> None:
     ap.add_argument("--asof", default=None, help="YYYY-MM-DD (default: today)")
     ap.add_argument("--horizon", type=int, default=36, help="months")
     ap.add_argument("--sims", type=int, default=5000)
-    ap.add_argument("--gas-vol", type=float, default=0.5, help="annualized gas log-vol")
+    ap.add_argument("--gas-vol", type=float, default=None,
+                    help="annualized gas log-vol override (default: auto from EIA history)")
+    ap.add_argument("--gas-vol-mode", choices=["auto", "fixed"], default="auto",
+                    help="auto = data-driven vol from EIA Henry Hub history; fixed = 0.5")
+    ap.add_argument("--aeo-weight", type=float, default=0.0,
+                    help="weight on the EIA AEO long-term path in the gas mid-curve (0-1)")
+    ap.add_argument("--no-aeo-anchor", action="store_true",
+                    help="disable the EIA AEO far-tail anchor (use the flat constant instead)")
+    ap.add_argument("--scarcity", action="store_true",
+                    help="apply the ERCOT CDR reserve-margin scarcity tail boost")
     ap.add_argument("--price-cap", type=float, default=5000.0)
     ap.add_argument("--fade-months", type=int, default=18, help="power-futures blend fade")
     ap.add_argument("--shape", action="store_true", help="also build the 8760 hourly curve")
@@ -48,6 +58,18 @@ def main() -> None:
         print(f"Cached EIA forward ({len(fwd)} months, NYMEX 1-4 + STEO) "
               f"-> {pf_paths.GAS_FORWARD_PARQUET}")
         print(fwd.assign(month=lambda d: d.month.dt.strftime("%Y-%m")).head(12).round(2).to_string(index=False))
+        try:
+            aeo = public_forecasts.refresh_aeo()
+            print(f"\nCached EIA AEO long-term gas ({len(aeo)} yrs, "
+                  f"{aeo.attrs.get('scenario', 'ref')}) -> {pf_paths.AEO_GAS_PARQUET}")
+            print(aeo.head(6).round(2).to_string(index=False))
+        except Exception as e:
+            print(f"\nAEO refresh skipped: {e}")
+        pw = public_forecasts.eia_steo_power()
+        if pw is not None and not pw.empty:
+            print(f"\nCached EIA STEO power cross-check ({pw['_series'].iloc[0]}) "
+                  f"-> {pf_paths.STEO_POWER_PARQUET}")
+        print(f"\nData-driven gas vol (EIA realized): {public_forecasts.realized_gas_vol():.0%}")
         return
 
     if args.backtest:
@@ -65,13 +87,17 @@ def main() -> None:
     hubs = list(pf_history.HUBS) if args.all_hubs else args.hub
     curve, metas = forecast.run_many(
         hubs, asof=args.asof, horizon_months=args.horizon, n_sims=args.sims,
-        gas_vol=args.gas_vol, price_cap=args.price_cap, fade_months=args.fade_months,
+        gas_vol=args.gas_vol, gas_vol_mode=args.gas_vol_mode, price_cap=args.price_cap,
+        fade_months=args.fade_months, aeo_anchor=not args.no_aeo_anchor,
+        aeo_weight=args.aeo_weight, scarcity=args.scarcity,
         progress=lambda i, n, h: print(f"  [{i + 1}/{n}] {h}…"),
     )
     meta = metas[0]
-    print("\nForecast:", {k: meta[k] for k in ("asof", "horizon_months",
-                                              "gas_source", "traded_calibration")},
+    print("\nForecast:", {k: meta[k] for k in ("asof", "horizon_months", "gas_source",
+                                              "gas_vol", "gas_vol_source",
+                                              "traded_calibration")},
           "| hubs:", ", ".join(hubs))
+    print("ERCOT scarcity overlay:", meta["scarcity_overlay"])
 
     mat = forecast.price_matrix(curve, block=args.block, metric="p50").round(0)
     print(f"\nHub × month {args.block.upper()} P50 ($/MWh):\n{mat.to_string()}")

@@ -13,10 +13,12 @@ import forecast_store
 import gas_curve
 import pf_history
 import pf_paths
+import public_forecasts
 import shape as shaping
 
 
-def _fan_chart(curve: pd.DataFrame, block: str, hub: str) -> go.Figure:
+def _fan_chart(curve: pd.DataFrame, block: str, hub: str,
+               crosscheck: pd.DataFrame | None = None) -> go.Figure:
     c = curve[curve["block"] == block].copy()
     c["month"] = pd.to_datetime(c["month"])
     fig = go.Figure()
@@ -32,6 +34,13 @@ def _fan_chart(curve: pd.DataFrame, block: str, hub: str) -> go.Figure:
         fig.add_trace(go.Scatter(x=traded["month"], y=traded["traded"], mode="markers",
                                  marker=dict(color="#d62728", size=8, symbol="diamond"),
                                  name="Traded futures"))
+    if crosscheck is not None and not crosscheck.empty:
+        cc = crosscheck[(crosscheck["month"] >= c["month"].min())
+                        & (crosscheck["month"] <= c["month"].max())]
+        if not cc.empty:
+            fig.add_trace(go.Scatter(x=cc["month"], y=cc["price"], mode="lines",
+                                     line=dict(color="#7f7f7f", width=1.5, dash="dot"),
+                                     name="EIA STEO US retail (cross-check)"))
     fig.update_layout(title=f"{hub} — {block} forward ($/MWh)", height=380,
                       margin=dict(l=10, r=10, t=40, b=10),
                       yaxis_title="$/MWh", hovermode="x unified")
@@ -280,21 +289,41 @@ def _gas_curve_section(asof: pd.Timestamp, horizon: int):
             except Exception as e:
                 st.error(f"EIA refresh failed: {e}")
 
+    use_aeo = st.checkbox(
+        "Anchor the far tail to the EIA AEO long-term outlook", value=True,
+        help="Beyond the quoted NYMEX/STEO strip, mean-revert toward EIA's Annual "
+             "Energy Outlook Henry Hub path (year-varying, nominal $/MMBtu) instead "
+             "of a flat constant. Uncheck to use the manual constant anchor below.")
+    aeo_lab = ""
+    if use_aeo:
+        a = public_forecasts.aeo_anchor_for(pd.Timestamp(asof) + pd.DateOffset(years=4))
+        aeo_lab = a[1] if a else "AEO unavailable (offline) — using constant"
+
     a1, a2 = st.columns(2)
     anchor = a1.number_input(
-        "Long-term anchor ($/MMBtu)", min_value=1.5, max_value=8.0,
+        "Long-term anchor ($/MMBtu)", min_value=1.5, max_value=10.0,
         value=float(gas_curve.LT_GAS_ANCHOR_DEFAULT), step=0.25,
-        help="Beyond the quoted futures/STEO horizon, gas mean-reverts toward this "
-             "long-run Henry Hub level (de-seasonalized). ~$4 reflects the "
-             "post-LNG-export era; lower it if you expect cheaper long-run gas.")
+        disabled=use_aeo,
+        help="Fallback long-run Henry Hub level used only when the AEO anchor is off "
+             "or unavailable. ~$4 reflects the post-LNG-export era (real terms).")
     revert = a2.slider(
         "Reversion speed (months)", 6, 60, int(gas_curve.REVERT_MONTHS_DEFAULT), step=6,
         help="How fast the curve fades from the last quoted price to the anchor "
              "(e-folding time). Smaller = snap to the anchor quickly; larger = "
              "hold the market's last level longer.")
+    aeo_weight = st.slider(
+        "AEO weight in the STEO mid-curve", 0.0, 1.0, 0.0, step=0.05,
+        disabled=not use_aeo,
+        help="How much the EIA AEO long-term path pulls the gas level in the months "
+             "past the traded NYMEX strip but inside the STEO horizon. 0 = pure STEO "
+             "(market) mid-curve; higher = blend toward EIA's long-term outlook. "
+             "NYMEX near contracts are never diluted.")
+    if use_aeo and aeo_lab:
+        st.caption(f"Far-tail anchor source: **{aeo_lab}**.")
 
     strip, source = gas_curve.forward_strip(asof, horizon, lt_anchor=anchor,
-                                            revert_months=revert)
+                                            revert_months=revert, aeo_anchor=use_aeo,
+                                            aeo_weight=aeo_weight)
 
     with c1:
         if has_key:
@@ -327,6 +356,53 @@ def _gas_curve_section(asof: pd.Timestamp, horizon: int):
         st.caption("✏️ Using your edited strip.")
         label = f"{source} (edited)"
     return out[["month", "gas"]], label
+
+
+def _ercot_fundamentals_section() -> tuple[bool, pd.DataFrame | None]:
+    """ERCOT reserve-margin scarcity overlay + EIA STEO cross-check.
+
+    Returns ``(scarcity_on, steo_power_df)``. The CDR table is editable in-app and
+    persisted back to the manual override CSV so it carries across runs.
+    """
+    st.subheader("🏗️ ERCOT fundamentals & cross-checks")
+    st.caption("There is **no free traded ERCOT forward**, so the ERCOT-side signal "
+               "is *fundamentals*: ERCOT's CDR planning reserve margins widen the "
+               "scarcity tail in tight forward years (the central P50 is unchanged). "
+               "The EIA STEO line is a **cross-check only — never blended**.")
+
+    cdr = public_forecasts.ercot_reserve_margin()
+    if cdr is None or cdr.empty:
+        cdr = pd.DataFrame({"year": [], "reserve_margin_pct": []})
+    c1, c2 = st.columns([2, 1])
+    with c1:
+        edited = st.data_editor(
+            cdr, num_rows="dynamic", use_container_width=True, height=200, key="cdr_editor",
+            column_config={
+                "year": st.column_config.NumberColumn("Year", format="%d"),
+                "reserve_margin_pct": st.column_config.NumberColumn(
+                    "Reserve margin (%)", format="%.1f")})
+    with c2:
+        scarcity = st.checkbox(
+            "Apply scarcity overlay", value=False,
+            help="Widen the heat-rate upper tail (P90/P95) for forecast years whose "
+                 "ERCOT reserve margin is below ~15%. Median P50 is left unchanged.")
+        if st.button("💾 Save CDR table"):
+            df = edited.dropna(subset=["year"]).copy()
+            if not df.empty:
+                df["year"] = df["year"].astype(int)
+                hdr = ("# ERCOT reserve margins (CDR) — edited in-app. "
+                       "Source: ERCOT CDR report.\n")
+                pf_paths.ensure_dirs()
+                (pf_paths.INPUTS_DIR / "ercot_cdr.csv").write_text(
+                    hdr + df[["year", "reserve_margin_pct"]].to_csv(index=False))
+                st.success("Saved to data/inputs/ercot_cdr.csv.")
+        st.caption("ERCOT CDR (twice-yearly XLSX): ercot.com/gridinfo/resource")
+
+    steo = public_forecasts.eia_steo_power()
+    if steo is not None and not steo.empty:
+        st.caption(f"Cross-check series: **{steo['_series'].iloc[0]}** "
+                   "(EIA STEO US retail electricity, ¢/kWh → $/MWh).")
+    return scarcity, steo
 
 
 def render() -> None:
@@ -387,8 +463,8 @@ def render() -> None:
             "Horizon (months)", 6, 60,
             min(max(int(st.session_state.get("fx_horizon", 36)), 6), 60), step=6,
             help="How many months forward to forecast. Gas futures are liquid ~24 "
-                 "months out; beyond that the gas curve is held flat, so the far "
-                 "tail is more model-driven than market-driven.")
+                 "months out; beyond that the curve mean-reverts toward the EIA AEO "
+                 "long-term anchor, so the far tail is outlook-driven, not market-driven.")
         st.session_state["fx_horizon"] = horizon
         _simopts = [1000, 2000, 5000, 10000]
         _fx_sims = st.session_state.get("fx_sims", 5000)
@@ -398,12 +474,22 @@ def render() -> None:
                  "smoother, more stable P10/P50/P90 bands but a slower run. "
                  "5,000 is plenty for monthly bands; use 10,000 for very smooth tails.")
         st.session_state["fx_sims"] = sims
-        gas_vol = st.slider(
-            "Gas volatility (annualized)", 0.2, 1.0, 0.5, step=0.05,
-            help="How uncertain the forward GAS price is, as an annualized log-vol. "
-                 "It widens with time (√t), so far months get wider bands. 0.5 ≈ "
-                 "historical Henry Hub. Higher → wider price fan. This is the gas-side "
-                 "uncertainty; ERCOT heat-rate uncertainty is added on top from history.")
+        _auto_vol = public_forecasts.realized_gas_vol()
+        vol_mode = st.radio(
+            "Gas volatility source", ["Auto (EIA history)", "Manual"], horizontal=True,
+            help="Auto derives the annualized gas log-vol from realized EIA Henry Hub "
+                 "history (trailing ~5 yrs); Manual lets you set it by hand.")
+        if vol_mode.startswith("Auto"):
+            gas_vol = _auto_vol
+            st.caption(f"Data-driven gas vol from EIA history: **{_auto_vol:.0%}** "
+                       "(annualized; widens with √t over the horizon).")
+        else:
+            gas_vol = st.slider(
+                "Gas volatility (annualized)", 0.2, 1.2, float(round(_auto_vol, 2)), step=0.05,
+                help="How uncertain the forward GAS price is, as an annualized log-vol. "
+                     "It widens with time (√t), so far months get wider bands. This is "
+                     "the gas-side uncertainty; ERCOT heat-rate uncertainty is added on "
+                     "top from history.")
         price_cap = st.number_input(
             "Price cap ($/MWh)", value=5000.0, step=500.0,
             help="Every simulated price is clipped to this ceiling — ERCOT's system-"
@@ -423,6 +509,7 @@ def render() -> None:
         run = st.button("Run forecast", type="primary")
 
     gas_override, gas_label = _gas_curve_section(pd.Timestamp(asof), horizon)
+    scarcity, steo_power = _ercot_fundamentals_section()
 
     # Run only when the button is clicked; cache the result in session_state so
     # the display toggles below (block / scenario / comparison) re-render
@@ -439,7 +526,8 @@ def render() -> None:
         curve, metas = forecast.run_many(
             hubs, asof=str(asof), horizon_months=horizon, n_sims=int(sims),
             gas_vol=gas_vol, price_cap=price_cap, fade_months=fade,
-            gas_override=gas_override, gas_source_label=gas_label, progress=_cb)
+            gas_override=gas_override, gas_source_label=gas_label,
+            scarcity=scarcity, progress=_cb)
         prog.empty()
 
         hourly_by_hub = {}
@@ -450,7 +538,8 @@ def render() -> None:
 
         st.session_state["fc"] = {
             "curve": curve, "metas": metas, "hubs": hubs, "asof": str(asof),
-            "horizon": horizon, "hourly": hourly_by_hub}
+            "horizon": horizon, "hourly": hourly_by_hub,
+            "steo_power": steo_power}
 
     fc = st.session_state.get("fc")
     if not fc:
@@ -460,11 +549,20 @@ def render() -> None:
 
     curve, metas, hubs = fc["curve"], fc["metas"], fc["hubs"]
     asof, horizon, hourly_by_hub = fc["asof"], fc["horizon"], fc["hourly"]
+    steo_power = fc.get("steo_power")
     meta = metas[0]
 
     cal = "✅ calibrated to traded futures" if any(m["traded_calibration"] for m in metas) else "model-only (no power strip)"
     st.success(f"{len(hubs)} hub(s): {', '.join(hubs)} • {horizon} mo • "
                f"gas: {meta['gas_source']} • {cal}")
+    scar = meta.get("scarcity_overlay", {})
+    st.caption(
+        f"**Provenance** — gas vol: {meta.get('gas_vol')} ({meta.get('gas_vol_source')}) • "
+        f"AEO anchor: {'on' if meta.get('aeo_anchor') else 'off'} • "
+        f"scarcity overlay: {'on' if scar.get('scarcity') else 'off'}"
+        + (f" (CDR {scar.get('cdr_years')})" if scar.get('cdr_years') else
+           (f" — {scar.get('cdr')}" if scar.get('cdr') else ""))
+        + ". Full sources are written into the run's `.meta.json`.")
 
     tab0, tab1, tab2, tab3, tab4 = st.tabs(
         ["📊 Price matrix", "📈 Scenarios", "🔢 Strip table", "🌡️ Heat rates",
@@ -477,8 +575,10 @@ def render() -> None:
         h = hubs[0] if len(hubs) == 1 else st.selectbox(
             "Hub to chart", hubs, key="fan_hub")
         c1, c2 = st.columns(2)
-        c1.plotly_chart(_fan_chart(curve[curve.hub == h], "peak", h), use_container_width=True)
-        c2.plotly_chart(_fan_chart(curve[curve.hub == h], "offpeak", h), use_container_width=True)
+        c1.plotly_chart(_fan_chart(curve[curve.hub == h], "peak", h, steo_power),
+                        use_container_width=True)
+        c2.plotly_chart(_fan_chart(curve[curve.hub == h], "offpeak", h, steo_power),
+                        use_container_width=True)
         if len(hubs) > 1:
             st.plotly_chart(_hub_compare_chart(curve, "atc"), use_container_width=True)
         if hourly_by_hub:

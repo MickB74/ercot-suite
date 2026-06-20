@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 
 import forecast
+import gas_curve
 import heat_rate
 import pf_history
 import scenarios
@@ -92,6 +93,51 @@ def test_wind_capture_sane():
     assert (ann["capture_p50"] > 0).all()
     assert ((ann["capture_p50"] / ann["atc_p50"]).between(0.5, 1.8)).all()
     assert (mo["gen_mwh"] > 0).all()
+
+
+def test_realized_gas_vol_sane():
+    import public_forecasts as pf
+    v = pf.realized_gas_vol()
+    # Always a finite float in the clamped band, even with no daily cache.
+    assert 0.2 <= v <= 1.2
+
+
+def test_scarcity_multiplier_monotonic():
+    import public_forecasts as pf
+    # At/above target → no boost; tighter margin → strictly larger boost.
+    assert pf.scarcity_multiplier(20) == 1.0
+    assert pf.scarcity_multiplier(15) == 1.0
+    assert pf.scarcity_multiplier(None) == 1.0
+    boosts = [pf.scarcity_multiplier(m) for m in (14, 12, 10, 6)]
+    assert all(b >= 1.0 for b in boosts)
+    assert boosts[0] < boosts[1] < boosts[2]   # ramps up as margin falls
+    assert boosts[-1] >= boosts[-2]            # saturates below the knee
+
+
+def test_tail_boost_preserves_median_widens_p90():
+    rng = np.random.default_rng(0)
+    samples = np.array([8, 9, 10, 11, 12, 40.0])
+    base = scenarios._lognorm_from_samples(samples, np.random.default_rng(1), 20000)
+    boosted = scenarios._lognorm_from_samples(samples, np.random.default_rng(1),
+                                              20000, tail_boost=1.6)
+    # Median essentially unchanged; far-upper tail strictly fatter.
+    assert abs(np.median(boosted) - np.median(base)) / np.median(base) < 0.03
+    assert np.percentile(boosted, 95) > np.percentile(base, 95)
+
+
+def test_aeo_anchor_or_graceful():
+    import public_forecasts as pf
+    a = pf.aeo_anchor_for(pd.Timestamp("2032-01-01"))
+    # Either a cached/fetched (level, label) or None offline — never raises.
+    assert a is None or (a[0] > 0 and isinstance(a[1], str))
+
+
+def test_gas_blend_far_tail_reverts():
+    # 60-month strip should always span the horizon and stay positive.
+    strip, src = gas_curve.forward_strip(pd.Timestamp("2026-06-01"), 60, aeo_weight=0.25)
+    assert len(strip) == 60
+    assert (strip["gas"] > 0).all()
+    assert "mean-reversion" in src
 
 
 def test_backtest_runs_and_scores():
