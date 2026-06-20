@@ -43,6 +43,16 @@ with st.form("contract"):
              "per MWh. Merchant + fee: market revenue ± a management fee.")
     counterparty = c2.text_input("Counterparty label", value=terms.get("counterparty", "Customer"))
 
+    p1, p2 = st.columns(2)
+    offtaker = p1.text_input(
+        "VPPA offtaker (company name)",
+        value=str(terms.get("offtaker", "") or ""),
+        help="The company buying the power / RECs under the VPPA. Shown in the page header.")
+    developer = p2.text_input(
+        "Developer / SPV owner",
+        value=str(terms.get("developer", "") or ""),
+        help="The developer or entity above the project SPV. Shown in the page header.")
+
     # Settlement reference: which hub the deal settles against. Options are the
     # locations with cached RT15 prices; the asset's own hub is the default.
     locs = list(hub.available_locations()) or [a["hub"]]
@@ -151,6 +161,8 @@ if saved:
         "settle_below_floor": settle_below.startswith("Still"),
         "fee_per_mwh": float(fee),
         "counterparty": counterparty,
+        "offtaker": offtaker.strip(),
+        "developer": developer.strip(),
         "currency": terms.get("currency", "USD"),
         # extended VPPA levers
         "apply_ceiling": bool(apply_ceiling),

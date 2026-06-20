@@ -123,8 +123,8 @@
     "project_name": "Hidalgo Wind",
     "owners": "EDP Renewables (EDPR NA); Los Mirasoles / Hidalgo wind complex, ~300 MW, Hidalgo & Starr Co.",
     "owner_source": "edp.com 'Construction completed Los Mirasoles II wind farm'; edpr.com 50 MW PPA release",
-    "vppa": "15-yr PPA on 50 MW Hidalgo II addition (2018) and C&I PPAs on the 100 MW extension \u2014 counterparties not publicly named",
-    "vppa_source": "edpr.com 'EDPR secures 50 MW PPA a new wind farm Texas US'; renewablesnow.com EDPR Hidalgo PPAs",
+    "vppa": "General Motors 30 MW (Q4 2016, Arlington Assembly Plant TX); The Home Depot 50 MW 20-yr PPA; Bloomberg LP VPPA; additional C&I PPAs \u2014 other counterparties not publicly named",
+    "vppa_source": "renews.biz/44912/auto-giant-buys-wind-power/ (GM 30 MW); ir.homedepot.com/news-releases/2017/01-31-2017-130443167 (Home Depot 50 MW)",
     "ownership_updated": "2026-06-20"
   },
   "19INR0055": {
@@ -227,8 +227,8 @@
     "project_name": "Azure Sky Wind",
     "owners": "Enel Green Power (Enel North America); developed via Tradewind Energy (acquired by Enel)",
     "owner_source": "enelgreenpower.com/our-projects/operating/azure-sky-wind-storage-farm",
-    "vppa": "Kellogg Co. 100 MW VPPA (2021); lululemon 15 MW; 111 MW aggregation PPA with Akamai, MilliporeSigma, Synopsys, Uber (2021); HP Hood",
-    "vppa_source": "prnewswire.com 'MilliporeSigma, Akamai, Synopsys and Uber ... 111 MW of wind energy from Enel Green Power'",
+    "vppa": "Kellogg Co. 100 MW VPPA (2021); lululemon 15 MW; 111 MW aggregation PPA with Akamai, MilliporeSigma, Synopsys, Uber (2021); HP Hood 25 MW",
+    "vppa_source": "prnewswire.com 'MilliporeSigma, Akamai, Synopsys and Uber ... 111 MW Enel Green Power'; enelgreenpower.com/our-projects/operating/azure-sky-wind-storage-farm",
     "ownership_updated": "2026-06-20"
   },
   "20INR0130": {

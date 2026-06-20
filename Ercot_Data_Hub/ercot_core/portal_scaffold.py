@@ -50,6 +50,61 @@ _TEXT_SUFFIXES = {".py", ".md", ".toml", ".json", ".txt", ".command", ".cfg", ".
 _HUB_CODE = {"North": "HB_NORTH", "Houston": "HB_HOUSTON", "South": "HB_SOUTH",
              "West": "HB_WEST", "Pan": "HB_NORTH"}
 
+_QUEUE_OWNERSHIP = SUITE_ROOT / "Ercot_Data_Hub/ercot_core/registry/queue_ownership.json"
+
+
+def _lookup_parties(project_name: str) -> dict:
+    """Search queue_ownership.json for offtaker + developer by project name.
+
+    Returns ``{"offtaker": str, "developer": str}`` — both empty strings when
+    nothing matches or the file is absent. The developer is the first named
+    entity in the ``owners`` field; the offtaker is extracted from ``vppa``
+    (empty when the counterparty is not publicly named).
+    """
+    if not _QUEUE_OWNERSHIP.exists():
+        return {"offtaker": "", "developer": ""}
+    try:
+        ownership = json.loads(_QUEUE_OWNERSHIP.read_text())
+    except Exception:
+        return {"offtaker": "", "developer": ""}
+
+    needle = str(project_name).lower()
+    best = None
+    for entry in ownership.values():
+        pname = str(entry.get("project_name", "")).lower()
+        # score: full-name contains > any word match
+        if pname and needle in pname or pname in needle:
+            best = entry
+            break
+        if any(w in pname for w in needle.split() if len(w) > 3):
+            best = entry
+
+    if best is None:
+        return {"offtaker": "", "developer": ""}
+
+    # Developer — first entity before ";" or "(" in owners
+    owners_raw = str(best.get("owners", "") or "")
+    developer = owners_raw.split(";")[0].split("(")[0].strip().rstrip(",")
+
+    # Offtaker — skip if "not publicly named", else first company in vppa
+    vppa_raw = str(best.get("vppa", "") or "")
+    if not vppa_raw or "not publicly named" in vppa_raw.lower():
+        offtaker = ""
+    else:
+        # collect named companies (capital-letter words before MW/yr markers)
+        import re as _re
+        companies = _re.findall(
+            r"([A-Z][A-Za-z0-9&\-\./ ]+?)(?=\s+\d|\s+VPPA|\s+PPA|\s*;|\s*\(|\s*$)",
+            vppa_raw)
+        cleaned, seen = [], set()
+        for c in companies:
+            c = c.strip().rstrip(",. ")
+            if c and len(c) > 2 and c not in seen:
+                seen.add(c); cleaned.append(c)
+        offtaker = "; ".join(cleaned[:6])
+
+    return {"offtaker": offtaker, "developer": developer}
+
 
 def slugify(name: str) -> str:
     """'Blue Jay Solar' -> 'Blue_Jay_Solar' (folder-safe, Title_Case)."""
@@ -106,7 +161,8 @@ def portal_dest(project_name: str) -> Path:
 
 
 def create_portal(asset: dict, *, strike: float, structure: str = "VPPA / CfD",
-                  counterparty: str = "Customer", overwrite: bool = False) -> dict:
+                  counterparty: str = "Customer", offtaker: str | None = None,
+                  developer: str | None = None, overwrite: bool = False) -> dict:
     """Scaffold a new single-asset portal next to the Hub. Returns paths + hints.
 
     ``asset`` is a curated-registry record (Project Builder shape): ``resource_name``
@@ -117,6 +173,14 @@ def create_portal(asset: dict, *, strike: float, structure: str = "VPPA / CfD",
         raise FileNotFoundError(f"Portal template not found at {TEMPLATE_DIR}")
 
     project_name = str(asset.get("project_name") or asset.get("resource_name") or "Project")
+
+    # Auto-lookup offtaker + developer from queue_ownership.json when not supplied.
+    if offtaker is None or developer is None:
+        parties = _lookup_parties(project_name)
+        if offtaker is None:
+            offtaker = parties["offtaker"]
+        if developer is None:
+            developer = parties["developer"]
     node = str(asset.get("resource_name") or "").strip()
     if not node:
         raise ValueError("Asset has no resource_name (node) to point the portal at.")
@@ -182,6 +246,8 @@ def create_portal(asset: dict, *, strike: float, structure: str = "VPPA / CfD",
     c = _set_field(c, "strike", float(strike))
     c = _set_field(c, "structure", structure)
     c = _set_field(c, "counterparty", counterparty)
+    c = _set_field(c, "offtaker", str(offtaker or ""))
+    c = _set_field(c, "developer", str(developer or ""))
     # Wind: carry turbine specs into the ASSET so the hero/contract show real facts.
     if not is_solar:
         c = _add_asset_fields(c, {k: asset.get(k) for k in
@@ -195,6 +261,8 @@ def create_portal(asset: dict, *, strike: float, structure: str = "VPPA / CfD",
         "strike": float(strike),
         "volume_share_pct": 100.0,
         "counterparty": counterparty,
+        "offtaker": str(offtaker or ""),
+        "developer": str(developer or ""),
         "eia_plant_id": asset.get("eia_plant_id") or None,
     }, indent=2) + "\n")
 

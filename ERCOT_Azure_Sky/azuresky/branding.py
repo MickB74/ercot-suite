@@ -106,15 +106,21 @@ def hero(st, title: str, subtitle: str = "") -> None:
     """Render the SR-branded page header with the asset's headline facts as chips."""
     inject_css(st)
     a = contract.ASSET
-    chips = "".join(
-        f'<span class="azure-chip">{c}</span>' for c in (
-            f"⚡ {a['capacity_mw']:,.0f} MW",
-            f"🌬️ {a['tech']} · {a['turbine_model']}",
-            f"📍 {a['county']}",
-            f"🔌 {a['hub'].replace('HB_', '')} hub",
-            f"🏷️ {a['resource_node']}",
-        )
-    )
+    terms = contract.load_contract()
+    offtaker = str(terms.get("offtaker", "") or "").strip()
+    developer = str(terms.get("developer", "") or "").strip()
+    chip_items = [
+        f"⚡ {a['capacity_mw']:,.0f} MW",
+        f"🌬️ {a['tech']} · {a['turbine_model']}",
+        f"📍 {a['county']}",
+        f"🔌 {a['hub'].replace('HB_', '')} hub",
+        f"🏷️ {a['resource_node']}",
+    ]
+    if offtaker:
+        chip_items.append(f"🏢 Offtaker: {offtaker}")
+    if developer:
+        chip_items.append(f"🏗️ Developer: {developer}")
+    chips = "".join(f'<span class="azure-chip">{c}</span>' for c in chip_items)
     sub = f'<div class="sub">{subtitle}</div>' if subtitle else ""
     st.markdown(
         f'<div class="azure-hero">'

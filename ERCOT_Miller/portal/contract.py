@@ -47,6 +47,8 @@ DEFAULT_CONTRACT = {
     "settle_below_floor": False,  # False: no settlement below floor (most VPPAs)
     "fee_per_mwh": 0.0,          # only used for "Merchant + fee"
     "counterparty": "Customer",  # label shown on the bill
+    "offtaker": "",              # full company name of the VPPA buyer
+    "developer": "",             # developer / entity above the project SPV
     "currency": "USD",
 
     # ── extended VPPA levers (all OFF / neutral by default) ──────────────────
