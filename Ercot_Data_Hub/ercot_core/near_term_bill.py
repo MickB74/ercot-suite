@@ -126,6 +126,24 @@ def render_near_term_tab(
             shared_cols = weather_df.columns.intersection(ext.columns)
             weather_df = pd.concat([weather_df, ext[shared_cols]])
 
+    # Prior-year ERA5 for days beyond the GEFS horizon (~35 days).
+    # Fetches the same calendar window from last year as a climatological proxy
+    # — gives realistic day-to-day variation vs a flat monthly average.
+    _clim_start = month_start_ct.date().replace(year=month_start_ct.year - 1)
+    _clim_end = next_month_end_date.replace(year=next_month_end_date.year - 1)
+
+    @st.cache_data(show_spinner="Loading prior-year ERA5 (climatological baseline)…", ttl=86400)
+    def _prior_year(lat, lon, tech_key, start_str, end_str):
+        try:
+            return wf.fetch_archive(lat, lon, tech_key, start_str, end_str), None
+        except Exception as exc:  # noqa: BLE001
+            return None, str(exc)
+
+    py_df, _ = _prior_year(
+        float(a["lat"]), float(a["lon"]), tech,
+        str(_clim_start), str(_clim_end),
+    )
+
     # ── calibrate against SCED using archive API ─────────────────────────────
     # The forecast endpoint's past_days returns 0 for shortwave_radiation
     # beyond ~30 days. SCED lags ~60 days, so we use the ERA5 archive endpoint
@@ -227,14 +245,29 @@ def render_near_term_tab(
         kind = "forecast_cur" if d_date < next_month_start.date() else "forecast_next"
         forecast_rows.append({"date": d_date, "mwh": float(mwh), "net": net, "kind": kind})
 
-    # Fill days beyond weather horizon with historical shape
+    # Build prior-year daily MWh lookup for the climatological tail
+    py_daily: dict[dt.date, float] = {}
+    if py_df is not None:
+        py_raw = gf.daily_forecast_mwh(py_df, tech, cap_share, hub_height_m=hub_h, cal_factor=cal_factor)
+        py_daily = {d_py: float(v) for d_py, v in py_raw.items()}
+
+    # Fill days beyond the GEFS horizon — prior-year ERA5 first, flat shape as backstop
     d = weather_max_date + dt.timedelta(days=1)
     while d <= next_month_end_date:
         if d not in settled_dates and not any(r["date"] == d for r in forecast_rows):
-            mwh = gf.hist_mwh_for_date(d, hist_mwh)
-            net = mwh * (fwd_price - strike)
-            kind = "forecast_cur" if d < next_month_start.date() else "forecast_next"
-            forecast_rows.append({"date": d, "mwh": mwh, "net": net, "kind": "hist_" + kind.split("_", 1)[1]})
+            month_tag = "cur" if d < next_month_start.date() else "next"
+            try:
+                prior_date = d.replace(year=d.year - 1)
+                py_mwh = py_daily.get(prior_date)
+            except ValueError:
+                py_mwh = None  # leap-day edge case
+            if py_mwh is not None:
+                mwh = py_mwh
+                row_kind = f"clim_{month_tag}"
+            else:
+                mwh = gf.hist_mwh_for_date(d, hist_mwh)
+                row_kind = f"hist_{month_tag}"
+            forecast_rows.append({"date": d, "mwh": mwh, "net": mwh * (fwd_price - strike), "kind": row_kind})
         d += dt.timedelta(days=1)
 
     all_rows = actual_rows + forecast_rows
@@ -256,8 +289,8 @@ def render_near_term_tab(
     next_mwh = float(all_df.loc[next_mask, "mwh"].sum())
 
     n_settled = int(actual_mask.sum())
-    n_fcast_cur = int((all_df["kind"].str.startswith("forecast_cur") | all_df["kind"].str.startswith("hist_cur")).sum())
-    n_fcast_next = int((all_df["kind"].str.startswith("forecast_next") | all_df["kind"].str.startswith("hist_next")).sum())
+    n_fcast_cur = int(all_df["kind"].str.contains("cur").sum())
+    n_fcast_next = int(all_df["kind"].str.contains("next").sum())
 
     k1, k2, k3, k4 = st.columns(4)
     k1.metric(
@@ -300,7 +333,7 @@ def render_near_term_tab(
         k = row["kind"]
         if k == "actual":
             return SOLID_POS if pos else SOLID_NEG
-        if k in ("forecast_cur", "hist_cur"):
+        if "cur" in k:
             return FCAST_CUR_POS if pos else FCAST_CUR_NEG
         return FCAST_NEXT_POS if pos else FCAST_NEXT_NEG
 
@@ -389,8 +422,10 @@ def render_near_term_tab(
         show["net"] = show["net"].map(branding.signed_money_raw)
         kind_labels = {
             "actual": "Settled",
-            "forecast_cur": f"Forecast – {cur_month_str}",
-            "forecast_next": f"Forecast – {next_month_str}",
+            "forecast_cur": f"GEFS forecast – {cur_month_str}",
+            "forecast_next": f"GEFS forecast – {next_month_str}",
+            "clim_cur": f"Prior-year ERA5 – {cur_month_str}",
+            "clim_next": f"Prior-year ERA5 – {next_month_str}",
             "hist_cur": f"Hist. shape – {cur_month_str}",
             "hist_next": f"Hist. shape – {next_month_str}",
         }
@@ -400,10 +435,14 @@ def render_near_term_tab(
 
     # ── footnote ─────────────────────────────────────────────────────────────
     src = "Open-Meteo free API (no key required)"
+    py_note = (
+        f"Beyond 35 days: prior-year ERA5 (same calendar days, {month_start_ct.year - 1})."
+        if py_daily else "Beyond 35 days: historical monthly shape."
+    )
     st.caption(
         f"**Source:** {src}. "
         f"**Cal. factor {cal_factor:.3f}** — weather-model output scaled to match "
         f"{'last ' + str(n_cal_days) + ' days of SCED history' if n_cal_days else 'no SCED history (uncalibrated)'}. "
-        f"Days beyond the 16-day forecast horizon use the historical monthly shape. "
+        f"Near-term: high-res forecast (16 days) then GEFS ensemble P50 (35 days). {py_note} "
         f"Forward price: **\\${fwd_price:,.2f}/MWh** · Strike: **\\${strike:,.2f}/MWh**."
     )
