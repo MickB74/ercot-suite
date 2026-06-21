@@ -34,6 +34,11 @@ _ARCHIVE_URL = "https://archive-api.open-meteo.com/v1/archive"
 _ENSEMBLE_URL = "https://ensemble-api.open-meteo.com/v1/ensemble"
 _SOLAR_VARS = "shortwave_radiation,direct_radiation,diffuse_radiation,temperature_2m"
 _WIND_VARS = "wind_speed_80m,wind_speed_120m,wind_direction_80m"
+# Archive (ERA5) also carries the native 100 m level. The Open-Meteo archive
+# leaves 80m/120m as null for recent dates (~last 2 months, ERA5T lag) but
+# populates 100m, so request it too and let gen_forecast prefer the height that
+# actually has data — otherwise recent-month retrocasts/calibration read 0 MW.
+_WIND_VARS_ARCHIVE = "wind_speed_80m,wind_speed_100m,wind_speed_120m,wind_direction_80m"
 # GEFS ensemble: 80m wind only (120m not in GEFS); solar shares same var names
 _ENS_SOLAR_VARS = "shortwave_radiation"
 _ENS_WIND_VARS = "wind_speed_80m,wind_direction_80m"
@@ -156,7 +161,7 @@ def fetch_archive(
     if _is_fresh(cpath, cache_hours):
         raw = json.loads(cpath.read_text())
     else:
-        hourly_vars = _SOLAR_VARS if tech == "solar" else _WIND_VARS
+        hourly_vars = _SOLAR_VARS if tech == "solar" else _WIND_VARS_ARCHIVE
         params = (
             f"latitude={lat}&longitude={lon}"
             f"&hourly={hourly_vars}"

@@ -35,6 +35,41 @@ from . import gen_forecast as gf
 from . import weather_forecast as wf
 
 
+def _hub_ws_series(df: pd.DataFrame, hub_h: float):
+    """Hub-height wind speed (m/s) from whichever level a frame carries, or None.
+
+    Mirrors :func:`gen_forecast._wind_hourly_mw`'s level preference (120→100→80)
+    so the forecast and the ERA5 archive are compared at the same height even
+    though they expose different native levels.
+    """
+    for col, h in (("wind_speed_120m", 120.0), ("wind_speed_100m", 100.0),
+                   ("wind_speed_80m", 80.0)):
+        if col in df.columns:
+            s = pd.to_numeric(df[col], errors="coerce")
+            if s.fillna(0.0).sum() > 0:
+                return s * (hub_h / h) ** (1.0 / 7.0)
+    return None
+
+
+def _wind_bias_ratio(forecast_df: pd.DataFrame, archive_df, hub_h: float):
+    """ERA5/forecast mean hub-wind ratio over their overlap (None if not comparable).
+
+    The forecast API's winds run hotter than the ERA5 archive that ``cal_factor``
+    is fit against; scaling forecast winds by this ratio removes the cross-product
+    bias so the calibrated model doesn't over-predict the forward forecast.
+    """
+    if archive_df is None or getattr(archive_df, "empty", True):
+        return None
+    f = _hub_ws_series(forecast_df, hub_h)
+    a = _hub_ws_series(archive_df, hub_h)
+    if f is None or a is None:
+        return None
+    j = pd.concat([f.rename("f"), a.rename("a")], axis=1).dropna()
+    if len(j) < 48 or j["f"].mean() <= 0:   # need ~2 days of overlap
+        return None
+    return float(j["a"].mean() / j["f"].mean())
+
+
 def render_near_term_tab(
     st,
     *,
@@ -87,6 +122,9 @@ def render_near_term_tab(
     cut_in_ms = float(a.get("cut_in_ms") or 3.0)
     rated_ms = float(a.get("rated_ms") or 12.0)
     cut_out_ms = float(a.get("cut_out_ms") or 25.0)
+    # Real turbine model → the validated per-model power curve (same family
+    # plant_value uses). None ⇒ gen_forecast falls back to the generic ramp.
+    turbine_type = str(a.get("turbine_model") or "").strip() or None
     gen_kwargs = gen_kwargs or {}
 
     today_ct = pd.Timestamp.now("America/Chicago")
@@ -167,7 +205,7 @@ def render_near_term_tab(
 
     @st.cache_data(show_spinner="Calibrating against SCED history…", ttl=3600)
     def _calibrate(lat, lon, tech_key, cal_start_str, win_end_str, rnode, units_tuple,
-                   cut_in_t, rated_t, cut_out_t):
+                   cut_in_t, rated_t, cut_out_t, turbine_t):
         arch_df, err = _archive(lat, lon, tech_key, cal_start_str, win_end_str)
         if arch_df is None:
             return 1.0, 0
@@ -188,7 +226,8 @@ def render_near_term_tab(
         gen_raw["date"] = pd.to_datetime(gen_raw["interval_start"]).dt.date
         sced_daily = gen_raw.groupby("date")["mwh"].sum() * share
         factor = gf.calibrate(arch_df, sced_daily, cap_share, tech_key, hub_height_m=hub_h,
-                              cut_in=cut_in_t, rated=rated_t, cut_out=cut_out_t)
+                              cut_in=cut_in_t, rated=rated_t, cut_out=cut_out_t,
+                              turbine_type=turbine_t)
         return factor, int(len(sced_daily))
 
     cal_factor, n_cal_days = _calibrate(
@@ -197,8 +236,28 @@ def render_near_term_tab(
         str(win_end_date),
         a["resource_node"],
         tuple(_units),
-        cut_in_ms, rated_ms, cut_out_ms,
+        cut_in_ms, rated_ms, cut_out_ms, turbine_type,
     )
+
+    # ── bias-correct the forecast wind product to the ERA5 baseline ──────────
+    # cal_factor is fit on ERA5 archive winds; the forecast API (and GEFS) run
+    # hotter, so applying cal_factor to raw forecast winds over-predicts. Scale
+    # the forecast winds by the ERA5/forecast mean-hub-wind ratio over their
+    # recent overlap. Solar is unaffected (radiation products agree closely).
+    wind_bias_ratio = None
+    if tech == "wind" and not weather_df.empty:
+        _ov_start = weather_df.index.min().date()
+        _ov_end = today_ct.date() - dt.timedelta(days=2)   # ERA5 archive lag
+        if _ov_end > _ov_start:
+            _ov_arch, _ = _archive(float(a["lat"]), float(a["lon"]), tech,
+                                   str(_ov_start), str(_ov_end))
+            _r = _wind_bias_ratio(weather_df, _ov_arch, hub_h)
+            if _r is not None and 0.5 < _r < 1.5:   # ignore implausible ratios
+                wind_bias_ratio = _r
+                weather_df = weather_df.copy()
+                for _c in ("wind_speed_80m", "wind_speed_100m", "wind_speed_120m"):
+                    if _c in weather_df.columns:
+                        weather_df[_c] = pd.to_numeric(weather_df[_c], errors="coerce") * _r
 
     # ── prior month: ERA5 generation × actual settlement prices ──────────────
     # Shows how the model performed against real market prices last month —
@@ -259,6 +318,7 @@ def render_near_term_tab(
                 _prev_era5_df, tech, cap_share,
                 hub_height_m=hub_h, cal_factor=cal_factor,
                 cut_in=cut_in_ms, rated=rated_ms, cut_out=cut_out_ms,
+                turbine_type=turbine_type,
             )
             for _d, _mwh in _prev_daily.items():
                 if _d < prev_month_start_date or _d > prev_month_end_date:
@@ -311,6 +371,7 @@ def render_near_term_tab(
         weather_df, tech, cap_share,
         hub_height_m=hub_h, cal_factor=cal_factor,
         cut_in=cut_in_ms, rated=rated_ms, cut_out=cut_out_ms,
+        turbine_type=turbine_type,
     )
     weather_max_date = max(daily_fcast.index) if len(daily_fcast) > 0 else today_ct.date()
 
@@ -328,7 +389,8 @@ def render_near_term_tab(
     py_daily: dict[dt.date, float] = {}
     if py_df is not None:
         py_raw = gf.daily_forecast_mwh(py_df, tech, cap_share, hub_height_m=hub_h, cal_factor=cal_factor,
-                                        cut_in=cut_in_ms, rated=rated_ms, cut_out=cut_out_ms)
+                                        cut_in=cut_in_ms, rated=rated_ms, cut_out=cut_out_ms,
+                                        turbine_type=turbine_type)
         py_daily = {d_py: float(v) for d_py, v in py_raw.items()}
 
     # Fill days beyond the GEFS horizon — prior-year ERA5 first, flat shape as backstop
@@ -393,11 +455,20 @@ def render_near_term_tab(
         delta=f"{mtd_mwh:,.0f} MWh · {n_settled} days settled",
         delta_color="off",
     )
+    # Projected month-end = settled MTD + the remaining-days forecast, combined.
+    remain_cur = proj_cur - mtd_net           # forecast-only portion of the month
+    proj_mwh = float(all_df.loc[cur_mask, "mwh"].sum())
     _kcols[_ki + 1].metric(
         "Projected month-end",
         branding.signed_money(proj_cur),
-        delta=f"{n_fcast_cur} forecast days remaining",
+        delta=f"{n_settled} settled + {n_fcast_cur} forecast days",
         delta_color="off",
+        help=(f"Full-month projection = MTD actual + remaining forecast.\n\n"
+              f"• MTD actual ({n_settled} days): {branding.signed_money(mtd_net)}\n"
+              f"• Forecast ({n_fcast_cur} days): {branding.signed_money(remain_cur)}\n"
+              f"• = Projected month-end: {branding.signed_money(proj_cur)}\n\n"
+              f"Forecast days valued at forward price − strike: "
+              f"({fwd_price:,.2f} − {strike:,.2f}) = {fwd_price - strike:,.2f} $/MWh."),
     )
     _kcols[_ki + 2].metric(
         f"{next_month_str} estimate",
@@ -410,6 +481,28 @@ def render_near_term_tab(
         f"{cal_factor:.3f}",
         delta=f"from {n_cal_days} SCED days" if n_cal_days else "no overlap — uncalibrated",
         delta_color="off",
+        help=(
+            "Weather-model output is scaled by this factor so it matches the "
+            f"plant's metered SCED over the last {n_cal_days} days."
+            + (f"\n\nForecast winds also bias-corrected ×{wind_bias_ratio:.3f} "
+               "to the ERA5 calibration baseline (the forecast product runs "
+               "hotter than ERA5). Generation uses a farm-level (multi-turbine) "
+               "power curve, so daily output tracks the metered distribution "
+               "instead of pegging at 100%."
+               if wind_bias_ratio else
+               "\n\nGeneration uses a farm-level (multi-turbine) power curve.")
+        ),
+    )
+
+    # Visible calc for the projected month-end (past + forecast combined).
+    st.caption(
+        f"**Projected month-end ({cur_month_str})** = "
+        f"MTD actual **{branding.signed_money(mtd_net)}** "
+        f"({n_settled} days settled, {mtd_mwh:,.0f} MWh) "
+        f"+ remaining forecast **{branding.signed_money(remain_cur)}** "
+        f"({n_fcast_cur} days, {proj_mwh - mtd_mwh:,.0f} MWh @ "
+        f"{fwd_price:,.2f}−{strike:,.2f}={fwd_price - strike:,.2f} $/MWh) "
+        f"= **{branding.signed_money(proj_cur)}** ({proj_mwh:,.0f} MWh)."
     )
 
     # ── chart ─────────────────────────────────────────────────────────────────
