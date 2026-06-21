@@ -855,21 +855,6 @@
     "notes": "ERCOT node MIRASOLE_GEN (units MIRASOLE_MIR11/12/13/21) = EIA 'Hidalgo Wind Farm LLC' (57617, 250 MW) + 'Hidalgo Wind Farm II' (62618, 50 MW), ~300 MW. 'Los Mirasoles' is the ERCOT/commercial name; EIA files it under the LLC. Crosswalk confirmed 2026-06-19 by generation reconciliation: MIRASOLE_GEN SCED Q2-2024 = 248,590 MWh vs EIA-923 57617+62618 = 248,995 MWh (0.2%).",
     "aka": "Los Mirasoles Wind Farm (commercial) \u00b7 Hidalgo Wind Farm LLC (EIA 57617)"
   },
-  "Miller": {
-    "resource_name": "MIL_MILG1_2",
-    "project_name": "Miller",
-    "tech": "Solar",
-    "capacity_mw": 178.0,
-    "hub": "North",
-    "county": "Haskell",
-    "queue_id": "24INR0044",
-    "tracking_type": "single_axis",
-    "dc_ac_ratio": 1.3,
-    "sced_units": [
-      "MIL_MILLERG1",
-      "MIL_MILLERG2"
-    ]
-  },
   "Hornet Solar": {
     "resource_name": "HRNT_SLR_RN",
     "project_name": "Hornet Solar",
@@ -913,5 +898,23 @@
       "WH_WIND_UNIT1",
       "WH_WIND_UNIT2"
     ]
+  },
+  "Millers Branch Solar": {
+    "resource_name": "MLB_SLR_RN",
+    "project_name": "Millers Branch Solar",
+    "tech": "Solar",
+    "capacity_mw": 318.0,
+    "hub": "HB_NORTH",
+    "county": "Haskell",
+    "queue_id": "24INR0044",
+    "tracking_type": "single_axis",
+    "dc_ac_ratio": 1.3,
+    "sced_units": [
+      "MLB_SLR_SOLAR1",
+      "MLB_SLR_SOLAR2",
+      "MLB_SLR_SOLAR3"
+    ],
+    "lat": 33.22132,
+    "lon": -99.58652
   }
 }

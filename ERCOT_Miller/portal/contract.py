@@ -12,27 +12,31 @@ import json
 from pathlib import Path
 
 # ── the asset ───────────────────────────────────────────────────────────────
-# Miller — ERCOT resource node MIL_MILG1_2, single SCED unit MIL_MILLERG1.
-# (Facts mirror the Hub's curated solar registry so the two never drift.)
+# Millers Branch Solar — ERCOT resource node MLB_SLR_RN, three PVGR units
+# (MLB_SLR_SOLAR1/2/3). Haskell County (ERCOT North). Single-axis tracking PV.
+# EIA-860 "Millers Branch Solar" plant 69101. The full multi-phase plant (~318 MW
+# AC as SOLAR3 ramps in through 2026). NOTE: this portal was originally pointed at
+# MIL_MILG1_2 = "R W Miller", a NATURAL GAS plant (ERCOT resource_type GSREH/
+# SCGT90) — wrong node; corrected here to the real solar node MLB_SLR_RN.
 ASSET = {
-    "project_name": "Miller",
-    "resource_node": "MIL_MILG1_2",
-    "resource_name": "MIL_MILLERG1",
-    "capacity_mw": 178.0,
+    "project_name": "Millers Branch Solar",
+    "resource_node": "MLB_SLR_RN",
+    "resource_name": "MLB_SLR_SOLAR1",
+    # All three PVGR units make up the plant; settlement must sum ALL,
+    # not just resource_name, or it counts a fraction of the plant.
+    "sced_units": ["MLB_SLR_SOLAR1", "MLB_SLR_SOLAR2", "MLB_SLR_SOLAR3"],
+    "capacity_mw": 318.0,
     "tech": "Solar PV",
     "tracking_type": "single_axis",
-    "hub": "HB_NORTH",
-    "county": "Haskell",                # EIA-860: plant 67580, Bosque County
-    "lat": 0.0,                      # EIA-860 authoritative (COD 2024-11-01)
-    "lon": 0.0,
+    "hub": "HB_NORTH",                 # Haskell County = ERCOT North
+    "county": "Haskell",
+    "lat": 33.221320,                  # EIA-860 plant 69101 (Millers Branch Solar)
+    "lon": -99.586520,
     "dc_ac_ratio": 1.3,
-    # EIA-923 plant identifier for the independent generation cross-check. There
-    # is no public ERCOT→EIA crosswalk, so this is supplied by hand once (the
-    # plant's EIA ORIS code). Miller Farm = 67580 (matched on EIA-860 name
-    # "Miller Farm", 161 MW PV, Bosque County). Overridable via
-    # "eia_plant_id" in config.json; None ⇒ the cross-check is disabled.
+    # EIA-860 "Millers Branch Solar" = plant 69101 (aggregates all PV phases).
+    # Left disabled until the node↔EIA phase mapping is confirmed.
     "eia_plant_id": None,
-    "eia_prime_mover": "PV",   # solar PV; None = all prime movers at the plant
+    "eia_prime_mover": "PV",
 }
 
 # ── default contract terms (seed; overridable in config.json / Contract page) ──

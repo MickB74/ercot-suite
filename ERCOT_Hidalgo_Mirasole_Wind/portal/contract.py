@@ -12,27 +12,32 @@ import json
 from pathlib import Path
 
 # ── the asset ───────────────────────────────────────────────────────────────
-# Hidalgo Mirasole Wind — ERCOT resource node MIRASOLE_GEN, single SCED unit MIRASOLE_MIR11.
-# (Facts mirror the Hub's curated solar registry so the two never drift.)
+# Hidalgo Mirasole Wind — ERCOT resource node MIRASOLE_GEN, four SCED units
+# (MIRASOLE_MIR11/12/13/21) making up the 300 MW plant. Hidalgo County, Rio
+# Grande Valley (ERCOT South). (Facts mirror the Hub's curated registry.)
 ASSET = {
     "project_name": "Hidalgo Mirasole Wind",
     "resource_node": "MIRASOLE_GEN",
     "resource_name": "MIRASOLE_MIR11",
+    # All four SCED units make up the 300 MW plant; settlement must sum ALL,
+    # not just resource_name, or it counts a fraction of the plant.
+    "sced_units": ["MIRASOLE_MIR11", "MIRASOLE_MIR12", "MIRASOLE_MIR13", "MIRASOLE_MIR21"],
     "capacity_mw": 300.0,
     "tech": "Wind",
     "tracking_type": None,
-    "hub": "HB_SOUTH",
-    "county": "Hidalgo",                # EIA-860: plant 67580, Bosque County
-    "lat": 26.465556,                      # EIA-860 authoritative (COD 2024-11-01)
+    "hub": "HB_SOUTH",                 # Hidalgo County, Rio Grande Valley = ERCOT South
+    "county": "Hidalgo",
+    "lat": 26.465556,
     "lon": -98.411111,
     "dc_ac_ratio": None,
-    # EIA-923 plant identifier for the independent generation cross-check. There
-    # is no public ERCOT→EIA crosswalk, so this is supplied by hand once (the
-    # plant's EIA ORIS code). Hidalgo Mirasole Wind Farm = 67580 (matched on EIA-860 name
-    # "Hidalgo Mirasole Wind Farm", 161 MW PV, Bosque County). Overridable via
-    # "eia_plant_id" in config.json; None ⇒ the cross-check is disabled.
-    "eia_plant_id": 57617,
-    "eia_prime_mover": None,   # solar PV; None = all prime movers at the plant
+    # EIA-923 plant ids for the independent generation cross-check. The 300 MW
+    # MIRASOLE_GEN node (4 SCED units) is EIA "Hidalgo Wind Farm" (57617, 250 MW)
+    # PLUS its "Hidalgo Wind Farm II" phase (62618, 50 MW) — both must be summed
+    # or the cross-check reads ~+19% high (the missing Phase II). Overridable via
+    # "eia_plant_ids" (list) or "eia_plant_id" in config.json.
+    "eia_plant_ids": [57617, 62618],
+    "eia_plant_id": 57617,     # legacy single-id fallback
+    "eia_prime_mover": None,   # all prime movers at the plant
     "turbine_model": "V110-2.0",
     "turbine_manuf": "Vestas",
     "hub_height_m": 95.0,
@@ -199,3 +204,33 @@ def eia_plant_id() -> int | None:
         return int(val) if val not in (None, "") else None
     except (TypeError, ValueError):
         return None
+
+
+def eia_plant_ids() -> list[int]:
+    """All EIA-923 plant ids that make up this ERCOT node (for the cross-check).
+
+    Multi-phase plants file under separate EIA ids while sharing one ERCOT node
+    (Hidalgo Wind Farm 57617 + Phase II 62618), so the cross-check must sum the
+    set. Resolves from ``config.json`` ("eia_plant_ids" list, else "eia_plant_id"),
+    then the ASSET ("eia_plant_ids", else "eia_plant_id"). Empty list ⇒ disabled.
+    """
+    val = None
+    if CONFIG_PATH.exists():
+        try:
+            saved = json.loads(CONFIG_PATH.read_text())
+            if isinstance(saved, dict):
+                val = saved.get("eia_plant_ids") or saved.get("eia_plant_id")
+        except Exception:  # noqa: BLE001
+            pass
+    if val in (None, "", []):
+        val = ASSET.get("eia_plant_ids") or ASSET.get("eia_plant_id")
+    if val in (None, "", []):
+        return []
+    raw = val if isinstance(val, (list, tuple, set)) else [val]
+    out = []
+    for v in raw:
+        try:
+            out.append(int(v))
+        except (TypeError, ValueError):
+            pass
+    return out

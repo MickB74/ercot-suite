@@ -182,13 +182,13 @@ def settlement_prices(location: str, start: pd.Timestamp, end_excl: pd.Timestamp
 def available_locations() -> tuple[str, ...]:
     """Settlement points the portal can settle at — the plant's node + cached hubs.
 
-    The node (``MIL_MILG1_2``) always leads; the trading hubs are those with
+    The node (``MLB_SLR_RN``) always leads; the trading hubs are those with
     cached RT15 prices in the Hub's hub store (so settlement always has a real
     price). Named averages (``HB_HUBAVG``/``HB_BUSAVG``) sort last.
     """
     core()
     from ercot_core import paths  # noqa: PLC0415
-    node = "MIL_MILG1_2"
+    node = "MLB_SLR_RN"
     hubs: list[str] = []
     if paths.HUB_PRICES_PARQUET.exists():
         df = pd.read_parquet(paths.HUB_PRICES_PARQUET, columns=["settlement_point"])

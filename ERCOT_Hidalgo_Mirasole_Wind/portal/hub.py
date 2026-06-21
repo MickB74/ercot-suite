@@ -217,18 +217,21 @@ def solar_tmy_hourly(resource_name: str, capacity_kw: float) -> pd.DataFrame | N
     return df if "ac_kw" in df.columns else None
 
 
-def eia_monthly_netgen(plant_id: int, start_year: int, end_year: int,
+def eia_monthly_netgen(plant_id, start_year: int, end_year: int,
                        prime_mover: str | None = None) -> pd.DataFrame:
-    """EIA-923 monthly **net generation** (MWh) for one plant, per (year, month).
+    """EIA-923 monthly **net generation** (MWh) per (year, month).
 
-    Reads the Hub's cached ``eia923_all_{year}.parquet`` files and sums
-    ``netgen_mwh`` across the plant's rows. ``prime_mover`` (e.g. ``"PV"`` for
-    solar) restricts to one prime mover — needed for co-located plants under one
-    EIA id. Returns columns ``year, month, eia_mwh`` — empty if the plant isn't
-    in the cached EIA data for that span.
+    ``plant_id`` may be a single id or a list/tuple of ids — multi-phase plants
+    file under separate EIA ids (e.g. Hidalgo Wind Farm 57617 + Phase II 62618),
+    and the ERCOT resource node spans them all, so summing the set is what
+    reconciles against SCED. Reads the Hub's cached ``eia923_all_{year}.parquet``
+    files and sums ``netgen_mwh``. ``prime_mover`` (e.g. ``"PV"``) restricts to one
+    prime mover for co-located plants under one id. Returns ``year, month,
+    eia_mwh`` — empty if none of the ids are in the cached EIA data for that span.
     """
     core()  # ensure paths importable
     from ercot_core import paths  # noqa: PLC0415
+    ids = [int(p) for p in (plant_id if isinstance(plant_id, (list, tuple, set)) else [plant_id])]
     eia_dir = paths.EIA_DIR
     frames = []
     for year in range(start_year, end_year + 1):
@@ -237,7 +240,7 @@ def eia_monthly_netgen(plant_id: int, start_year: int, end_year: int,
             continue
         df = pd.read_parquet(path, columns=["year", "month", "plant_id",
                                             "prime_mover", "netgen_mwh"])
-        df = df[df["plant_id"] == int(plant_id)]
+        df = df[df["plant_id"].isin(ids)]
         if prime_mover:
             df = df[df["prime_mover"].astype(str).str.upper().str.startswith(prime_mover.upper())]
         if not df.empty:

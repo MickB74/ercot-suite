@@ -18,6 +18,9 @@ ASSET = {
     "project_name": "Hornet Solar",
     "resource_node": "HRNT_SLR_RN",
     "resource_name": "HRNT_SLR_UNIT1",
+    # All three SCED units make up the 600 MW plant; settlement must sum ALL,
+    # not just resource_name, or it counts a fraction of the plant.
+    "sced_units": ["HRNT_SLR_UNIT1", "HRNT_SLR_UNIT2", "HRNT_SLR_UNIT3"],
     "capacity_mw": 600.0,
     "tech": "Solar PV",
     "tracking_type": "single_axis",
@@ -26,12 +29,12 @@ ASSET = {
     "lat": 34.485162,                      # EIA-860 authoritative (COD 2024-11-01)
     "lon": -101.971401,
     "dc_ac_ratio": 1.3,
-    # EIA-923 plant identifier for the independent generation cross-check. There
-    # is no public ERCOT→EIA crosswalk, so this is supplied by hand once (the
-    # plant's EIA ORIS code). Hornet Solar Farm = 67580 (matched on EIA-860 name
-    # "Hornet Solar Farm", 161 MW PV, Bosque County). Overridable via
-    # "eia_plant_id" in config.json; None ⇒ the cross-check is disabled.
-    "eia_plant_id": None,
+    # EIA-923 plant id for the independent generation cross-check (no public
+    # ERCOT→EIA crosswalk, so mapped by hand). Hornet Solar = EIA 65463
+    # ("Hornet Solar (TX)", 600 MW PV, Swisher County — exact node match;
+    # reconciles to SCED within ~0.2%). Overridable via "eia_plant_id" in
+    # config.json; None ⇒ the cross-check is disabled.
+    "eia_plant_id": 65463,
     "eia_prime_mover": "PV",   # solar PV; None = all prime movers at the plant
 }
 

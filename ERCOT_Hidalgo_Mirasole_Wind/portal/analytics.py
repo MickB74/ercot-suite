@@ -53,7 +53,7 @@ def settle(start_date: dt.date, end_date: dt.date, terms: dict | None = None) ->
         ref_location=ref,                         # settle at the chosen reference
         market="RT15",
         node_location=a["resource_node"],
-        units=[a["resource_name"]],
+        units=a.get("sced_units") or [a["resource_name"]],
         price_floor=floor,
         settle_below_floor=settle_below,
         mw_scale=mw_scale,
@@ -137,16 +137,17 @@ def reconcile_eia(start_date: dt.date, end_date: dt.date,
     tolerance). Months where EIA hasn't published yet show EIA as NaN and are
     not flagged.
     """
-    plant_id = contract.eia_plant_id()
-    if plant_id is None:
+    plant_ids = contract.eia_plant_ids()
+    if not plant_ids:
         return None
+    plant_label = "+".join(str(p) for p in plant_ids)
 
     sced = sced_monthly_total_mwh(start_date, end_date)
     if sced.empty:
-        return {"table": pd.DataFrame(), "plant_id": plant_id,
+        return {"table": pd.DataFrame(), "plant_id": plant_label,
                 "compared": 0, "flagged": 0}
 
-    eia = hub.eia_monthly_netgen(plant_id, start_date.year, end_date.year)
+    eia = hub.eia_monthly_netgen(plant_ids, start_date.year, end_date.year)
     df = sced.rename("SCED_MWh").reset_index()  # Month, SCED_MWh
     if not eia.empty:
         eia = eia.copy()
@@ -165,7 +166,7 @@ def reconcile_eia(start_date: dt.date, end_date: dt.date,
 
     compared = int(df["EIA_MWh"].notna().sum())
     flagged = int(df["flag"].fillna(False).sum())
-    return {"table": df, "plant_id": plant_id,
+    return {"table": df, "plant_id": plant_label,
             "compared": compared, "flagged": flagged,
             "tolerance_pct": float(tolerance_pct)}
 

@@ -157,7 +157,7 @@ _PORTALS = [
     {"name": "Hornet Solar",           "tech": "Solar PV", "mw": 600,  "hub": "HB_PAN",   "icon": "☀️",
      "offtaker": "Pfizer · Brunswick Corporation",     "developer": "Vesper Energy",       "strike": 25.00,
      "dir": "ERCOT_Hornet_Solar",      "port": 8505},
-    {"name": "Miller",                 "tech": "Solar PV", "mw": 178,  "hub": "HB_NORTH", "icon": "☀️",
+    {"name": "Millers Branch Solar",   "tech": "Solar PV", "mw": 318,  "hub": "HB_NORTH", "icon": "☀️",
      "offtaker": "Thermo Fisher Scientific",           "developer": "Southern Power",      "strike": 35.00,
      "dir": "ERCOT_Miller",            "port": 8506},
 ]
