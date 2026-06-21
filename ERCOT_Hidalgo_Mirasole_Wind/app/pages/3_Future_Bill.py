@@ -68,6 +68,12 @@ from ercot_core import price_forecast  # noqa: E402,PLC0415
 hub_name = loc if loc.upper().startswith("HB_") else str(a.get("hub") or "HB_NORTH")
 
 
+# Forecast horizon, in months. We request a full 10-year band; the engine
+# returns as many months as the gas strip supports and the projection loop
+# falls back to a flat forward price for any month beyond the band.
+FORECAST_HORIZON_MONTHS = 120
+
+
 @st.cache_data(show_spinner=f"Loading {hub_name} price forecast…")
 def _forecast_band(hub_name, horizon, ratio, asof_iso):
     return price_forecast.monthly_band(hub_name, asof=asof_iso, horizon_months=horizon,
@@ -93,19 +99,19 @@ _mb_key = tuple(zip(m["MWh"].astype(float).tolist(),
 cap_ratio = _capture_ratio(hub_name, str(win_start), str(win_end), _mb_key)
 forecast_ok = True
 try:
-    fwd_band_12 = _forecast_band(hub_name, 12, cap_ratio,
-                                  str(pd.Timestamp.today().date()))
-    if fwd_band_12.empty:
+    fwd_band = _forecast_band(hub_name, FORECAST_HORIZON_MONTHS, cap_ratio,
+                              str(pd.Timestamp.today().date()))
+    if fwd_band.empty:
         forecast_ok = False
 except Exception as _fe:  # noqa: BLE001 — degrade gracefully
-    fwd_band_12 = pd.DataFrame()
+    fwd_band = pd.DataFrame()
     forecast_ok = False
     st.sidebar.warning(f"Price forecast unavailable: {_fe}")
 
 # ── shared sidebar price input ────────────────────────────────────────────────
 st.sidebar.header("Price assumptions")
 if forecast_ok:
-    p50_now = float(fwd_band_12["p50"].iloc[0])
+    p50_now = float(fwd_band["p50"].iloc[0])
     st.sidebar.caption(
         f"**{hub_name} forecast** · P50 \\${p50_now:,.2f}/MWh next month · "
         f"capture-adjusted ({cap_ratio:,.2f}×). Range shown = P10/P90.")
@@ -168,7 +174,10 @@ with tab_long:
     degr = st.sidebar.slider(
         "Annual degradation (%/yr)", 0.0, 2.0, 0.0, 0.1,
         help="Wind turbines show little systematic degradation — default 0%.") / 100.0
-    n_months = st.sidebar.slider("Months to project", 1, 12, 6)
+    n_months = st.sidebar.slider("Months to project", 1, 120, 6,
+                                 help="Up to 10 years. The price forecast band covers "
+                                      "as far as the gas strip supports; beyond that a "
+                                      "flat forward price is held constant.")
 
     def _expected_mwh(cal_month: int) -> float:
         if basis == "Historical shape":
@@ -183,7 +192,7 @@ with tab_long:
     )
 
     start_month = (win_end.replace(day=1) + pd.offsets.MonthBegin(1)).date()
-    band_idx = (fwd_band_12.set_index("Month")
+    band_idx = (fwd_band.set_index("Month")
                 if (forecast_ok and not use_manual) else None)
     rows = []
     for i in range(n_months):
@@ -217,7 +226,9 @@ with tab_long:
     tot_hi = proj["Net @ high"].sum()
     receives = tot_net >= 0
 
-    st.subheader(f"Next {n_months} month(s)")
+    _hdr = (f"Next {n_months // 12} year(s)" if n_months >= 12 and n_months % 12 == 0
+            else f"Next {n_months} month(s)")
+    st.subheader(_hdr)
     if basis == "Calibrated model" and cal:
         st.caption(
             f"Generation basis: **calibrated model** — typical-year profile "

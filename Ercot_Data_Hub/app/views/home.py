@@ -160,6 +160,9 @@ _PORTALS = [
     {"name": "Millers Branch Solar",   "tech": "Solar PV", "mw": 318,  "hub": "HB_NORTH", "icon": "☀️",
      "offtaker": "Thermo Fisher Scientific",           "developer": "Southern Power",      "strike": 35.00,
      "dir": "ERCOT_Miller",            "port": 8506},
+    {"name": "Mesquite Star",          "tech": "Wind",     "mw": 419,  "hub": "HB_WEST",  "icon": "🌬️",
+     "offtaker": "Aggregated · Brown University",       "developer": "Clearway Energy Group", "strike": 29.00,
+     "dir": "ERCOT_Mesquite_Star",     "port": 8507},
 ]
 
 
