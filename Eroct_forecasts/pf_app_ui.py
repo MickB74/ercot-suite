@@ -874,18 +874,22 @@ def render() -> None:
                    "to expose scarcity-year skew (see Uri below).")
         st.dataframe(heat_rate.display_table(rt), use_container_width=True, hide_index=True)
 
-        # Data-driven Winter Storm Uri callout.
-        b = heat_rate.buckets(rt).set_index(["month", "block"])
+        # Winter Storm Uri callout — note it's now excluded from the baseline.
+        b = heat_rate.buckets(rt).set_index(["month", "block"])  # Uri excluded by default
         if (2, "peak") in b.index:
             f = b.loc[(2, "peak")]
+            excl = heat_rate.EXCLUDED_EVENTS
+            excl_str = "; ".join(f"{heat_rate.MONTH_NAMES[mo-1]} {yr} ({why})"
+                                 for (yr, mo), why in excl.items())
             st.info(
-                f"❄️ **Why median, not mean?** February peak heat rate: "
-                f"median **{f['ihr_p50']:.1f}** vs mean **{f['ihr_mean']:.1f}** "
-                f"(P90 **{f['ihr_p90']:.0f}**). That gap is **Winter Storm Uri "
-                f"(Feb 2021)**, when prices pinned the cap. Anchoring on the median "
-                f"keeps the base case sane, while Uri still shows up in the P90 / "
-                f"scenario tails where it belongs — instead of permanently inflating "
-                f"every February forecast."
+                f"❄️ **Winter Storm Uri (Feb 2021) excluded from baseline.** "
+                f"That month's realized heat rate was 237–340 MMBtu/MWh (vs a normal "
+                f"range of 6–14), which would inflate every future February forecast "
+                f"if left in the sample. It is excluded as an infrastructure-failure "
+                f"event; forward scarcity risk is captured instead by the CDR reserve-"
+                f"margin overlay. Without Uri: Feb peak median **{f['ihr_p50']:.1f}**, "
+                f"P90 **{f['ihr_p90']:.1f}** — realistic numbers for a planning forecast. "
+                f"*(Excluded: {excl_str})*"
             )
 
     with tab4:

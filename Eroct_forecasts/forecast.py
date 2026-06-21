@@ -42,7 +42,7 @@ def build_inputs(hub: str, asof: pd.Timestamp, horizon_months: int,
     ``scarcity`` — apply the ERCOT CDR reserve-margin upper-tail boost per year.
     """
     rt = pf_history.load_rt15(hub)
-    bk = heat_rate.buckets(rt).set_index(["month", "block"])
+    bk = heat_rate.buckets(rt).set_index(["month", "block"])  # uses EXCLUDED_EVENTS by default
     if gas_override is not None and not gas_override.empty:
         gas = gas_override.copy()
         gas["month"] = pd.to_datetime(gas["month"])

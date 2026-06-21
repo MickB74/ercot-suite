@@ -24,12 +24,25 @@ import pf_history
 
 BLOCKS = ["peak", "offpeak", "atc"]
 
+# (year, month) pairs excluded from the baseline IHR distribution by default.
+# These are infrastructure-failure / force-majeure events that don't represent
+# normal market scarcity risk and would inflate the heat-rate sigma if left in.
+# Forward scarcity risk is modeled explicitly via the CDR reserve-margin overlay.
+EXCLUDED_EVENTS: dict[tuple[int, int], str] = {
+    (2021, 2): "Uri extreme-weather grid failure",
+}
 
-def realized(rt15: pd.DataFrame) -> pd.DataFrame:
+
+def realized(rt15: pd.DataFrame, *,
+             exclude_events: dict[tuple[int, int], str] | None = None) -> pd.DataFrame:
     """Per-(year, month, block) realized heat rate from one hub's history.
 
     Columns: year, month, block, price, gas, ihr.
+    ``exclude_events`` defaults to ``EXCLUDED_EVENTS``; pass ``{}`` to include all history.
     """
+    if exclude_events is None:
+        exclude_events = EXCLUDED_EVENTS
+
     power = pf_history.monthly_block_mean(rt15)
     gas = gas_curve.monthly_history().copy()
     gas["year"] = gas["month"].dt.year
@@ -40,10 +53,15 @@ def realized(rt15: pd.DataFrame) -> pd.DataFrame:
     df = df.drop(columns=["mo"]).dropna(subset=["gas"])
     df = df[df["gas"] > 0]
     df["ihr"] = df["price"] / df["gas"]
+
+    for (yr, mo) in exclude_events:
+        df = df[~((df["year"] == yr) & (df["month"] == mo))]
+
     return df.reset_index(drop=True)
 
 
-def buckets(rt15: pd.DataFrame, *, min_years: int = 2) -> pd.DataFrame:
+def buckets(rt15: pd.DataFrame, *, min_years: int = 2,
+            exclude_events: dict[tuple[int, int], str] | None = None) -> pd.DataFrame:
     """Distribution of IHR per (calendar-month, block).
 
     Columns: month, block, n, ihr_mean, ihr_std, ihr_p10/p50/p90, samples (list).
@@ -51,7 +69,7 @@ def buckets(rt15: pd.DataFrame, *, min_years: int = 2) -> pd.DataFrame:
     in the scenario engine. Buckets with < min_years samples fall back to a
     block-wide pooled std so scenarios still have dispersion.
     """
-    r = realized(rt15)
+    r = realized(rt15, exclude_events=exclude_events)
     rows = []
     for (mo, block), g in r.groupby(["month", "block"]):
         s = g["ihr"].to_numpy(dtype=float)
@@ -93,14 +111,15 @@ MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
 
-def display_table(rt15: pd.DataFrame) -> pd.DataFrame:
+def display_table(rt15: pd.DataFrame, *,
+                  exclude_events: dict[tuple[int, int], str] | None = None) -> pd.DataFrame:
     """Human-readable heat-rate table: what the forecast actually uses.
 
     One row per calendar month with the peak and off-peak median (the central
     multiplier), the typical P10-P90 range, the mean (to expose scarcity-year
     skew), and how many years of history back each bucket.
     """
-    b = buckets(rt15).set_index(["month", "block"])
+    b = buckets(rt15, exclude_events=exclude_events).set_index(["month", "block"])
     rows = []
     for mo in range(1, 13):
         rec = {"Month": MONTH_NAMES[mo - 1]}
