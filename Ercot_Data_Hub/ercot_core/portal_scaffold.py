@@ -48,7 +48,7 @@ _IGNORE = shutil.ignore_patterns(
 _TEXT_SUFFIXES = {".py", ".md", ".toml", ".json", ".txt", ".command", ".cfg", ".ini"}
 
 _HUB_CODE = {"North": "HB_NORTH", "Houston": "HB_HOUSTON", "South": "HB_SOUTH",
-             "West": "HB_WEST", "Pan": "HB_NORTH"}
+             "West": "HB_WEST", "Pan": "HB_PAN"}
 
 _QUEUE_OWNERSHIP = SUITE_ROOT / "Ercot_Data_Hub/ercot_core/registry/queue_ownership.json"
 
@@ -255,8 +255,28 @@ def create_portal(asset: dict, *, strike: float, structure: str = "VPPA / CfD",
                                    "hub_height_m", "rotor_diameter_m")})
     contract_py.write_text(c)
 
-    # 4) Write a fresh customer config.json with the contract terms.
-    (dest / "config.json").write_text(json.dumps({
+    # 4) Auto-select the settlement hub via price correlation (falls back to distance).
+    lat = float(asset.get("lat") or 0.0) or None
+    lon = float(asset.get("lon") or 0.0) or None
+    settle_hub: str | None = None
+    hub_method: str = "none"
+    try:
+        from ercot_core import hub_affinity  # noqa: PLC0415
+        if lat and lon:
+            try:
+                aff = hub_affinity.best_hub(node, lat=lat, lon=lon)
+            except ValueError:
+                # No cached prices yet — fall back to geography
+                aff = hub_affinity.best_hub_by_distance(lat, lon)
+        else:
+            aff = hub_affinity.best_hub(node)
+        settle_hub = aff["hub"]
+        hub_method = aff["method"]
+    except Exception:  # noqa: BLE001 — affinity is best-effort; never block portal creation
+        pass
+
+    # 4b) Write a fresh customer config.json with the contract terms + settlement hub.
+    cfg: dict = {
         "structure": structure,
         "strike": float(strike),
         "volume_share_pct": 100.0,
@@ -264,7 +284,11 @@ def create_portal(asset: dict, *, strike: float, structure: str = "VPPA / CfD",
         "offtaker": str(offtaker or ""),
         "developer": str(developer or ""),
         "eia_plant_id": asset.get("eia_plant_id") or None,
-    }, indent=2) + "\n")
+    }
+    if settle_hub:
+        cfg["settle_at"] = "hub"
+        cfg["settle_point"] = settle_hub
+    (dest / "config.json").write_text(json.dumps(cfg, indent=2) + "\n")
 
     # 5) Rename launcher scripts that carry the old name in their filename.
     for cmd in list(dest.glob("*.command")):
@@ -277,7 +301,9 @@ def create_portal(asset: dict, *, strike: float, structure: str = "VPPA / CfD",
         "name": project_name,
         "node": node,
         "package": NEW_PKG,
-        "launch": f".venv/bin/streamlit run app/Home.py",
+        "launch": ".venv/bin/streamlit run app/Home.py",
+        "settle_hub": settle_hub,
+        "settle_hub_method": hub_method,
     }
 
 

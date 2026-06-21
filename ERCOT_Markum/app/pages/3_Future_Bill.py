@@ -68,7 +68,7 @@ trailing_cap = (m["Market_value"].sum() / m["MWh"].sum()) if m["MWh"].sum() else
 # ── price forecast (per-hub P10/P50/P90, capture-adjusted) ────────────────────
 from ercot_core import price_forecast  # noqa: E402,PLC0415
 
-hub_name = str(a.get("hub") or "HB_NORTH")
+hub_name = loc if loc.upper().startswith("HB_") else str(a.get("hub") or "HB_NORTH")
 
 
 @st.cache_data(show_spinner=f"Loading {hub_name} price forecast…")

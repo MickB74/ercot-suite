@@ -84,10 +84,12 @@ actual availability, curtailment and losses); or **Physical model** (raw PVWatts
 """)
 st.markdown(
     """
-**Price is *not* a stochastic forecast.** You set a single **forward market price**
-(defaulting to the trailing capture price from history) and a **± sensitivity band** that
-shows how the bill swings if prices land higher or lower. The projection is simply
-*expected MWh × (forward price − strike)*, month by month.
+**Price** defaults to a **P10/P50/P90 forward forecast** (market-implied heat-rate × gas
+strip, capture-adjusted to the settlement hub), shown as a shaded band around the P50
+central estimate. If the forecast is unavailable you can override it with a **flat manual
+price** (defaulting to the trailing capture price from history) and a **± sensitivity band**
+that shows how the bill swings if prices land higher or lower. The projection is
+*expected MWh × (price − strike)*, month by month.
 """)
 
 st.subheader("⚠️ What this is *not*")
