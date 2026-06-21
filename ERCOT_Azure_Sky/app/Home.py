@@ -27,7 +27,7 @@ nav = st.navigation({
     "Azure Sky Wind": [
         st.Page("pages/1_Overview.py", title="Overview", icon="📊", default=True),
         st.Page("pages/2_Past_Settlement_Estimate.py", title="Past Settlement Estimate", icon="🧾"),
-        st.Page("pages/3_Future_Bill.py", title="Projected Bill", icon="🔮"),
+        st.Page("pages/3_Future_Bill.py", title="Project Settlements", icon="🔮"),
     ],
     "Audit": [
         st.Page("pages/4_Invoice_Audit.py", title="Invoice Audit", icon="🔍"),

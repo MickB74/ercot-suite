@@ -160,7 +160,7 @@ with tab_long:
     basis = st.sidebar.radio(
         "Generation basis", bases, index=0,
         help="**Calibrated model** — PVWatts typical-meteorological-year shape, "
-             "rescaled so it matches Hornet Solar's real metered output. "
+             "rescaled so it matches Mesquite Star's real metered output. "
              "**Physical model** — raw TMY, uncalibrated. "
              "**Historical shape** — mean of each calendar month across metered history.")
 

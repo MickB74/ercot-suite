@@ -1,8 +1,8 @@
-"""Markum Solar Settlement Portal — router / entry point.
+"""Mesquite Star Settlement Portal — router / entry point.
 
-A focused, customer-facing app for one asset (Markum Solar). It reuses the
+A focused, customer-facing app for one asset (Mesquite Star). It reuses the
 shared ERCOT engine and cached data from the sibling ``Ercot_Data_Hub`` repo;
-see :mod:`markum.hub`. This file owns ``st.set_page_config`` for the whole app —
+see :mod:`portal.hub`. This file owns ``st.set_page_config`` for the whole app —
 the page scripts must not call it again.
 
 Run:  .venv/bin/streamlit run app/Home.py
@@ -13,14 +13,14 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-# Make the ``markum`` package importable however the app is launched.
+# Make the ``portal`` package importable however the app is launched.
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 import streamlit as st  # noqa: E402
 
-from markum import contract  # noqa: E402
+from portal import contract  # noqa: E402
 
 # Title/icon follow the asset so the same template reads right for solar or wind.
 _name = str(contract.ASSET.get("project_name", "Settlement Portal"))

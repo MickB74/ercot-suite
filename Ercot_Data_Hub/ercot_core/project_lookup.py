@@ -124,8 +124,10 @@ def candidate_nodes(name: str) -> pd.DataFrame:
     try:
         from ercot_core import plant_names
         xwalk = plant_names.load_crosswalk()
+        ifyi_store = plant_names.load_ifyi_names()  # learned aliases (resource -> plant_name)
     except Exception:
         xwalk = pd.DataFrame()
+        ifyi_store = {}
     pn = (xwalk["plant_name"].astype(str).str.upper()
           if (not xwalk.empty and "plant_name" in xwalk.columns) else None)
 
@@ -140,6 +142,13 @@ def candidate_nodes(name: str) -> pd.DataFrame:
                 for rn in xwalk.loc[pn.str.contains(re.escape(t), na=False), "resource_name"].astype(str):
                     for nval in cat.loc[cat["sced_resource_name"].astype(str) == rn, "resource_node"].unique():
                         hits.setdefault(nval, set()).add(f"crosswalk:{t}")
+            # Method C — ifyi alias store: catches projects whose queue name differs
+            # from their ERCOT resource token (e.g. "Whitehorse Wind" -> WH_WIND).
+            for rn, rec in ifyi_store.items():
+                alias = str(rec.get("plant_name", "")).upper()
+                if alias and re.search(re.escape(t), alias):
+                    for nval in cat.loc[cat["sced_resource_name"].astype(str) == rn, "resource_node"].unique():
+                        hits.setdefault(nval, set()).add(f"alias:{t}")
         # Whole-name crosswalk match (strongest signal).
         if pn is not None:
             for rn in xwalk.loc[pn.str.contains(re.escape(name.upper()), na=False), "resource_name"].astype(str):
@@ -297,6 +306,13 @@ def lookup(query: str, allow_fetch: bool = True) -> dict:
             result["queue_matches"] = qm.to_dict("records")
 
     cand = candidate_nodes(result["name_used"])
+    # If the project name yields nothing (e.g. queue calls it "Whitehorse Wind" but the
+    # ERCOT resource is WH_WIND which only the crosswalk knows as "Mesquite Star"), also
+    # try the Interconnecting Entity name — it often matches the commercial/resource name.
+    if cand.empty and result.get("queue_matches"):
+        entity = str(result["queue_matches"][0].get("Interconnecting Entity", "")).strip()
+        if entity:
+            cand = candidate_nodes(entity)
     recs = []
     for _, r in cand.iterrows():
         rec = r.to_dict()

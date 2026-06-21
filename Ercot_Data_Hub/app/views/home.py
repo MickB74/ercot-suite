@@ -6,6 +6,8 @@ Rendered as the default page by the router in app/Home.py. The router owns
 
 from __future__ import annotations
 
+import socket
+import subprocess
 import sys
 import pathlib
 
@@ -134,6 +136,77 @@ with c1:
 with c2:
     st.caption("Each updater runs as a subprocess with live logs below. "
                "Hub-price first-run backfill and EIA-923 downloads can take a while.")
+
+# --------------------------------------------------------------------------
+# Settlement portals directory
+# --------------------------------------------------------------------------
+_SUITE_ROOT = pathlib.Path(__file__).resolve().parents[3]  # …/ercot-suite
+
+_PORTALS = [
+    {"name": "Markum Solar",          "tech": "Solar PV", "mw": 161,  "hub": "HB_NORTH", "icon": "☀️",
+     "offtaker": "Colgate-Palmolive",                  "developer": "Scout Clean Energy",  "strike": 35.00,
+     "dir": "ERCOT_Markum",           "port": 8502},
+    {"name": "Azure Sky Wind",         "tech": "Wind",     "mw": 350,  "hub": "HB_NORTH", "icon": "🌬️",
+     "offtaker": "MilliporeSigma · Kellogg · lululemon · Akamai · Synopsys · Uber · HP Hood",
+     "developer": "Enel Green Power",  "strike": 17.34,
+     "dir": "ERCOT_Azure_Sky",         "port": 8503},
+    {"name": "Hidalgo Mirasole Wind",  "tech": "Wind",     "mw": 300,  "hub": "HB_SOUTH", "icon": "🌬️",
+     "offtaker": "General Motors · The Home Depot · Bloomberg LP",
+     "developer": "EDP Renewables",    "strike": 35.00,
+     "dir": "ERCOT_Hidalgo_Mirasole_Wind", "port": 8504},
+    {"name": "Hornet Solar",           "tech": "Solar PV", "mw": 600,  "hub": "HB_PAN",   "icon": "☀️",
+     "offtaker": "Pfizer · Brunswick Corporation",     "developer": "Vesper Energy",       "strike": 25.00,
+     "dir": "ERCOT_Hornet_Solar",      "port": 8505},
+    {"name": "Miller",                 "tech": "Solar PV", "mw": 178,  "hub": "HB_NORTH", "icon": "☀️",
+     "offtaker": "Thermo Fisher Scientific",           "developer": "Southern Power",      "strike": 35.00,
+     "dir": "ERCOT_Miller",            "port": 8506},
+]
+
+
+def _port_open(port: int) -> bool:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        return s.connect_ex(("localhost", port)) == 0
+
+
+def _launch_portal(portal: dict) -> None:
+    portal_dir = _SUITE_ROOT / portal["dir"]
+    venv_streamlit = portal_dir / ".venv" / "bin" / "streamlit"
+    if not venv_streamlit.exists():
+        venv_streamlit = pathlib.Path(".venv/bin/streamlit")  # fallback
+    subprocess.Popen(
+        [str(venv_streamlit), "run", "app/Home.py",
+         "--server.port", str(portal["port"]),
+         "--server.headless", "true"],
+        cwd=str(portal_dir),
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+
+
+st.divider()
+st.subheader("Settlement Portals")
+st.caption("Customer-facing VPPA/CfD settlement apps — one per asset. "
+           "Each runs as a separate Streamlit app on its own port.")
+
+_pcols = st.columns(len(_PORTALS))
+for _col, _p in zip(_pcols, _PORTALS):
+    with _col:
+        _running = _port_open(_p["port"])
+        st.markdown(
+            f"### {_p['icon']} {_p['name']}\n"
+            f"**{_p['mw']:,} MW {_p['tech']}** · {_p['hub']}\n\n"
+            f"**Strike:** ${_p['strike']:.2f}/MWh\n\n"
+            f"**Offtaker:** {_p['offtaker']}\n\n"
+            f"**Developer:** {_p['developer']}"
+        )
+        if _running:
+            st.link_button("Open portal ↗", f"http://localhost:{_p['port']}",
+                           use_container_width=True, type="primary")
+        else:
+            if st.button("Launch", key=f"launch_{_p['port']}", use_container_width=True):
+                _launch_portal(_p)
+                st.toast(f"Launching {_p['name']} on port {_p['port']}…")
+                st.rerun()
 
 # --------------------------------------------------------------------------
 # Run + stream logs

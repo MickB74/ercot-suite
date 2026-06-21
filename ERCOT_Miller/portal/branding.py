@@ -168,9 +168,9 @@ def money(x: float) -> str:
 
 def signed_money(x: float) -> str:
     """Signed, markdown-safe dollar amount (escaped \\$)."""
-    return f"+\\${x:,.0f}" if x >= 0 else f"−\\${abs(x):,.0f}"
+    return f"\\${x:,.0f}" if x >= 0 else f"−\\${abs(x):,.0f}"
 
 
 def signed_money_raw(x: float) -> str:
     """Signed dollar amount with a literal ``$`` — for plain text (CSV/PDF/plotly)."""
-    return f"+${x:,.0f}" if x >= 0 else f"-${abs(x):,.0f}"
+    return f"${x:,.0f}" if x >= 0 else f"-${abs(x):,.0f}"

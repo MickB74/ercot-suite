@@ -132,7 +132,7 @@ def hero(st, title: str, subtitle: str = "") -> None:
     sub = f'<div class="sub">{subtitle}</div>' if subtitle else ""
     st.markdown(
         f'<div class="portal-hero">'
-        f'<div class="eyebrow">Hornet Solar · Settlement Portal</div>'
+        f'<div class="eyebrow">Mesquite Star · Settlement Portal</div>'
         f'<h1>{title}</h1>{sub}<div class="rule"></div>'
         f'<div class="chips">{chips}</div></div>',
         unsafe_allow_html=True,
@@ -142,7 +142,7 @@ def hero(st, title: str, subtitle: str = "") -> None:
 def footer(st) -> None:
     year = pd_year()
     st.markdown(
-        f'<div class="portal-foot">Hornet Solar Settlement Portal · prepared by '
+        f'<div class="portal-foot">Mesquite Star Settlement Portal · prepared by '
         f'<b>Sustainability Roundtable, Inc.</b> · figures derived from '
         f'ERCOT-published 15-minute metered generation and settlement-point prices. '
         f'Settlement is offtaker-signed: <b>positive = you receive, negative = you '

@@ -692,7 +692,7 @@
     "location_source": "USWTDB: Azure Sky Wind Project (0.2 km)"
   },
   "Mesquite Star": {
-    "resource_name": "WH_WIND_UNIT2",
+    "resource_name": "WH_WIND_ALL",
     "project_name": "Mesquite Star",
     "tech": "Wind",
     "capacity_mw": 418.9,
@@ -886,6 +886,32 @@
       "HRNT_SLR_UNIT1",
       "HRNT_SLR_UNIT2",
       "HRNT_SLR_UNIT3"
+    ]
+  },
+  "Mesquite Star Wind": {
+    "resource_name": "WH_WIND_ALL",
+    "project_name": "Mesquite Star Wind",
+    "tech": "Wind",
+    "capacity_mw": 418.9,
+    "hub": "North",
+    "county": "Fisher",
+    "queue_id": "19INR0080",
+    "sced_units": [
+      "WH_WIND_UNIT1",
+      "WH_WIND_UNIT2"
+    ]
+  },
+  "Mequite Star Wind": {
+    "resource_name": "WH_WIND_ALL",
+    "project_name": "Mequite Star Wind",
+    "tech": "Wind",
+    "capacity_mw": 418.9,
+    "hub": "North",
+    "county": "Fisher",
+    "queue_id": "19INR0080",
+    "sced_units": [
+      "WH_WIND_UNIT1",
+      "WH_WIND_UNIT2"
     ]
   }
 }

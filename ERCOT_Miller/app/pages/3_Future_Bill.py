@@ -27,7 +27,7 @@ loc = contract.settle_location(terms)
 strike = float(terms.get("strike", 0.0))
 share = float(terms.get("volume_share_pct", 100.0)) / 100.0
 
-branding.hero(st, "Projected Bill",
+branding.hero(st, "Project Settlements",
               f"Forward estimate · {terms['structure']} at ${strike:,.2f}/MWh · "
               f"{contract.offtake_label(terms)} offtake")
 st.info("📌 **Estimate only.** Generation is modelled and the market price is your "

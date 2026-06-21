@@ -200,6 +200,78 @@ def render_near_term_tab(
         cut_in_ms, rated_ms, cut_out_ms,
     )
 
+    # ── prior month: ERA5 generation × actual settlement prices ──────────────
+    # Shows how the model performed against real market prices last month —
+    # distinct from Past Settlement which uses actual SCED generation.
+    prev_month_start_dt = month_start_ct - pd.offsets.MonthBegin(1)
+    prev_month_str = prev_month_start_dt.strftime("%Y-%m")
+    prev_month_start_date = prev_month_start_dt.date()
+    prev_month_end_date = month_start_ct.date() - dt.timedelta(days=1)
+
+    # Resolve settlement location (node or hub) from contract terms
+    _settle_loc = str(terms.get("settle_point") or "").strip()
+    if not _settle_loc:
+        _settle_loc = (a.get("hub", a["resource_node"])
+                       if terms.get("settle_at") == "hub"
+                       else a["resource_node"])
+    _settle_is_hub = _settle_loc.upper().startswith("HB_")
+
+    @st.cache_data(show_spinner=f"Loading prior-month ({prev_month_str}) ERA5 generation…", ttl=86400)
+    def _prior_era5(lat, lon, tech_key, start_str, end_str):
+        try:
+            return wf.fetch_archive(lat, lon, tech_key, start_str, end_str), None
+        except Exception as exc:  # noqa: BLE001
+            return None, str(exc)
+
+    @st.cache_data(show_spinner=f"Loading {prev_month_str} actual prices…", ttl=3600)
+    def _prior_actual_prices(settle_loc, is_hub, start_ts_str, end_ts_str):
+        s = pd.Timestamp(start_ts_str)
+        e = pd.Timestamp(end_ts_str)
+        try:
+            df = hub.hub_prices(settle_loc, s, e) if is_hub else hub.node_prices(settle_loc, s, e)
+            if df is None or df.empty:
+                return pd.Series(dtype=float)
+            df = df.copy()
+            df["interval_start"] = pd.to_datetime(df["interval_start"])
+            df["date"] = df["interval_start"].dt.date
+            price_col = next((c for c in ("spp", "settlement_point_price") if c in df.columns), df.columns[-1])
+            return df.groupby("date")[price_col].mean()
+        except Exception:  # noqa: BLE001
+            return pd.Series(dtype=float)
+
+    prior_rows: list[dict] = []
+    prior_net = 0.0
+    prior_mwh = 0.0
+    has_prior = False
+
+    if prev_month_start_date >= win_start_date:
+        _prev_era5_df, _ = _prior_era5(
+            float(a["lat"]), float(a["lon"]), tech,
+            str(prev_month_start_date), str(prev_month_end_date),
+        )
+        _prev_prices = _prior_actual_prices(
+            _settle_loc, _settle_is_hub,
+            str(pd.Timestamp(prev_month_start_date)),
+            str(pd.Timestamp(prev_month_end_date) + pd.Timedelta(days=1)),
+        )
+        if _prev_era5_df is not None and not _prev_prices.empty:
+            _prev_daily = gf.daily_forecast_mwh(
+                _prev_era5_df, tech, cap_share,
+                hub_height_m=hub_h, cal_factor=cal_factor,
+                cut_in=cut_in_ms, rated=rated_ms, cut_out=cut_out_ms,
+            )
+            for _d, _mwh in _prev_daily.items():
+                if _d < prev_month_start_date or _d > prev_month_end_date:
+                    continue
+                _price = float(_prev_prices.get(_d, float("nan")))
+                if pd.isna(_price):
+                    continue
+                _net = float(_mwh) * (_price - strike)
+                prior_rows.append({"date": _d, "mwh": float(_mwh), "net": _net, "kind": "retrocast"})
+            prior_net = sum(r["net"] for r in prior_rows)
+            prior_mwh = sum(r["mwh"] for r in prior_rows)
+            has_prior = len(prior_rows) > 0
+
     # ── current month actuals ─────────────────────────────────────────────────
     actual_rows: list[dict] = []
     win_end_date = win_end if isinstance(win_end, dt.date) else pd.Timestamp(win_end).date()
@@ -278,7 +350,7 @@ def render_near_term_tab(
             forecast_rows.append({"date": d, "mwh": mwh, "net": mwh * (fwd_price - strike), "kind": row_kind})
         d += dt.timedelta(days=1)
 
-    all_rows = actual_rows + forecast_rows
+    all_rows = prior_rows + actual_rows + forecast_rows
     if not all_rows:
         st.info("No data available for near-term projection.")
         return
@@ -300,26 +372,40 @@ def render_near_term_tab(
     n_fcast_cur = int(all_df["kind"].str.contains("cur").sum())
     n_fcast_next = int(all_df["kind"].str.contains("next").sum())
 
-    k1, k2, k3, k4 = st.columns(4)
-    k1.metric(
+    _ncols = 5 if has_prior else 4
+    _kcols = st.columns(_ncols)
+    _ki = 0
+    if has_prior:
+        _kcols[_ki].metric(
+            f"{prev_month_str} (ERA5 × actual)",
+            branding.signed_money(prior_net),
+            delta=f"{prior_mwh:,.0f} MWh · ERA5 generation model",
+            delta_color="off",
+            help=f"Prior month estimate using ERA5 weather-based generation "
+                 f"× actual {'hub' if _settle_is_hub else 'node'} prices "
+                 f"({_settle_loc}). Generation is modelled, not metered — "
+                 f"see Past Settlement for actual SCED output.",
+        )
+        _ki += 1
+    _kcols[_ki].metric(
         f"MTD actual ({cur_month_str})",
         branding.signed_money(mtd_net),
         delta=f"{mtd_mwh:,.0f} MWh · {n_settled} days settled",
         delta_color="off",
     )
-    k2.metric(
-        f"Projected month-end",
+    _kcols[_ki + 1].metric(
+        "Projected month-end",
         branding.signed_money(proj_cur),
         delta=f"{n_fcast_cur} forecast days remaining",
         delta_color="off",
     )
-    k3.metric(
+    _kcols[_ki + 2].metric(
         f"{next_month_str} estimate",
         branding.signed_money(next_net),
         delta=f"{next_mwh:,.0f} MWh · {n_fcast_next} days",
         delta_color="off",
     )
-    k4.metric(
+    _kcols[_ki + 3].metric(
         "Cal. factor",
         f"{cal_factor:.3f}",
         delta=f"from {n_cal_days} SCED days" if n_cal_days else "no overlap — uncalibrated",
@@ -335,10 +421,14 @@ def render_near_term_tab(
     FCAST_NEXT_NEG = "rgba(178,58,72,0.40)"
     HIST_POS = "rgba(84,164,218,0.40)"
     HIST_NEG = "rgba(178,58,72,0.30)"
+    RETRO_POS = "rgba(155,155,155,0.70)"   # prior month ERA5 × actual
+    RETRO_NEG = "rgba(178,58,72,0.55)"
 
     def _bar_color(row) -> str:
         pos = row["net"] >= 0
         k = row["kind"]
+        if k == "retrocast":
+            return RETRO_POS if pos else RETRO_NEG
         if k == "actual":
             return SOLID_POS if pos else SOLID_NEG
         if "cur" in k:
@@ -351,6 +441,9 @@ def render_near_term_tab(
     fig = go.Figure()
 
     # ── settlement bars (primary y-axis) ─────────────────────────────────────
+    if has_prior:
+        fig.add_bar(x=[], y=[], name=f"ERA5 × actual – {prev_month_str}",
+                    marker_color=RETRO_POS, showlegend=True)
     fig.add_bar(x=[], y=[], name="Settled", marker_color=SOLID_POS, showlegend=True)
     fig.add_bar(x=[], y=[], name=f"Forecast – {cur_month_str}", marker_color=FCAST_CUR_POS, showlegend=True)
     fig.add_bar(x=[], y=[], name=f"Forecast – {next_month_str}", marker_color=FCAST_NEXT_POS, showlegend=True)
@@ -392,8 +485,14 @@ def render_near_term_tab(
 
     # Shaded month backgrounds + labels above the plot area
     bdy_str = next_month_start.strftime("%Y-%m-%d")
+    cur_start_str = str(cur_month_start_date)
     next_end_str = str(next_month_end_date + dt.timedelta(days=1))
-    fig.add_vrect(x0=str(cur_month_start_date), x1=bdy_str,
+    if has_prior:
+        prev_start_str = str(prev_month_start_date)
+        fig.add_vrect(x0=prev_start_str, x1=cur_start_str,
+                      fillcolor="rgba(155,155,155,0.07)", line_width=0)
+        fig.add_vline(x=cur_start_str, line_dash="dot", line_color="#848484", line_width=1.5)
+    fig.add_vrect(x0=cur_start_str, x1=bdy_str,
                   fillcolor="rgba(136,169,24,0.06)", line_width=0)
     fig.add_vrect(x0=bdy_str, x1=next_end_str,
                   fillcolor="rgba(84,164,218,0.06)", line_width=0)
@@ -405,6 +504,11 @@ def render_near_term_tab(
                 font=dict(size=11), xanchor="center",
                 bgcolor="rgba(255,255,255,0.88)",
                 bordercolor="#bbb", borderwidth=1, borderpad=4)
+    if has_prior:
+        prev_mid = str(prev_month_start_date + dt.timedelta(days=15))
+        fig.add_annotation(x=prev_mid,
+                           text=f"<b>{prev_month_str}</b> ERA5×actual  {branding.signed_money(prior_net)}",
+                           **_lbl)
     fig.add_annotation(x=cur_mid,
                        text=f"<b>Current month</b> ({cur_month_str})  {branding.signed_money(proj_cur)}",
                        **_lbl)
@@ -442,6 +546,7 @@ def render_near_term_tab(
         show["mwh"] = show["mwh"].map(lambda v: f"{v:,.1f}")
         show["net"] = show["net"].map(branding.signed_money_raw)
         kind_labels = {
+            "retrocast": f"ERA5 gen × actual price – {prev_month_str}",
             "actual": "Settled",
             "forecast_cur": f"GEFS forecast – {cur_month_str}",
             "forecast_next": f"GEFS forecast – {next_month_str}",

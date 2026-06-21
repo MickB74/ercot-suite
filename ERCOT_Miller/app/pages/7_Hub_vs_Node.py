@@ -94,8 +94,8 @@ def _load(start_d, end_d):
     df = np_.merge(hp_, on="interval_start", how="inner")
     df["basis"] = df["node"] - df["hub"]
     df["month"] = df["interval_start"].dt.to_period("M").dt.to_timestamp()
+    df["hour"]  = df["interval_start"].dt.hour
 
-    # generation (optional — used for capture-weighted averages)
     gen = hub.generation(NODE, s, e)
     if gen is not None and not gen.empty:
         gen = gen[["interval_start", "mw"]].copy()
@@ -113,36 +113,51 @@ if df.empty:
 
 has_gen = df["mw"].notna().any()
 
-# ── summary metrics ──────────────────────────────────────────────────────────
+# ── period-level summary stats ───────────────────────────────────────────────
 avg_node  = df["node"].mean()
 avg_hub   = df["hub"].mean()
 avg_basis = df["basis"].mean()
 basis_pct = avg_basis / avg_hub * 100 if avg_hub else 0.0
 
 if has_gen:
-    gen_wt = df["mw"].fillna(0)
-    gen_wt_sum = gen_wt.sum()
-    cap_node = (df["node"] * gen_wt).sum() / gen_wt_sum if gen_wt_sum else np.nan
-    cap_hub  = (df["hub"]  * gen_wt).sum() / gen_wt_sum if gen_wt_sum else np.nan
+    gw        = df["mw"].fillna(0)
+    gw_sum    = gw.sum()
+    cap_node  = (df["node"] * gw).sum() / gw_sum if gw_sum else np.nan
+    cap_hub   = (df["hub"]  * gw).sum() / gw_sum if gw_sum else np.nan
     cap_basis = cap_node - cap_hub if not np.isnan(cap_node) else np.nan
+    cr_node   = cap_node / avg_node if avg_node else np.nan
+    cr_hub    = cap_hub  / avg_hub  if avg_hub  else np.nan
 else:
-    cap_node = cap_hub = cap_basis = np.nan
+    cap_node = cap_hub = cap_basis = cr_node = cr_hub = np.nan
 
-cols = st.columns(4)
-cols[0].metric("Avg node price",  f"${avg_node:.2f}/MWh")
-cols[1].metric("Avg hub price",   f"${avg_hub:.2f}/MWh")
-cols[2].metric("Avg basis (node−hub)",
-               f"${avg_basis:+.2f}/MWh",
-               delta=f"{basis_pct:+.1f}% of hub",
-               delta_color="normal")
-if has_gen:
-    cols[3].metric("Gen-wtd capture premium",
-                   f"${cap_basis:+.2f}/MWh" if not np.isnan(cap_basis) else "—",
-                   help="Generation-weighted capture price at node minus hub. "
-                        "Positive = node captures more than the hub average.")
-else:
-    cols[3].metric("Gen-wtd capture premium", "—",
-                   help="No generation data cached for this period.")
+# row 1: spot and basis
+r1 = st.columns(4)
+r1[0].metric("Avg node price",  f"${avg_node:.2f}/MWh")
+r1[1].metric("Avg hub price",   f"${avg_hub:.2f}/MWh")
+r1[2].metric("Avg basis (node−hub)", f"${avg_basis:+.2f}/MWh",
+             delta=f"{basis_pct:+.1f}% of hub", delta_color="normal")
+r1[3].metric("Gen-wtd capture basis",
+             f"${cap_basis:+.2f}/MWh" if has_gen and not np.isnan(cap_basis) else "—",
+             help="Generation-weighted capture price at node minus hub. "
+                  "Positive = node captures more than the hub.")
+
+# row 2: capture prices and ratios (only when generation is available)
+if has_gen and not np.isnan(cap_node):
+    r2 = st.columns(4)
+    r2[0].metric("Capture price — node",  f"${cap_node:.2f}/MWh",
+                 help="Gen-weighted avg price at the plant node during generation hours.")
+    r2[1].metric("Capture price — hub",   f"${cap_hub:.2f}/MWh",
+                 help="Gen-weighted avg hub price during the same generation hours.")
+    r2[2].metric("Capture ratio — node",  f"{cr_node:.1%}" if not np.isnan(cr_node) else "—",
+                 delta=f"{'above' if cr_node >= 1 else 'below'} flat avg" if not np.isnan(cr_node) else None,
+                 delta_color="normal" if cr_node >= 1 else "inverse",
+                 help="Node capture ÷ avg node spot. >100% = plant's generation hours "
+                      "command above-average prices at this node.")
+    r2[3].metric("Capture ratio — hub",   f"{cr_hub:.1%}"  if not np.isnan(cr_hub)  else "—",
+                 delta=f"{'above' if cr_hub >= 1 else 'below'} flat avg" if not np.isnan(cr_hub) else None,
+                 delta_color="normal" if cr_hub >= 1 else "inverse",
+                 help="Hub capture ÷ avg hub spot. Shows the hub-level shape effect — "
+                      "typically < 1 for solar because midday depresses hub prices.")
 
 st.caption(f"Settled window: **{start_d} → {end_d}** · "
            f"{len(df):,} 15-min intervals · node **{NODE}** vs hub **{HUB}**")
@@ -159,41 +174,130 @@ if has_gen:
     def _cap(g):
         w = g["mw"].fillna(0)
         ws = w.sum()
-        return pd.Series({
-            "cap_node": (g["node"] * w).sum() / ws if ws else np.nan,
-            "cap_hub":  (g["hub"]  * w).sum() / ws if ws else np.nan,
-        })
+        cap_n = (g["node"] * w).sum() / ws if ws else np.nan
+        cap_h = (g["hub"]  * w).sum() / ws if ws else np.nan
+        return pd.Series({"cap_node": cap_n, "cap_hub": cap_h})
+
     cap_m = df.groupby("month").apply(_cap).reset_index()
     cap_m["cap_basis"] = cap_m["cap_node"] - cap_m["cap_hub"]
     monthly = monthly.merge(cap_m, on="month", how="left")
+    monthly["cap_ratio_node"] = monthly["cap_node"] / monthly["node"]
+    monthly["cap_ratio_hub"]  = monthly["cap_hub"]  / monthly["hub"]
 
-# ── chart: price comparison ──────────────────────────────────────────────────
-st.subheader("Node vs hub price — monthly average")
+# ── chart: price and capture comparison ─────────────────────────────────────
+st.subheader("Avg spot vs capture price — node and hub")
 fig1 = go.Figure()
 fig1.add_trace(go.Scatter(
-    x=monthly["month"], y=monthly["node"].round(2), name=f"Node ({NODE})",
+    x=monthly["month"], y=monthly["node"].round(2), name=f"Avg spot — node ({NODE})",
     mode="lines+markers", line=dict(color=branding.PRIMARY, width=2)))
 fig1.add_trace(go.Scatter(
-    x=monthly["month"], y=monthly["hub"].round(2), name=f"Hub ({HUB})",
+    x=monthly["month"], y=monthly["hub"].round(2), name=f"Avg spot — hub ({HUB})",
     mode="lines+markers", line=dict(color=branding.ACCENT, width=2, dash="dot")))
-fig1.update_layout(height=320, margin=dict(t=20, b=10),
+if has_gen and "cap_node" in monthly.columns:
+    fig1.add_trace(go.Scatter(
+        x=monthly["month"], y=monthly["cap_node"].round(2),
+        name="Capture — node", mode="lines+markers",
+        line=dict(color=branding.PRIMARY, width=1.5, dash="dash"),
+        marker=dict(symbol="diamond", size=6)))
+    fig1.add_trace(go.Scatter(
+        x=monthly["month"], y=monthly["cap_hub"].round(2),
+        name="Capture — hub", mode="lines+markers",
+        line=dict(color=branding.ACCENT, width=1.5, dash="dash"),
+        marker=dict(symbol="diamond", size=6)))
+fig1.update_layout(height=340, margin=dict(t=20, b=10),
                    yaxis_title="$/MWh", hovermode="x unified",
-                   legend=dict(orientation="h", y=1.08))
+                   legend=dict(orientation="h", y=1.1))
 st.plotly_chart(fig1, use_container_width=True)
+if has_gen:
+    st.caption("Solid lines = flat average price; dashed diamonds = generation-weighted "
+               "capture price. A capture line below the spot line means the plant "
+               "generates when prices are relatively low (solar value-factor discount).")
+
+# ── chart: capture premium (value factor deviation) ──────────────────────────
+if has_gen and "cap_node" in monthly.columns:
+    st.subheader("Capture premium — how much more/less than flat avg")
+    node_prem = (monthly["cap_node"] - monthly["node"]).round(2)
+    hub_prem  = (monthly["cap_hub"]  - monthly["hub"]).round(2)
+    fig_vf = go.Figure()
+    fig_vf.add_trace(go.Bar(
+        x=monthly["month"], y=node_prem,
+        name=f"Node capture premium",
+        marker_color=[branding.GOOD if v >= 0 else branding.BAD for v in node_prem],
+        hovertemplate="%{x|%b %Y}<br>$%{y:+.2f}/MWh<extra>Node cap − avg spot</extra>"))
+    fig_vf.add_trace(go.Bar(
+        x=monthly["month"], y=hub_prem,
+        name=f"Hub capture premium",
+        marker_color=[branding.PRIMARY if v >= 0 else branding.ACCENT for v in hub_prem],
+        opacity=0.65,
+        hovertemplate="%{x|%b %Y}<br>$%{y:+.2f}/MWh<extra>Hub cap − avg spot</extra>"))
+    fig_vf.add_hline(y=0, line_width=1, line_color="#888")
+    fig_vf.update_layout(
+        height=300, margin=dict(t=20, b=10), barmode="group",
+        yaxis_title="$/MWh (capture − avg spot)", hovermode="x unified",
+        legend=dict(orientation="h", y=1.1))
+    st.plotly_chart(fig_vf, use_container_width=True)
+    st.caption("Positive = the plant's generation hours command above-average prices; "
+               "negative = generation hours are cheap. Node and hub shown side by side — "
+               "if the hub premium is already negative, the node premium shows the "
+               "additional nodal effect on top.")
 
 # ── chart: basis ─────────────────────────────────────────────────────────────
 st.subheader("Basis (node − hub) — monthly average")
 basis_colors = [branding.GOOD if v >= 0 else branding.BAD for v in monthly["basis"]]
 fig2 = go.Figure()
 fig2.add_bar(x=monthly["month"], y=monthly["basis"].round(2),
-             marker_color=basis_colors, name="Basis",
+             marker_color=basis_colors, name="Avg basis",
              hovertemplate="%{x|%b %Y}<br>$%{y:+.2f}/MWh<extra></extra>")
+if has_gen and "cap_basis" in monthly.columns:
+    fig2.add_trace(go.Scatter(
+        x=monthly["month"], y=monthly["cap_basis"].round(2),
+        name="Gen-wtd capture basis", mode="lines+markers",
+        line=dict(color="#555", width=1.5, dash="dot"),
+        marker=dict(symbol="diamond", size=5),
+        hovertemplate="%{x|%b %Y}<br>$%{y:+.2f}/MWh (gen-wtd)<extra></extra>"))
 fig2.add_hline(y=0, line_width=1, line_color="#888")
-fig2.update_layout(height=280, margin=dict(t=20, b=10),
-                   yaxis_title="$/MWh (node − hub)", hovermode="x unified")
+fig2.update_layout(height=300, margin=dict(t=20, b=10),
+                   yaxis_title="$/MWh (node − hub)", hovermode="x unified",
+                   legend=dict(orientation="h", y=1.1))
 st.plotly_chart(fig2, use_container_width=True)
-st.caption("Green = node settles **above** hub (favourable for a node-settled CfD); "
-           "red = node settles **below** hub.")
+st.caption("Green = node settles **above** hub (favourable for node-settled CfD); "
+           "red = below. Dotted line = gen-weighted capture basis "
+           "(what the plant actually experienced).")
+
+# ── chart: diurnal basis profile ─────────────────────────────────────────────
+with st.expander("Diurnal basis profile — avg basis by hour of day"):
+    hourly_agg = df.groupby("hour").agg(avg_basis=("basis", "mean")).reset_index()
+    if has_gen:
+        def _gw_basis(g):
+            w = g["mw"].fillna(0)
+            ws = w.sum()
+            return (g["basis"] * w).sum() / ws if ws > 0 else np.nan
+        gw_hourly = df.groupby("hour").apply(_gw_basis).reset_index(name="gw_basis")
+        hourly_agg = hourly_agg.merge(gw_hourly, on="hour", how="left")
+
+    figh = go.Figure()
+    figh.add_trace(go.Bar(
+        x=hourly_agg["hour"], y=hourly_agg["avg_basis"].round(2),
+        name="Avg basis", opacity=0.5,
+        marker_color=[branding.GOOD if v >= 0 else branding.BAD
+                      for v in hourly_agg["avg_basis"]],
+        hovertemplate="Hour %{x}:00<br>$%{y:+.2f}/MWh<extra></extra>"))
+    if has_gen and "gw_basis" in hourly_agg.columns:
+        figh.add_trace(go.Scatter(
+            x=hourly_agg["hour"], y=hourly_agg["gw_basis"].round(2),
+            name="Gen-wtd basis", mode="lines+markers",
+            line=dict(color=branding.PRIMARY, width=2),
+            hovertemplate="Hour %{x}:00<br>$%{y:+.2f}/MWh (gen-weighted)<extra></extra>"))
+    figh.add_hline(y=0, line_width=1, line_color="#888")
+    figh.update_layout(
+        height=300, margin=dict(t=10, b=10),
+        xaxis=dict(title="Hour of day (CPT)", tickmode="linear", dtick=2),
+        yaxis_title="$/MWh (node − hub)", hovermode="x unified",
+        legend=dict(orientation="h", y=1.1))
+    st.plotly_chart(figh, use_container_width=True)
+    st.caption("Shows when the nodal spread is most positive or negative across the day. "
+               "The gen-weighted line reflects hours when the plant actually generates — "
+               "the relevant signal for settlement impact.")
 
 # ── chart: scatter correlation ────────────────────────────────────────────────
 with st.expander("Node vs hub — 15-minute scatter"):
@@ -228,13 +332,15 @@ tbl = tbl.rename(columns={
     "basis": "Basis $/MWh", "basis_pct": "Basis %"})
 
 if has_gen and "cap_node" in tbl.columns:
-    tbl = tbl.rename(columns={"cap_node": "Cap node ($/MWh)", "cap_hub": "Cap hub ($/MWh)",
-                               "cap_basis": "Cap basis ($/MWh)"})
-    cols_show += ["Cap node ($/MWh)", "Cap hub ($/MWh)", "Cap basis ($/MWh)"]
+    tbl = tbl.rename(columns={
+        "cap_node": "Cap node ($/MWh)", "cap_hub": "Cap hub ($/MWh)",
+        "cap_basis": "Cap basis ($/MWh)",
+        "cap_ratio_node": "Cap ratio — node", "cap_ratio_hub": "Cap ratio — hub"})
+    cols_show += ["Cap node ($/MWh)", "Cap hub ($/MWh)", "Cap basis ($/MWh)",
+                  "Cap ratio — node", "Cap ratio — hub"]
 
 tbl = tbl[cols_show].copy()
 
-# totals row
 tot: dict = {"Month": "Average"}
 for c in cols_show[1:]:
     try:
@@ -245,27 +351,40 @@ tbl = pd.concat([tbl, pd.DataFrame([tot])], ignore_index=True)
 
 price_cols = [c for c in cols_show if "$/MWh" in c and "Basis" not in c and "Cap basis" not in c]
 basis_cols = [c for c in cols_show if "Basis $/MWh" in c or "Cap basis" in c]
-pct_cols   = [c for c in cols_show if "%" in c]
+pct_cols   = [c for c in cols_show if "Basis %" in c]
+ratio_cols = [c for c in cols_show if "Cap ratio" in c]
 
 fmt = {c: "${:,.2f}" for c in price_cols}
 fmt.update({c: "${:+,.2f}" for c in basis_cols})
 fmt.update({c: "{:+.1f}%" for c in pct_cols})
+fmt.update({c: "{:.1%}" for c in ratio_cols})
+
 
 def _basis_color(v):
     if pd.isna(v):
         return ""
     return f"color:{branding.GOOD}" if v >= 0 else f"color:{branding.BAD}"
 
+
+def _ratio_color(v):
+    if pd.isna(v):
+        return ""
+    return f"color:{branding.GOOD}" if v >= 1.0 else f"color:{branding.BAD}"
+
+
 sty = tbl.style.format(fmt, na_rep="—")
 for c in basis_cols + pct_cols:
     if c in tbl.columns:
         sty = sty.map(_basis_color, subset=[c])
+for c in ratio_cols:
+    if c in tbl.columns:
+        sty = sty.map(_ratio_color, subset=[c])
 st.dataframe(sty, hide_index=True, use_container_width=True)
 
 # ── export ────────────────────────────────────────────────────────────────────
 download_block = hub.export_block()
 if download_block is not None:
-    download_block(st, tbl.iloc[:-1],  # drop totals row
+    download_block(st, tbl.iloc[:-1],
                    name=f"hub_vs_node_{start_d}_{end_d}",
                    title=f"{a['project_name']} — hub vs node {start_d} → {end_d}",
                    meta={"Asset": a["project_name"], "Node": NODE, "Hub": HUB,
