@@ -37,7 +37,7 @@ if str(ROOT) not in sys.path:
 from markum import contract, hub  # noqa: E402
 
 OVERLAP_DAYS = 5            # re-pull this many days before the last cached day
-BACKFILL_START = dt.date(2025, 1, 1)   # earliest data the portal cares about
+BACKFILL_START = dt.date(2024, 1, 1)   # earliest data the portal cares about
 
 
 def _cached_max(read_fn, node: str) -> dt.date | None:

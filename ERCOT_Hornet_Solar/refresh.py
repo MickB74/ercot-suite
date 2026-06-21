@@ -37,7 +37,7 @@ if str(ROOT) not in sys.path:
 from portal import contract, hub  # noqa: E402
 
 OVERLAP_DAYS = 5            # re-pull this many days before the last cached day
-BACKFILL_START = dt.date(2024, 10, 1)  # plant COD ~Nov 2024; Oct gives a clean quarter start
+BACKFILL_START = dt.date(2024, 1, 1)  # plant COD ~Nov 2024; Oct gives a clean quarter start
 
 
 def _cached_max(read_fn, node: str) -> dt.date | None:
