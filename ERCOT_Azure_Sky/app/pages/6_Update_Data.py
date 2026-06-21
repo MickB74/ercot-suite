@@ -26,6 +26,8 @@ OVERLAP_DAYS = 5                       # re-pull this many days before the last 
 
 a = contract.ASSET
 node = a["resource_node"]
+_terms = contract.load_contract()
+_loc = contract.settle_location(_terms)
 
 
 def _cached_max(read_fn, node):
@@ -48,7 +50,7 @@ branding.hero(st, "Update data",
               "Pull the latest ERCOT generation and prices for this project into the "
               "shared data lake.")
 
-ws, we = hub.settlement_window(node)
+ws, we = hub.settlement_window(a["units"], _loc)
 if ws:
     st.caption(f"Settlement window currently **{ws} → {we}** for node `{node}`.")
 else:
@@ -110,7 +112,7 @@ if st.button("⬇️ Refresh now", type="primary", disabled=not (do_gen or do_pr
                 done += 1
             bar.progress(1.0, text="Done")
             st.cache_data.clear()
-            nws, nwe = hub.settlement_window(node)
+            nws, nwe = hub.settlement_window(a["units"], _loc)
             st.success(f"✓ Updated. Settlement window is now **{nws} → {nwe}**.")
             st.caption("Reload the other pages to see the extended history.")
     except Exception as exc:  # noqa: BLE001 — surface creds/network failures plainly

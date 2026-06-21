@@ -26,7 +26,7 @@ st.set_page_config(page_title="Azure Sky Wind · Settlement Portal",
 nav = st.navigation({
     "Azure Sky Wind": [
         st.Page("pages/1_Overview.py", title="Overview", icon="📊", default=True),
-        st.Page("pages/2_Past_Settlement.py", title="Past Settlement", icon="🧾"),
+        st.Page("pages/2_Past_Settlement_Estimate.py", title="Past Settlement Estimate", icon="🧾"),
         st.Page("pages/3_Future_Bill.py", title="Projected Bill", icon="🔮"),
     ],
     "Audit": [

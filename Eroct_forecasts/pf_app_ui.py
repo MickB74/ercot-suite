@@ -396,6 +396,15 @@ def _ercot_fundamentals_section() -> tuple[bool, pd.DataFrame | None]:
                 (pf_paths.INPUTS_DIR / "ercot_cdr.csv").write_text(
                     hdr + df[["year", "reserve_margin_pct"]].to_csv(index=False))
                 st.success("Saved to data/inputs/ercot_cdr.csv.")
+        if st.button("🔄 Refresh from ERCOT",
+                     help="Download the latest CDR XLSX from ercot.com and update the table."):
+            with st.spinner("Fetching latest CDR from ercot.com…"):
+                try:
+                    fresh = public_forecasts.refresh_cdr()
+                    st.success(f"Updated — {len(fresh)} years from latest CDR.")
+                    st.rerun()
+                except Exception as exc:  # noqa: BLE001
+                    st.error(f"CDR fetch failed: {exc}")
         st.caption("ERCOT CDR (twice-yearly XLSX): ercot.com/gridinfo/resource")
 
     steo = public_forecasts.eia_steo_power()

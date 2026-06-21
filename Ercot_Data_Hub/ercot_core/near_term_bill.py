@@ -84,6 +84,9 @@ def render_near_term_tab(
     is_wind = "wind" in str(a.get("tech", "")).lower()
     tech = "wind" if is_wind else "solar"
     hub_h = float(a.get("hub_height_m") or 90.0)
+    cut_in_ms = float(a.get("cut_in_ms") or 3.0)
+    rated_ms = float(a.get("rated_ms") or 12.0)
+    cut_out_ms = float(a.get("cut_out_ms") or 25.0)
     gen_kwargs = gen_kwargs or {}
 
     today_ct = pd.Timestamp.now("America/Chicago")
@@ -97,7 +100,7 @@ def render_near_term_tab(
     @st.cache_data(show_spinner="Fetching weather forecast…", ttl=7200)
     def _weather(lat, lon, tech_key):
         try:
-            return wf.fetch(lat, lon, tech_key, past_days=7, forecast_days=16), None
+            return wf.fetch(lat, lon, tech_key, past_days=31, forecast_days=16), None
         except Exception as exc:  # noqa: BLE001
             return None, str(exc)
 
@@ -163,7 +166,8 @@ def render_near_term_tab(
             return None, str(exc)
 
     @st.cache_data(show_spinner="Calibrating against SCED history…", ttl=3600)
-    def _calibrate(lat, lon, tech_key, cal_start_str, win_end_str, rnode, units_tuple):
+    def _calibrate(lat, lon, tech_key, cal_start_str, win_end_str, rnode, units_tuple,
+                   cut_in_t, rated_t, cut_out_t):
         arch_df, err = _archive(lat, lon, tech_key, cal_start_str, win_end_str)
         if arch_df is None:
             return 1.0, 0
@@ -183,7 +187,8 @@ def render_near_term_tab(
         gen_raw["mwh"] = gen_raw.get("mwh", gen_raw["mw"] * 0.25)
         gen_raw["date"] = pd.to_datetime(gen_raw["interval_start"]).dt.date
         sced_daily = gen_raw.groupby("date")["mwh"].sum() * share
-        factor = gf.calibrate(arch_df, sced_daily, cap_share, tech_key, hub_height_m=hub_h)
+        factor = gf.calibrate(arch_df, sced_daily, cap_share, tech_key, hub_height_m=hub_h,
+                              cut_in=cut_in_t, rated=rated_t, cut_out=cut_out_t)
         return factor, int(len(sced_daily))
 
     cal_factor, n_cal_days = _calibrate(
@@ -192,6 +197,7 @@ def render_near_term_tab(
         str(win_end_date),
         a["resource_node"],
         tuple(_units),
+        cut_in_ms, rated_ms, cut_out_ms,
     )
 
     # ── current month actuals ─────────────────────────────────────────────────
@@ -232,6 +238,7 @@ def render_near_term_tab(
     daily_fcast = gf.daily_forecast_mwh(
         weather_df, tech, cap_share,
         hub_height_m=hub_h, cal_factor=cal_factor,
+        cut_in=cut_in_ms, rated=rated_ms, cut_out=cut_out_ms,
     )
     weather_max_date = max(daily_fcast.index) if len(daily_fcast) > 0 else today_ct.date()
 
@@ -248,7 +255,8 @@ def render_near_term_tab(
     # Build prior-year daily MWh lookup for the climatological tail
     py_daily: dict[dt.date, float] = {}
     if py_df is not None:
-        py_raw = gf.daily_forecast_mwh(py_df, tech, cap_share, hub_height_m=hub_h, cal_factor=cal_factor)
+        py_raw = gf.daily_forecast_mwh(py_df, tech, cap_share, hub_height_m=hub_h, cal_factor=cal_factor,
+                                        cut_in=cut_in_ms, rated=rated_ms, cut_out=cut_out_ms)
         py_daily = {d_py: float(v) for d_py, v in py_raw.items()}
 
     # Fill days beyond the GEFS horizon — prior-year ERA5 first, flat shape as backstop
@@ -382,14 +390,27 @@ def render_near_term_tab(
         hovertemplate="%{x}<br>Gen: %{y:,.0f} MWh<extra></extra>",
     )
 
-    # Month-boundary divider
+    # Shaded month backgrounds + labels above the plot area
     bdy_str = next_month_start.strftime("%Y-%m-%d")
+    next_end_str = str(next_month_end_date + dt.timedelta(days=1))
+    fig.add_vrect(x0=str(cur_month_start_date), x1=bdy_str,
+                  fillcolor="rgba(136,169,24,0.06)", line_width=0)
+    fig.add_vrect(x0=bdy_str, x1=next_end_str,
+                  fillcolor="rgba(84,164,218,0.06)", line_width=0)
     fig.add_vline(x=bdy_str, line_dash="dot", line_color="#848484", line_width=1.5)
-    fig.add_annotation(
-        x=bdy_str, y=1.06, yref="paper",
-        text=f"← {cur_month_str}   {next_month_str} →",
-        showarrow=False, font=dict(size=10, color="#848484"), xanchor="center",
-    )
+    # Month summary labels centred above each region
+    cur_mid  = str(cur_month_start_date + dt.timedelta(days=15))
+    next_mid = str(next_month_start.date() + dt.timedelta(days=15))
+    _lbl = dict(showarrow=False, yref="paper", y=1.07,
+                font=dict(size=11), xanchor="center",
+                bgcolor="rgba(255,255,255,0.88)",
+                bordercolor="#bbb", borderwidth=1, borderpad=4)
+    fig.add_annotation(x=cur_mid,
+                       text=f"<b>Current month</b> ({cur_month_str})  {branding.signed_money(proj_cur)}",
+                       **_lbl)
+    fig.add_annotation(x=next_mid,
+                       text=f"<b>Next month</b> ({next_month_str})  {branding.signed_money(next_net)}",
+                       **_lbl)
 
     fig.update_layout(
         height=400,
@@ -409,7 +430,7 @@ def render_near_term_tab(
             tickfont=dict(color="rgba(0,105,179,0.8)"),
             title_font=dict(color="rgba(0,105,179,0.8)"),
         ),
-        legend=dict(orientation="h", y=1.14),
+        legend=dict(orientation="h", y=1.18),
         bargap=0.15,
     )
     st.plotly_chart(fig, use_container_width=True)
@@ -432,6 +453,159 @@ def render_near_term_tab(
         show["kind"] = show["kind"].map(kind_labels).fillna(show["kind"])
         show.columns = ["Date", "MWh", "Net ($)", "Source"]
         st.dataframe(show, hide_index=True, use_container_width=True)
+
+    # ── Excel export ─────────────────────────────────────────────────────────
+    try:
+        import io
+        import openpyxl
+        from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+        from openpyxl.utils import get_column_letter
+
+        SR_BLUE_HEX   = "0069B3"
+        SR_GREEN_HEX  = "88A918"
+        SR_GHOST_HEX  = "ECF0F9"
+        SR_PALE_HEX   = "D7E2F2"
+
+        kind_labels_xl = {
+            "actual":       "Settled (SCED)",
+            "forecast_cur": f"GEFS forecast – {cur_month_str}",
+            "forecast_next": f"GEFS forecast – {next_month_str}",
+            "clim_cur":     f"Prior-year ERA5 – {cur_month_str}",
+            "clim_next":    f"Prior-year ERA5 – {next_month_str}",
+            "hist_cur":     f"Hist. shape – {cur_month_str}",
+            "hist_next":    f"Hist. shape – {next_month_str}",
+        }
+
+        def _build_excel() -> bytes:
+            wb = openpyxl.Workbook()
+
+            # ── Sheet 1: Forecast ──────────────────────────────────────────
+            ws_fc = wb.active
+            ws_fc.title = "Forecast"
+
+            hdr_font  = Font(name="Calibri", bold=True, color="FFFFFF", size=11)
+            hdr_fill  = PatternFill("solid", fgColor=SR_BLUE_HEX)
+            alt_fill  = PatternFill("solid", fgColor=SR_GHOST_HEX)
+            act_fill  = PatternFill("solid", fgColor="E6F2E6")
+            thin = Side(style="thin", color=SR_PALE_HEX)
+            border = Border(left=thin, right=thin, top=thin, bottom=thin)
+            center = Alignment(horizontal="center", vertical="center")
+            right  = Alignment(horizontal="right",  vertical="center")
+
+            headers = ["Date", "MWh", "Market Price ($/MWh)",
+                       "Strike ($/MWh)", "Net Settlement ($)", "Source"]
+            col_widths = [14, 14, 22, 18, 22, 30]
+            for ci, (h, w) in enumerate(zip(headers, col_widths), 1):
+                cell = ws_fc.cell(row=1, column=ci, value=h)
+                cell.font = hdr_font
+                cell.fill = hdr_fill
+                cell.alignment = center
+                cell.border = border
+                ws_fc.column_dimensions[get_column_letter(ci)].width = w
+            ws_fc.row_dimensions[1].height = 20
+
+            for ri, row in enumerate(all_df.itertuples(index=False), 2):
+                is_actual = row.kind == "actual"
+                fill = act_fill if is_actual else (alt_fill if ri % 2 == 0 else PatternFill())
+                values = [
+                    str(row.date),
+                    round(float(row.mwh), 2),
+                    round(float(fwd_price), 2),
+                    round(float(strike), 2),
+                    round(float(row.net), 2),
+                    kind_labels_xl.get(row.kind, row.kind),
+                ]
+                aligns = [center, right, right, right, right, Alignment(vertical="center")]
+                for ci, (val, aln) in enumerate(zip(values, aligns), 1):
+                    cell = ws_fc.cell(row=ri, column=ci, value=val)
+                    cell.alignment = aln
+                    cell.fill = fill
+                    cell.border = border
+                    if ci in (2, 3, 4):
+                        cell.number_format = '#,##0.00'
+                    elif ci == 5:
+                        cell.number_format = '#,##0.00'
+            # Freeze header
+            ws_fc.freeze_panes = "A2"
+
+            # ── Sheet 2: Monthly summary ───────────────────────────────────
+            ws_mo = wb.create_sheet("Monthly Summary")
+            mo_df = all_df.copy()
+            mo_df["month"] = mo_df["date"].apply(lambda d: str(d)[:7])
+            mo_summary = (mo_df.groupby("month")
+                          .agg(days=("date", "count"),
+                               gen_mwh=("mwh", "sum"),
+                               net_usd=("net", "sum"))
+                          .reset_index())
+            mo_summary.columns = ["Month", "Days", "Generation (MWh)", "Net Settlement ($)"]
+
+            mo_hdr_fill = PatternFill("solid", fgColor=SR_GREEN_HEX)
+            mo_headers = list(mo_summary.columns)
+            mo_widths   = [12, 8, 22, 22]
+            for ci, (h, w) in enumerate(zip(mo_headers, mo_widths), 1):
+                cell = ws_mo.cell(row=1, column=ci, value=h)
+                cell.font = Font(name="Calibri", bold=True, color="FFFFFF", size=11)
+                cell.fill = mo_hdr_fill
+                cell.alignment = center
+                cell.border = border
+                ws_mo.column_dimensions[get_column_letter(ci)].width = w
+            for ri, row in enumerate(mo_summary.itertuples(index=False), 2):
+                vals = list(row)
+                aligns2 = [center, center, right, right]
+                for ci, (val, aln) in enumerate(zip(vals, aligns2), 1):
+                    cell = ws_mo.cell(row=ri, column=ci, value=val)
+                    cell.alignment = aln
+                    cell.border = border
+                    if ci in (3, 4):
+                        cell.number_format = '#,##0.00'
+            ws_mo.freeze_panes = "A2"
+
+            # ── Sheet 3: About ─────────────────────────────────────────────
+            ws_ab = wb.create_sheet("About")
+            about_rows = [
+                ("Asset",           str(a.get("project_name", a.get("resource_node", "")))),
+                ("Resource node",   str(a.get("resource_node", ""))),
+                ("Technology",      str(a.get("tech", ""))),
+                ("Capacity (MW)",   float(a.get("capacity_mw", 0))),
+                ("Volume share",    f"{share*100:.4g}%"),
+                ("Strike ($/MWh)",  float(strike)),
+                ("Fwd price ($/MWh)", float(fwd_price)),
+                ("Cal. factor",     round(float(cal_factor), 4)),
+                ("Cal. days (SCED)", int(n_cal_days)),
+                ("Current month",   cur_month_str),
+                ("Next month",      next_month_str),
+                ("Projected cur. ($)", round(float(proj_cur), 2)),
+                ("Estimated next ($)", round(float(next_net), 2)),
+                ("Generated",       str(pd.Timestamp.now("America/Chicago").strftime("%Y-%m-%d %H:%M CT"))),
+                ("Source",          "Open-Meteo (16-day) + GEFS P50 (35-day) + ERA5 climatology"),
+            ]
+            ab_key_font = Font(name="Calibri", bold=True, color=SR_BLUE_HEX, size=11)
+            ws_ab.column_dimensions["A"].width = 26
+            ws_ab.column_dimensions["B"].width = 42
+            for ri, (key, val) in enumerate(about_rows, 1):
+                ck = ws_ab.cell(row=ri, column=1, value=key)
+                cv = ws_ab.cell(row=ri, column=2, value=val)
+                ck.font = ab_key_font
+                ck.fill = PatternFill("solid", fgColor=SR_GHOST_HEX)
+                ck.border = border
+                cv.border = border
+
+            buf = io.BytesIO()
+            wb.save(buf)
+            return buf.getvalue()
+
+        xl_bytes = _build_excel()
+        asset_slug = str(a.get("project_name", "forecast")).lower().replace(" ", "_")
+        fname = f"{asset_slug}_forecast_{pd.Timestamp.now().strftime('%Y%m%d')}.xlsx"
+        st.download_button(
+            "⬇ Download forecast Excel",
+            data=xl_bytes,
+            file_name=fname,
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            help="Daily generation forecast + monthly summary + metadata",
+        )
+    except ImportError:
+        pass  # openpyxl not installed in this venv
 
     # ── footnote ─────────────────────────────────────────────────────────────
     src = "Open-Meteo free API (no key required)"

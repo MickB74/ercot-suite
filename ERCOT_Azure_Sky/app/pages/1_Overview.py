@@ -107,7 +107,12 @@ with st.expander("Monthly detail"):
     show = monthly.rename(columns={"Capture_$/MWh": "Capture $/MWh",
                                    "Market_value": "Market value $",
                                    "Strike_value": "Strike value $",
-                                   "CfD": "Net settlement $"})
+                                   "CfD": "Net settlement $"}).copy()
+    show["MWh"] = show["MWh"].map(lambda v: f"{v:,.0f}")
+    show["Capture $/MWh"] = show["Capture $/MWh"].map(lambda v: f"${v:,.2f}")
+    show["Market value $"] = show["Market value $"].map(lambda v: f"${v:,.0f}")
+    show["Strike value $"] = show["Strike value $"].map(lambda v: f"${v:,.0f}")
+    show["Net settlement $"] = show["Net settlement $"].map(branding.signed_money_raw)
     st.dataframe(show, hide_index=True, use_container_width=True)
 
 branding.footer(st)

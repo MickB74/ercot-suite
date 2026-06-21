@@ -25,6 +25,10 @@ ASSET = {
     "tech": "Wind",
     "turbine_model": "Nordex N149/4.X (Mixed Fleet)",
     "hub_height_m": 105.0,
+    # Nordex N149/4.X power curve parameters
+    "cut_in_ms": 3.0,    # m/s
+    "rated_ms": 13.0,    # m/s — N149 rated wind speed ~13 m/s
+    "cut_out_ms": 25.0,  # m/s — Nordex storm control up to 25 m/s
     "hub": "HB_NORTH",                     # the trading hub it settles at
     "county": "Throckmorton, TX",
     "lat": 33.1534,

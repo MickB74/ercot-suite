@@ -37,6 +37,10 @@ ASSET = {
     "turbine_manuf": "Vestas",
     "hub_height_m": 95.0,
     "rotor_diameter_m": 110.0,
+    # Vestas V110-2.0 power curve parameters (IEC class S)
+    "cut_in_ms": 3.5,    # m/s — below this wind speed, turbine is idle
+    "rated_ms": 12.0,    # m/s — above this speed, output is capped at rated power
+    "cut_out_ms": 20.0,  # m/s — storm cut-out; turbine shuts down above this
 }
 
 # ── default contract terms (seed; overridable in config.json / Contract page) ──

@@ -250,11 +250,93 @@ def _cached_steo_power(max_age_days: int = CACHE_DAYS) -> pd.DataFrame | None:
 # ===========================================================================
 # ERCOT CDR reserve margins  → forward-scarcity tail boost
 # ===========================================================================
+_CDR_PAGE = "https://www.ercot.com/gridinfo/resource"
+_CDR_SCENARIO_ROW_SUBSTR = "Protocol-prescribed"
+_CDR_SHEET = "Load-Resource Scenarios"
+
+
+def refresh_cdr(*, save: bool = True) -> pd.DataFrame:
+    """Download the latest ERCOT CDR XLSX and extract Protocol-prescribed summer margins.
+
+    Scrapes ercot.com/gridinfo/resource for the most-recent
+    CapacityDemandandReservesReport XLSX, parses the Protocol-prescribed (committed
+    resources only) summer Peak Load Hour reserve margins, and writes them to
+    ``pf_paths.ERCOT_CDR_CSV``.  Returns the resulting DataFrame.
+
+    Raises on network/parse failure so callers can surface the error explicitly.
+    """
+    import io as _io
+    import re as _re
+
+    import requests as _req
+
+    headers = {"User-Agent": "Mozilla/5.0"}
+    page = _req.get(_CDR_PAGE, timeout=20, headers=headers)
+    page.raise_for_status()
+
+    # Find all CDR report download links (most-recent first in page order)
+    links = _re.findall(r'download href="(https?://[^"]*CapacityDemand[^"]*\.xlsx)"',
+                        page.text, _re.I)
+    if not links:
+        raise RuntimeError("No CDR XLSX links found on ercot.com/gridinfo/resource")
+
+    url = links[0]   # page lists newest first
+    r = _req.get(url, timeout=60, headers=headers)
+    r.raise_for_status()
+
+    xl = pd.ExcelFile(_io.BytesIO(r.content))
+    if _CDR_SHEET not in xl.sheet_names:
+        raise RuntimeError(f"Sheet '{_CDR_SHEET}' not found in CDR XLSX (sheets: {xl.sheet_names})")
+
+    raw = pd.read_excel(_io.BytesIO(r.content), sheet_name=_CDR_SHEET, header=None)
+
+    # Row 4 (0-indexed) = year labels for Summer columns 2-11
+    year_row = raw.iloc[4]
+    # Columns 2-6 are Summer years (Peak Load Hour); 7-11 repeat with solar displacement
+    summer_year_cols = {int(year_row.iloc[c]): c for c in range(2, 7)
+                        if pd.notna(year_row.iloc[c]) and isinstance(year_row.iloc[c], (int, float))}
+
+    # Find the Protocol-prescribed row
+    proto_row = None
+    for idx in range(len(raw)):
+        cell = raw.iloc[idx, 1]
+        if isinstance(cell, str) and _CDR_SCENARIO_ROW_SUBSTR.lower() in cell.lower():
+            proto_row = raw.iloc[idx]
+            break
+    if proto_row is None:
+        raise RuntimeError(f"Could not find '{_CDR_SCENARIO_ROW_SUBSTR}' row in CDR sheet")
+
+    rows = []
+    for year, col in sorted(summer_year_cols.items()):
+        val = proto_row.iloc[col]
+        if pd.notna(val):
+            rows.append({"year": int(year), "reserve_margin_pct": round(float(val) * 100, 1)})
+
+    if not rows:
+        raise RuntimeError("Parsed zero reserve-margin rows from CDR XLSX")
+
+    df = pd.DataFrame(rows).sort_values("year").reset_index(drop=True)
+
+    if save:
+        from urllib.parse import urlparse as _up
+        fname = _up(url).path.split("/")[-1]
+        header = (
+            "# ERCOT reserve-margin table — auto-refreshed from CDR XLSX.\n"
+            f"# Source: {url}\n"
+            f"# Report: {fname}\n"
+            "# Scenario: Protocol-prescribed (committed resources only, Summer Peak Load Hour).\n"
+            "# Update: run  python cli.py --refresh-cdr  or use the app button.\n"
+        )
+        pf_paths.ERCOT_CDR_CSV.write_text(header + df.to_csv(index=False))
+
+    return df
+
+
 def ercot_reserve_margin() -> pd.DataFrame | None:
     """ERCOT planning reserve margins by year. df[year(int), reserve_margin_pct].
 
-    Sourced from a manually maintained CSV (ERCOT publishes the CDR as XLSX with
-    no free JSON API). Columns required: ``year``, ``reserve_margin_pct``.
+    Sourced from a manually maintained CSV (seeded by ``refresh_cdr()`` or hand-edited
+    in the app).  Columns required: ``year``, ``reserve_margin_pct``.
     Returns None when the file is absent or empty.
     """
     p = pf_paths.ERCOT_CDR_CSV

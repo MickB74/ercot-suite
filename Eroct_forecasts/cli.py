@@ -47,10 +47,21 @@ def main() -> None:
     ap.add_argument("--shape", action="store_true", help="also build the 8760 hourly curve")
     ap.add_argument("--no-save", action="store_true")
     ap.add_argument("--refresh-gas", action="store_true", help="pull EIA Henry Hub daily, then exit")
+    ap.add_argument("--refresh-cdr", action="store_true",
+                    help="download latest ERCOT CDR XLSX and update reserve-margin table, then exit")
     ap.add_argument("--backtest", action="store_true", help="walk-forward skill/calibration report, then exit")
     args = ap.parse_args()
 
     pf_paths.ensure_dirs()
+    if args.refresh_cdr:
+        try:
+            df = public_forecasts.refresh_cdr()
+            print(f"Updated ERCOT CDR → {pf_paths.ERCOT_CDR_CSV}")
+            print(df.to_string(index=False))
+        except Exception as e:  # noqa: BLE001
+            print(f"CDR refresh failed: {e}")
+        return
+
     if args.refresh_gas:
         n = gas_curve.refresh_eia()
         print(f"Cached {n:,} EIA Henry Hub daily rows -> {pf_paths.HENRY_HUB_DAILY_PARQUET}")

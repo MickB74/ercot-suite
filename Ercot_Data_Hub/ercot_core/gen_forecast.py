@@ -79,6 +79,10 @@ def _wind_hourly_mw(
     capacity_mw: float,
     hub_height_m: float,
     cal_factor: float,
+    *,
+    cut_in: float = 3.0,
+    rated: float = 12.0,
+    cut_out: float = 25.0,
 ) -> pd.Series:
     if "wind_speed_120m" in weather_df.columns and weather_df["wind_speed_120m"].sum() > 0:
         ws_raw = weather_df["wind_speed_120m"].fillna(0.0)
@@ -90,7 +94,7 @@ def _wind_hourly_mw(
         return pd.Series(0.0, index=weather_df.index)
 
     ws_hub = _extrapolate_wind(ws_raw, meas_h, hub_height_m)
-    raw = _power_curve(ws_hub, capacity_mw)
+    raw = _power_curve(ws_hub, capacity_mw, cut_in=cut_in, rated=rated, cut_out=cut_out)
     return (raw * cal_factor).clip(0.0, capacity_mw)
 
 
@@ -104,6 +108,9 @@ def calibrate(
     *,
     hub_height_m: float = 90.0,
     min_overlap_days: int = 5,
+    cut_in: float = 3.0,
+    rated: float = 12.0,
+    cut_out: float = 25.0,
 ) -> float:
     """Derive a calibration factor from SCED history vs. the raw weather model.
 
@@ -136,7 +143,8 @@ def calibrate(
             return 1.0
         raw_hourly = _solar_hourly_mw(weather_df[col].fillna(0.0), capacity_mw, 1.0)
     else:
-        raw_hourly = _wind_hourly_mw(weather_df, capacity_mw, hub_height_m, 1.0)
+        raw_hourly = _wind_hourly_mw(weather_df, capacity_mw, hub_height_m, 1.0,
+                                     cut_in=cut_in, rated=rated, cut_out=cut_out)
 
     # Convert UTC hourly MW → Central local date daily MWh (each row = 1 h)
     local_idx = raw_hourly.index.tz_convert("America/Chicago")
@@ -164,6 +172,9 @@ def daily_forecast_mwh(
     *,
     hub_height_m: float = 90.0,
     cal_factor: float = 1.0,
+    cut_in: float = 3.0,
+    rated: float = 12.0,
+    cut_out: float = 25.0,
 ) -> pd.Series:
     """Return daily MWh estimates indexed by :class:`datetime.date` (Central local).
 
@@ -191,7 +202,8 @@ def daily_forecast_mwh(
             return pd.Series(dtype=float)
         hourly_mw = _solar_hourly_mw(weather_df[col].fillna(0.0), capacity_mw, cal_factor)
     else:
-        hourly_mw = _wind_hourly_mw(weather_df, capacity_mw, hub_height_m, cal_factor)
+        hourly_mw = _wind_hourly_mw(weather_df, capacity_mw, hub_height_m, cal_factor,
+                                    cut_in=cut_in, rated=rated, cut_out=cut_out)
 
     local_idx = hourly_mw.index.tz_convert("America/Chicago")
     daily = pd.Series(hourly_mw.values, index=local_idx).resample("D").sum()
