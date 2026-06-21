@@ -400,9 +400,11 @@ def _price_matrix_view(curve: pd.DataFrame, hubs: list[str], asof) -> None:
     yr["Year"] = [m[:4] for m in piv.index]
     annual = yr.groupby("Year").mean().round(0)
     st.markdown("##### Forecast calendar-year average ($/MWh)")
-    st.dataframe(annual.style.format("${:,.0f}").map(
-        lambda v: _heat_color(v, float(annual.min().min()), float(annual.max().max()))),
-        use_container_width=True)
+    sty = annual.style.format("${:,.0f}")
+    for col in annual.columns:
+        lo, hi = float(annual[col].min()), float(annual[col].max())
+        sty = sty.map(lambda v, lo=lo, hi=hi: _heat_color(v, lo, hi), subset=[col])
+    st.dataframe(sty, use_container_width=True)
 
     st.download_button("⬇️ Download forecast matrix (CSV)", piv.to_csv(),
                        file_name=f"price_matrix_{block}_{metric}_{asof}.csv")
