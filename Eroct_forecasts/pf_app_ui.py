@@ -176,6 +176,175 @@ def _full_history_years(hub: str) -> list[int]:
     return sorted([int(y) for y, c in counts.items() if c >= 11], reverse=True)
 
 
+def _annual_detail_view(curve: pd.DataFrame, hubs: list[str], asof) -> None:
+    """Annual budget table + gas strip decomposition + Excel export."""
+    import io as _io
+    try:
+        import openpyxl as _xl  # noqa: F401 — just checking availability
+        _has_xl = True
+    except ImportError:
+        _has_xl = False
+
+    hub = hubs[0] if len(hubs) == 1 else st.selectbox(
+        "Hub", hubs, key="ad_hub")
+    df = curve[curve.hub == hub].copy()
+    df["month"] = pd.to_datetime(df["month"])
+    df["year"]  = df["month"].dt.year
+
+    # ── 1. Annual P10 / P50 / P90 for all three blocks ───────────────────────
+    st.markdown("#### Annual price forecast ($/MWh)")
+    st.caption(
+        "Calendar-year averages of the monthly P10 / P50 / P90 distribution. "
+        "Gas is the average Henry Hub assumption for that year. "
+        "IHR = implied heat rate driving the P50 (MMBtu/MWh)."
+    )
+    block_label = {"atc": "ATC", "peak": "On-peak", "offpeak": "Off-peak"}
+
+    # Build annual table with guaranteed unique column names
+    # Gas + IHR come from ATC only (same across blocks); P10/P50/P90 per block
+    base = (df[df.block == "atc"]
+            .groupby("year")
+            .agg(gas=("gas", "mean"), ihr=("ihr_p50", "mean"))
+            .rename(columns={"gas": "Gas ($/MMBtu)", "ihr": "IHR (MMBtu/MWh)"}))
+    for blk, lbl in [("atc", "ATC"), ("peak", "On-peak"), ("offpeak", "Off-peak")]:
+        sub = (df[df.block == blk]
+               .groupby("year")
+               .agg(p10=("p10", "mean"), p50=("p50", "mean"), p90=("p90", "mean")))
+        base[f"{lbl} P10"] = sub["p10"]
+        base[f"{lbl} P50"] = sub["p50"]
+        base[f"{lbl} P90"] = sub["p90"]
+    ann_piv = base.round(2)
+    ann_piv.index.name = "Year"
+
+    # Color gradient on P50 columns only
+    p50_cols = [c for c in ann_piv.columns if "P50" in c]
+    vmin = float(ann_piv[p50_cols].min().min()) if p50_cols else 0
+    vmax = float(ann_piv[p50_cols].max().max()) if p50_cols else 100
+    fmt = {c: ("${:.2f}" if "Gas" in c else ("{:.1f}" if "IHR" in c else "${:.0f}"))
+           for c in ann_piv.columns}
+    sty = ann_piv.reset_index().style.format(fmt)
+    if p50_cols:
+        sty = sty.map(lambda v: _heat_color(v, vmin, vmax), subset=p50_cols)
+    st.dataframe(sty, hide_index=True, use_container_width=True)
+
+    # ── 2. Monthly gas strip with NYMEX / model blend ────────────────────────
+    st.markdown("#### Gas strip — what the forecast assumes")
+    st.caption(
+        "**NYMEX blend weight = 1.0** → price is the traded CME/NYMEX futures contract. "
+        "**0.0** → fully model (EIA STEO + AEO mean-reversion). Partial weights are "
+        "the blend zone where traded futures fade into the model curve."
+    )
+    gas_df = (df[df.block == "atc"][["month", "gas", "blend_w"]]
+              .drop_duplicates("month")
+              .sort_values("month")
+              .copy())
+    gas_df["Month"] = gas_df["month"].dt.strftime("%Y-%m")
+    gas_df = gas_df.rename(columns={"gas": "Gas ($/MMBtu)", "blend_w": "NYMEX blend"})
+    gas_df["Source"] = gas_df["NYMEX blend"].map(
+        lambda w: "NYMEX traded" if w >= 0.99 else ("Model (STEO/AEO)" if w <= 0.01
+                                                     else f"Blend ({w:.0%} NYMEX)"))
+
+    fig_gas = go.Figure()
+    fig_gas.add_scatter(
+        x=gas_df["Month"], y=gas_df["Gas ($/MMBtu)"],
+        mode="lines+markers",
+        line=dict(color="#0069B3", width=2),
+        marker=dict(
+            color=gas_df["NYMEX blend"].map(
+                lambda w: "#0069B3" if w >= 0.99 else ("#848484" if w <= 0.01 else "#54A4DA")),
+            size=6),
+        customdata=gas_df[["Source", "NYMEX blend"]].values,
+        hovertemplate="%{x}<br>$%{y:.2f}/MMBtu<br>%{customdata[0]}<extra></extra>",
+        name="Henry Hub forward",
+    )
+    fig_gas.update_layout(
+        height=280, margin=dict(t=10, b=10),
+        yaxis_title="$/MMBtu",
+        xaxis=dict(tickangle=-45),
+        legend=dict(orientation="h", y=1.15),
+    )
+    st.plotly_chart(fig_gas, use_container_width=True)
+
+    show_gas = gas_df[["Month", "Gas ($/MMBtu)", "NYMEX blend", "Source"]].copy()
+    show_gas["Gas ($/MMBtu)"] = show_gas["Gas ($/MMBtu)"].map("${:.2f}".format)
+    show_gas["NYMEX blend"]   = show_gas["NYMEX blend"].map("{:.0%}".format)
+    with st.expander("Monthly gas table"):
+        st.dataframe(show_gas, hide_index=True, use_container_width=True)
+
+    # ── 3. Excel export ───────────────────────────────────────────────────────
+    st.markdown("#### Export")
+    if _has_xl:
+        import openpyxl
+        from openpyxl.styles import Alignment, Font, PatternFill
+        from openpyxl.utils import get_column_letter
+
+        SR_BLUE = "0069B3"
+        SR_GREEN = "88A918"
+        SR_GHOST = "ECF0F9"
+
+        def _xl_bytes() -> bytes:
+            wb = openpyxl.Workbook()
+
+            def _hdr_style(cell, hex_color):
+                cell.font = Font(name="Calibri", bold=True, color="FFFFFF", size=11)
+                cell.fill = PatternFill("solid", fgColor=hex_color)
+                cell.alignment = Alignment(horizontal="center", vertical="center")
+
+            def _write_df(ws, df_in, hdr_color=SR_BLUE, freeze="A2"):
+                for ci, col in enumerate(df_in.columns, 1):
+                    c = ws.cell(row=1, column=ci, value=col)
+                    _hdr_style(c, hdr_color)
+                    ws.column_dimensions[get_column_letter(ci)].width = max(12, len(str(col)) + 2)
+                for ri, row in enumerate(df_in.itertuples(index=True), 2):
+                    for ci, val in enumerate(row[1:], 1):
+                        ws.cell(row=ri, column=ci, value=val)
+                if freeze:
+                    ws.freeze_panes = freeze
+
+            # Sheet 1: Annual summary
+            ws1 = wb.active
+            ws1.title = "Annual Summary"
+            out1 = ann_piv.reset_index()
+            _write_df(ws1, out1, hdr_color=SR_BLUE)
+
+            # Sheet 2: Monthly strip (all blocks, P10/P50/P90)
+            ws2 = wb.create_sheet("Monthly Strip")
+            strip = df[df.block.isin(["atc", "peak", "offpeak"])].copy()
+            strip["Month"] = strip["month"].dt.strftime("%Y-%m")
+            strip["Block"] = strip["block"].map(block_label)
+            out2 = strip[["Month", "Block", "gas", "ihr_p50",
+                          "p10", "p50", "p90", "blend_w"]].rename(columns={
+                "gas": "Gas ($/MMBtu)", "ihr_p50": "IHR P50",
+                "p10": "P10 ($/MWh)", "p50": "P50 ($/MWh)", "p90": "P90 ($/MWh)",
+                "blend_w": "NYMEX blend"}).round(2)
+            _write_df(ws2, out2, hdr_color=SR_BLUE)
+
+            # Sheet 3: Gas strip
+            ws3 = wb.create_sheet("Gas Strip")
+            _write_df(ws3, gas_df[["Month", "Gas ($/MMBtu)", "NYMEX blend", "Source"]].copy(),
+                      hdr_color=SR_GREEN)
+
+            buf = _io.BytesIO()
+            wb.save(buf)
+            return buf.getvalue()
+
+        xl = _xl_bytes()
+        st.download_button(
+            "⬇ Download forecast Excel (Annual + Monthly + Gas)",
+            data=xl,
+            file_name=f"ercot_price_forecast_{hub}_{asof}.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+    else:
+        st.info("Install openpyxl (`pip install openpyxl`) to enable Excel export.")
+
+    st.download_button(
+        "⬇ Download monthly strip CSV",
+        data=df[["month", "block", "gas", "p10", "p50", "p90", "blend_w"]].round(2).to_csv(index=False),
+        file_name=f"ercot_price_forecast_{hub}_{asof}.csv",
+    )
+
+
 def _price_matrix_view(curve: pd.DataFrame, hubs: list[str], asof) -> None:
     st.markdown("#### Hub × month price ($/MWh)")
     c1, c2 = st.columns(2)
@@ -414,6 +583,58 @@ def _ercot_fundamentals_section() -> tuple[bool, pd.DataFrame | None]:
     return scarcity, steo
 
 
+@st.cache_data(ttl=3600, show_spinner=False)
+def _snapshot_data(hub_tuple: tuple) -> dict:
+    """Last available Henry Hub spot + most-recent daily ATC price per hub."""
+    result: dict = {"gas": None, "gas_date": None, "hubs": {}}
+    # Henry Hub — last row of daily cache
+    hh = gas_curve.daily_history()
+    if hh is not None and not hh.empty:
+        row = hh.dropna(subset=["henry_hub"]).iloc[-1]
+        result["gas"] = float(row["henry_hub"])
+        result["gas_date"] = str(row["date"])[:10]
+    # Hub prices — last ~7 days of RTM data, average into one ATC number per hub
+    for hub in hub_tuple:
+        try:
+            rt = pf_history.load_rt15(hub)
+            if rt is not None and not rt.empty:
+                last_date = rt["date"].max()
+                recent = rt[rt["date"] >= last_date - pd.Timedelta(days=7)]
+                atc = float(recent["price"].mean())
+                result["hubs"][hub] = {"atc": atc, "date": str(last_date)}
+        except Exception:  # noqa: BLE001
+            pass
+    return result
+
+
+_SNAP_HUBS = ["HB_NORTH", "HB_HOUSTON", "HB_SOUTH", "HB_WEST", "HB_PAN"]
+
+
+def _market_snapshot(hubs: list[str]) -> None:  # noqa: ARG001 — uses fixed set
+    snap = _snapshot_data(tuple(_SNAP_HUBS))
+    row1 = st.columns(3)
+    row2 = st.columns(3)
+    cells = row1 + row2
+
+    with cells[0]:
+        if snap["gas"] is not None:
+            st.metric("⛽ Henry Hub", f"${snap['gas']:.2f}/MMBtu",
+                      help=f"EIA daily spot, last settlement: {snap['gas_date']}")
+        else:
+            st.metric("⛽ Henry Hub", "—",
+                      help="Cache Henry Hub history with: python cli.py --refresh-gas")
+
+    for i, hub in enumerate(_SNAP_HUBS, 1):
+        info = snap["hubs"].get(hub)
+        label = hub.replace("HB_", "")
+        with cells[i]:
+            if info:
+                st.metric(f"🔌 {label}", f"${info['atc']:,.0f}/MWh",
+                          help=f"7-day ATC average through {info['date']}")
+            else:
+                st.metric(f"🔌 {label}", "—")
+
+
 def render() -> None:
     st.title("⚡ ERCOT Price Forecast")
     st.caption("Market-implied heat-rate model: forward power = traded gas strip × "
@@ -423,6 +644,8 @@ def render() -> None:
     if pf_paths.hub_prices_parquet() is None:
         st.error("No ercot_hub_prices_15min.parquet found. Set `hub_lake_dir` in config.json.")
         return
+
+    _market_snapshot(list(pf_history.HUBS))
 
     with st.container(border=True):
         st.header("Forecast settings")
@@ -573,9 +796,9 @@ def render() -> None:
            (f" — {scar.get('cdr')}" if scar.get('cdr') else ""))
         + ". Full sources are written into the run's `.meta.json`.")
 
-    tab0, tab1, tab2, tab3, tab4 = st.tabs(
+    tab0, tab1, tab2, tab3, tab4, tab5 = st.tabs(
         ["📊 Price matrix", "📈 Scenarios", "🔢 Strip table", "🌡️ Heat rates",
-         "🎯 Calibration"])
+         "🎯 Calibration", "📋 Annual detail"])
 
     with tab0:
         _price_matrix_view(curve, hubs, asof)
@@ -668,6 +891,9 @@ def render() -> None:
     with tab4:
         _calibration_view(hubs[0] if len(hubs) == 1 else
                           st.selectbox("Hub to backtest", hubs, key="bt_hub"), horizon)
+
+    with tab5:
+        _annual_detail_view(curve, hubs, asof)
 
     saved = []
     for hub_i, m in zip(hubs, metas):

@@ -58,8 +58,17 @@ def simulate_month(gas_central: float, ihr_samples, t_years: float, *,
                    rng, n: int, gas_vol: float, price_cap: float | None,
                    tail_boost: float = 1.0) -> np.ndarray:
     """Vector of n simulated prices for one month/block."""
-    gv = gas_vol * np.sqrt(max(t_years, 1e-6))          # cumulative log-vol
-    gas = gas_central * np.exp(rng.normal(-0.5 * gv * gv, gv, n))  # martingale mean
+    # Cumulative log-vol, capped so the P10/P90 band stays realistic at long horizons.
+    # Spot gas vol (~76%) is appropriate near-term but mean-reversion limits long-run
+    # uncertainty: beyond ~1.5 years, gas prices don't keep diverging at the spot rate.
+    # GV_MAX ≈ 0.8 ↔ P90/P50 ≈ 2.8x — comparable to ~2σ in the annual gas distribution.
+    GV_MAX = 0.80
+    gv = min(gas_vol * np.sqrt(max(t_years, 1e-6)), GV_MAX)
+    # Median-preserving: gas_central anchors the P50 at every horizon.
+    # mean(gas_t) = gas_central * exp(+0.5*gv²) > forward, but P50 = forward exactly.
+    # (Mean-preserving -0.5*gv² is correct for derivatives pricing but collapses the
+    # Monte Carlo median to ~40% of forward at 3 yrs × 76% vol — wrong for planning.)
+    gas = gas_central * np.exp(rng.normal(0.0, gv, n))  # median-preserving
     ihr = _lognorm_from_samples(ihr_samples, rng, n, tail_boost=tail_boost)
     price = gas * ihr
     if price_cap:

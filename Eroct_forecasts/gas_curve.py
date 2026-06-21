@@ -141,14 +141,27 @@ def _eia_series(series_id: str, api_key: str, length: int = 60) -> pd.DataFrame 
         return None
 
 
+_NYMEX_MAX_AGE_DAYS = 30  # reject NYMEX data older than this — series may have gone stale
+
+
 def _nymex_near_strip(api_key: str, first_month: pd.Timestamp) -> pd.DataFrame | None:
-    """Latest NYMEX futures contract 1-4 settlements -> monthly gas, near strip."""
+    """Latest NYMEX futures contract 1-4 settlements -> monthly gas, near strip.
+
+    Returns None if the most-recent EIA publication date is older than
+    ``_NYMEX_MAX_AGE_DAYS`` days — that means EIA stopped updating the series
+    and the prices reflect an old market snapshot, not current forwards.
+    """
     rows = []
     for i, sid in enumerate(EIA_NYMEX_CONTRACTS):
-        d = _eia_series(sid, api_key, length=5)  # newest few daily settlements
+        d = _eia_series(sid, api_key, length=5)
         if d is None or d.empty:
             continue
         latest = d.sort_values("period").iloc[-1]
+        # Staleness check — EIA RNGC1-4 stopped updating after ~April 2024;
+        # using 2-year-old contract prices would badly distort the near curve.
+        age_days = (pd.Timestamp.now() - pd.Timestamp(latest["period"])).days
+        if age_days > _NYMEX_MAX_AGE_DAYS:
+            return None   # whole strip is stale — fall back to STEO
         rows.append({"month": first_month + pd.DateOffset(months=i),
                      "gas": float(latest["value"])})
     return pd.DataFrame(rows) if rows else None
