@@ -869,5 +869,23 @@
       "MIL_MILLERG1",
       "MIL_MILLERG2"
     ]
+  },
+  "Hornet Solar": {
+    "resource_name": "HRNT_SLR_RN",
+    "project_name": "Hornet Solar",
+    "tech": "Solar",
+    "capacity_mw": 600.0,
+    "hub": "North",
+    "county": "Swisher",
+    "lat": 34.485162,
+    "lon": -101.971401,
+    "queue_id": "25INR0282",
+    "tracking_type": "single_axis",
+    "dc_ac_ratio": 1.3,
+    "sced_units": [
+      "HRNT_SLR_UNIT1",
+      "HRNT_SLR_UNIT2",
+      "HRNT_SLR_UNIT3"
+    ]
   }
 }

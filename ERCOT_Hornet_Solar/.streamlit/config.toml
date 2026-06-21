@@ -1,0 +1,12 @@
+# SR Inc. brand theme (see /sr-deck design system).
+[theme]
+primaryColor = "#0069B3"            # SR Blue
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#ECF0F9"  # SR Blue Ghost (sidebar / panels)
+textColor = "#63666F"              # SR Dark Grey (body)
+font = "sans serif"
+
+[browser]
+# Open the browser automatically when launched (this is a local double-click app,
+# not a headless server). Set headless=true under [server] only for deployments.
+gatherUsageStats = false
