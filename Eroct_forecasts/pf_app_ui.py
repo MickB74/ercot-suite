@@ -421,11 +421,11 @@ def _show_compare_table(df: pd.DataFrame, metric: str) -> None:
     sty = (df.style.format(fmt, na_rep="—")
            .map(lambda v: _heat_color(v, vmin, vmax), subset=price_cols))
     if delta_cols:
-        sty = sty.map(lambda v: "color:#e06666" if pd.notna(v) and v > 0
-                      else ("color:#6aa84f" if pd.notna(v) else ""), subset=delta_cols)
+        sty = sty.map(lambda v: "color:#6aa84f" if pd.notna(v) and v > 0
+                      else ("color:#e06666" if pd.notna(v) else ""), subset=delta_cols)
     st.dataframe(sty, use_container_width=True, height=min(620, 40 + 36 * len(df)))
     st.caption("**Forecast** vs **actual** prices for the same calendar month in prior "
-               "years. Δ = forecast above (red) / below (green) the most recent actual year.")
+               "years. Δ = forecast above (green) / below (red) the most recent actual year.")
 
 
 def _hub_compare_chart(curve: pd.DataFrame, block: str) -> go.Figure:
