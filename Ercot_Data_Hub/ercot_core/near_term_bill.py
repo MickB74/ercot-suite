@@ -372,6 +372,56 @@ def render_near_term_tab(
 
     settled_dates = {r["date"] for r in actual_rows}
 
+    # ── current-month MTD fallback: ERA5 generation × actual market prices ────
+    # SCED meter data publishes on a ~60-day lag, so a portal whose data lake
+    # isn't gap-filled has no metered actuals for the current month and MTD
+    # would read $0. Value the elapsed days exactly like the prior-month card —
+    # ERA5 weather generation × actual settlement prices — so MTD is a real,
+    # consistent figure for every portal. Only runs when SCED actuals are absent.
+    # If the settle location is a node whose price also lags, fall back to the
+    # asset's hub price (always maintained) as the market reference.
+    mtd_est_rows: list[dict] = []
+    mtd_price_loc = _settle_loc
+    if not actual_rows:
+        _mtd_end = min(today_ct.date() - dt.timedelta(days=2),
+                       next_month_start.date() - dt.timedelta(days=1))
+        if _mtd_end >= cur_month_start_date:
+            _cur_era5_df, _ = _prior_era5(
+                float(a["lat"]), float(a["lon"]), tech,
+                str(cur_month_start_date), str(_mtd_end),
+            )
+            _mtd_is_hub = _settle_is_hub
+            _cur_prices = _prior_actual_prices(
+                mtd_price_loc, _mtd_is_hub,
+                str(pd.Timestamp(cur_month_start_date)),
+                str(pd.Timestamp(_mtd_end) + pd.Timedelta(days=1)),
+            )
+            if _cur_prices.empty and not _settle_is_hub:
+                mtd_price_loc, _mtd_is_hub = a.get("hub", _settle_loc), True
+                _cur_prices = _prior_actual_prices(
+                    mtd_price_loc, _mtd_is_hub,
+                    str(pd.Timestamp(cur_month_start_date)),
+                    str(pd.Timestamp(_mtd_end) + pd.Timedelta(days=1)),
+                )
+            if _cur_era5_df is not None and not _cur_prices.empty:
+                _cur_daily = gf.daily_forecast_mwh(
+                    _cur_era5_df, tech, cap_share,
+                    hub_height_m=hub_h, cal_factor=cal_factor,
+                    cut_in=cut_in_ms, rated=rated_ms, cut_out=cut_out_ms,
+                    turbine_type=turbine_type,
+                )
+                for _d, _mwh in _cur_daily.items():
+                    if _d < cur_month_start_date or _d > _mtd_end:
+                        continue
+                    _price = float(_cur_prices.get(_d, float("nan")))
+                    if pd.isna(_price):
+                        continue
+                    mtd_est_rows.append({
+                        "date": _d, "mwh": float(_mwh),
+                        "net": float(_mwh) * (_price - strike), "kind": "mtd_est",
+                    })
+        settled_dates = settled_dates | {r["date"] for r in mtd_est_rows}
+
     # ── weather-forecast days ─────────────────────────────────────────────────
     daily_fcast = gf.daily_forecast_mwh(
         weather_df, tech, cap_share,
@@ -428,7 +478,7 @@ def render_near_term_tab(
             forecast_rows.append({"date": d, "mwh": mwh, "net": mwh * (fwd_price - strike), "kind": row_kind})
         d += dt.timedelta(days=1)
 
-    all_rows = prior_rows + actual_rows + forecast_rows
+    all_rows = prior_rows + actual_rows + mtd_est_rows + forecast_rows
     if not all_rows:
         st.info("No data available for near-term projection.")
         return
@@ -437,12 +487,14 @@ def render_near_term_tab(
 
     # ── KPIs ──────────────────────────────────────────────────────────────────
     actual_mask = all_df["kind"] == "actual"
+    mtd_mask = all_df["kind"].isin(["actual", "mtd_est"])
+    mtd_is_est = bool(mtd_est_rows) and not actual_rows
     cur_mask = all_df["date"].apply(lambda d: str(d)[:7] == cur_month_str)
     next_mask = all_df["date"].apply(lambda d: str(d)[:7] == next_month_str)
     third_mask = all_df["date"].apply(lambda d: str(d)[:7] == third_month_str)
 
-    mtd_mwh = float(all_df.loc[actual_mask, "mwh"].sum())
-    mtd_net = float(all_df.loc[actual_mask, "net"].sum())
+    mtd_mwh = float(all_df.loc[mtd_mask, "mwh"].sum())
+    mtd_net = float(all_df.loc[mtd_mask, "net"].sum())
     proj_cur = float(all_df.loc[cur_mask, "net"].sum())
     next_net = float(all_df.loc[next_mask, "net"].sum())
     next_mwh = float(all_df.loc[next_mask, "mwh"].sum())
@@ -450,6 +502,7 @@ def render_near_term_tab(
     third_mwh = float(all_df.loc[third_mask, "mwh"].sum())
 
     n_settled = int(actual_mask.sum())
+    n_mtd = int(mtd_mask.sum())
     n_fcast_cur = int(all_df["kind"].str.contains("cur").sum())
     n_fcast_next = int(all_df["kind"].str.contains("next").sum())
     n_fcast_third = int(all_df["kind"].str.contains("third").sum())
@@ -470,10 +523,16 @@ def render_near_term_tab(
         )
         _ki += 1
     _kcols[_ki].metric(
-        f"MTD actual ({cur_month_str})",
+        f"Month-to-date ({cur_month_str})",
         branding.signed_money(mtd_net),
-        delta=f"{mtd_mwh:,.0f} MWh · {n_settled} days settled",
+        delta=(f"{mtd_mwh:,.0f} MWh · {n_mtd} days · ERA5 × actual price"
+               if mtd_is_est else
+               f"{mtd_mwh:,.0f} MWh · {n_mtd} days settled"),
         delta_color="off",
+        help=(f"SCED meter data publishes on a ~60-day lag, so the elapsed days "
+              f"of {cur_month_str} are valued with ERA5 weather generation × "
+              f"actual {mtd_price_loc} settlement prices until metered data arrives."
+              if mtd_is_est else None),
     )
     # Projected month-end = settled MTD + the remaining-days forecast, combined.
     remain_cur = proj_cur - mtd_net           # forecast-only portion of the month
@@ -481,10 +540,10 @@ def render_near_term_tab(
     _kcols[_ki + 1].metric(
         "Projected month-end",
         branding.signed_money(proj_cur),
-        delta=f"{n_settled} settled + {n_fcast_cur} forecast days",
+        delta=f"{n_mtd} MTD + {n_fcast_cur} forecast days",
         delta_color="off",
-        help=(f"Full-month projection = MTD actual + remaining forecast.\n\n"
-              f"• MTD actual ({n_settled} days): {branding.signed_money(mtd_net)}\n"
+        help=(f"Full-month projection = month-to-date + remaining forecast.\n\n"
+              f"• Month-to-date ({n_mtd} days): {branding.signed_money(mtd_net)}\n"
               f"• Forecast ({n_fcast_cur} days): {branding.signed_money(remain_cur)}\n"
               f"• = Projected month-end: {branding.signed_money(proj_cur)}\n\n"
               f"Forecast days valued at forward price − strike: "
@@ -525,8 +584,8 @@ def render_near_term_tab(
     # Visible calc for the projected month-end (past + forecast combined).
     st.caption(
         f"**Projected month-end ({cur_month_str})** = "
-        f"MTD actual **{branding.signed_money(mtd_net)}** "
-        f"({n_settled} days settled, {mtd_mwh:,.0f} MWh) "
+        f"month-to-date **{branding.signed_money(mtd_net)}** "
+        f"({n_mtd} days, {mtd_mwh:,.0f} MWh) "
         f"+ remaining forecast **{branding.signed_money(remain_cur)}** "
         f"({n_fcast_cur} days, {proj_mwh - mtd_mwh:,.0f} MWh @ "
         f"{fwd_price:,.2f}−{strike:,.2f}={fwd_price - strike:,.2f} \\$/MWh) "
@@ -550,7 +609,7 @@ def render_near_term_tab(
     def _bar_color(row) -> str:
         pos = row["net"] >= 0
         k = row["kind"]
-        if k == "retrocast":
+        if k in ("retrocast", "mtd_est"):
             return RETRO_POS if pos else RETRO_NEG
         if k == "actual":
             return SOLID_POS if pos else SOLID_NEG
@@ -682,6 +741,7 @@ def render_near_term_tab(
         kind_labels = {
             "retrocast": f"ERA5 gen × actual price – {prev_month_str}",
             "actual": "Settled",
+            "mtd_est": f"ERA5 gen × actual price – {cur_month_str} (MTD)",
             "forecast_cur": f"GEFS forecast – {cur_month_str}",
             "forecast_next": f"GEFS forecast – {next_month_str}",
             "clim_cur": f"Prior-year ERA5 – {cur_month_str}",
@@ -710,6 +770,7 @@ def render_near_term_tab(
 
         kind_labels_xl = {
             "actual":       "Settled (SCED)",
+            "mtd_est":      f"ERA5 gen × actual price – {cur_month_str} (MTD)",
             "forecast_cur": f"GEFS forecast – {cur_month_str}",
             "forecast_next": f"GEFS forecast – {next_month_str}",
             "clim_cur":     f"Prior-year ERA5 – {cur_month_str}",

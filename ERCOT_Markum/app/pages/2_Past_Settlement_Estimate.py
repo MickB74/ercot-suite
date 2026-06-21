@@ -17,10 +17,12 @@ import streamlit as st
 _boot.ensure_hub(st)
 
 from markum import analytics, branding, contract, hub  # noqa: E402
+from ercot_core import settle_ui  # noqa: E402
 
 terms = contract.load_contract()
 a = contract.ASSET
 loc = contract.settle_location(terms)   # settlement reference (node or a hub)
+terms, loc = settle_ui.choose(st, contract, terms)  # sidebar Node↔Hub toggle (view-only)
 
 branding.hero(st, "Past Settlement Estimate",
               f"Audit any period · {terms['structure']} at ${terms['strike']:,.2f}/MWh · "

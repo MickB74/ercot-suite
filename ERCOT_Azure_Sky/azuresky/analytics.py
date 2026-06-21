@@ -36,8 +36,8 @@ def settle(start_date: dt.date, end_date: dt.date, terms: dict | None = None) ->
     end_excl = pd.Timestamp(end_date) + pd.Timedelta(days=1)
 
     gen_df = hub.generation(a["resource_node"], a["units"], start, end_excl)
-    ref = contract.settle_location(terms)              # HB_NORTH for the aggregate
-    price_df = hub.hub_prices(ref, start, end_excl)
+    ref = contract.settle_location(terms)              # HB_NORTH, or a node via the toggle
+    price_df = hub.settlement_prices(ref, start, end_excl)
     if gen_df.empty or price_df.empty:
         return None
 

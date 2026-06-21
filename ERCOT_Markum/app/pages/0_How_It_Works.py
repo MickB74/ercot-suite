@@ -61,7 +61,7 @@ Every interval with **both** real metered output and a real RT15 price is settle
 are real figures — the only limitation is ERCOT's ~60-day publication lag.
 """)
 
-st.subheader("🔮 Project Settlements — an estimate")
+st.subheader("🔮 Projected Settlements — an estimate")
 if is_wind:
     st.markdown(
         """
@@ -95,7 +95,7 @@ that shows how the bill swings if prices land higher or lower. The projection is
 st.subheader("⚠️ What this is *not*")
 st.markdown(
     """
-- The **Project Settlements** page is a planning figure, **not an invoice** — generation is modelled
+- The **Projected Settlements** page is a planning figure, **not an invoice** — generation is modelled
   and the price is your assumption.
 - Nothing here fetches live ERCOT data; it reads what the Hub has cached. Refresh the Hub
   to extend the settle-able window.

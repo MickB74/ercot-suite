@@ -231,6 +231,16 @@ def node_prices(resource_node: str, start: pd.Timestamp, end_excl: pd.Timestamp,
     return out
 
 
+def settlement_prices(location: str, start: pd.Timestamp, end_excl: pd.Timestamp,
+                      market: str = "RT15") -> pd.DataFrame:
+    """Route to the right price store: trading hubs (``HB_*``) read the hub
+    store; anything else (e.g. ``AZURE_RN``) reads the node-price lake. Lets the
+    portal settle at either the hub or the plant node via the same call."""
+    if str(location).upper().startswith("HB_"):
+        return hub_prices(location, start, end_excl, market)
+    return node_prices(location, start, end_excl, market)
+
+
 @lru_cache(maxsize=1)
 def available_locations() -> tuple[str, ...]:
     """Settlement points the portal can settle at — those cached in the hub-price store.

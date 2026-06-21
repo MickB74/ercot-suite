@@ -20,16 +20,18 @@ import streamlit as st
 _boot.ensure_hub(st)
 
 from markum import analytics, branding, contract, hub  # noqa: E402
+from ercot_core import settle_ui  # noqa: E402
 from ercot_core import near_term_bill  # noqa: E402
 
 terms = contract.load_contract()
 a = contract.ASSET
 is_wind = "wind" in str(a.get("tech", "")).lower()
 loc = contract.settle_location(terms)   # settlement reference (node or a hub)
+terms, loc = settle_ui.choose(st, contract, terms)  # sidebar Node↔Hub toggle (view-only)
 strike = float(terms.get("strike", 0.0))
 share = float(terms.get("volume_share_pct", 100.0)) / 100.0
 
-branding.hero(st, "Project Settlements",
+branding.hero(st, "Projected Settlements",
               f"Forward estimate · {terms['structure']} at ${strike:,.2f}/MWh · "
               f"{contract.offtake_label(terms)} offtake")
 st.info("📌 **Estimate only.** Generation is modelled and the market price is your "
