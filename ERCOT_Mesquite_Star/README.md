@@ -1,7 +1,7 @@
 # Mesquite Star — Settlement Portal
 
 A focused, customer-facing web app for a **single asset**: Mesquite Star
-(161 MW single-axis PV, Bosque County, ERCOT North hub, resource node
+(419 MW wind, Fisher County, ERCOT West hub, resource node
 `WH_WIND_ALL`). It lets the offtaker log in and see, in plain language:
 
 - **Overview** — headline KPIs for the latest settled month and year-to-date,

@@ -87,8 +87,13 @@ if start_d > end_d:
 def _load(start_d, end_d):
     s  = pd.Timestamp(start_d)
     e  = pd.Timestamp(end_d) + pd.Timedelta(days=1)
-    np_ = hub.node_prices(NODE, s, e)[["interval_start", "spp"]].rename(columns={"spp": "node"})
-    hp_ = hub.hub_prices(HUB,  s, e)[["interval_start", "spp"]].rename(columns={"spp": "hub"})
+    np_raw = hub.node_prices(NODE, s, e)
+    hp_raw = hub.hub_prices(HUB,  s, e)
+    if (np_raw is None or np_raw.empty or "spp" not in np_raw.columns
+            or hp_raw is None or hp_raw.empty or "spp" not in hp_raw.columns):
+        return pd.DataFrame()
+    np_ = np_raw[["interval_start", "spp"]].rename(columns={"spp": "node"})
+    hp_ = hp_raw[["interval_start", "spp"]].rename(columns={"spp": "hub"})
     np_["interval_start"] = pd.to_datetime(np_["interval_start"])
     hp_["interval_start"] = pd.to_datetime(hp_["interval_start"])
     df = np_.merge(hp_, on="interval_start", how="inner")
@@ -157,7 +162,9 @@ if has_gen and not np.isnan(cap_node):
                  delta=f"{'above' if cr_hub >= 1 else 'below'} flat avg" if not np.isnan(cr_hub) else None,
                  delta_color="normal" if cr_hub >= 1 else "inverse",
                  help="Hub capture ÷ avg hub spot. Shows the hub-level shape effect — "
-                      "typically < 1 for solar because midday depresses hub prices.")
+                      + ("typically < 1 for solar because midday depresses hub prices."
+                         if "solar" in str(a.get("tech", "")).lower() or "pv" in str(a.get("tech", "")).lower()
+                         else "reflects how the hub price shape lines up with the plant's output pattern."))
 
 st.caption(f"Settled window: **{start_d} → {end_d}** · "
            f"{len(df):,} 15-min intervals · node **{NODE}** vs hub **{HUB}**")
@@ -211,7 +218,10 @@ st.plotly_chart(fig1, use_container_width=True)
 if has_gen:
     st.caption("Solid lines = flat average price; dashed diamonds = generation-weighted "
                "capture price. A capture line below the spot line means the plant "
-               "generates when prices are relatively low (solar value-factor discount).")
+               "generates when prices are relatively low"
+               + (" (solar value-factor discount)."
+                  if "solar" in str(a.get("tech", "")).lower() or "pv" in str(a.get("tech", "")).lower()
+                  else " for this asset's generation profile."))
 
 # ── chart: capture premium (value factor deviation) ──────────────────────────
 if has_gen and "cap_node" in monthly.columns:

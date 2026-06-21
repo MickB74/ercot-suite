@@ -18,16 +18,19 @@ import streamlit as st
 
 _boot.ensure_hub(st)
 
-from portal import branding, contract, hub  # noqa: E402
+from azuresky import branding, contract, hub  # noqa: E402
 
 a = contract.ASSET
-NODE = a["resource_node"]
-HUB  = a["hub"]
+# Azure settles the AZURE_SKY_WIND_AGG aggregate, but its priced settlement point
+# is AZURE_RN; generation is summed from the four VORTEX SCED units.
+NODE  = a.get("price_node", a["resource_node"])   # AZURE_RN — the priced node
+UNITS = a["units"]
+HUB   = a["hub"]
 
 branding.hero(st, "Hub vs Node",
               f"{NODE} node price vs {HUB} hub · basis and capture analysis")
 
-win_start, win_end = hub.settlement_window(NODE)
+win_start, win_end = hub.settlement_window(UNITS, HUB)
 if win_start is None:
     st.info("No price data cached for this asset yet.")
     st.stop()
@@ -87,8 +90,13 @@ if start_d > end_d:
 def _load(start_d, end_d):
     s  = pd.Timestamp(start_d)
     e  = pd.Timestamp(end_d) + pd.Timedelta(days=1)
-    np_ = hub.node_prices(NODE, s, e)[["interval_start", "spp"]].rename(columns={"spp": "node"})
-    hp_ = hub.hub_prices(HUB,  s, e)[["interval_start", "spp"]].rename(columns={"spp": "hub"})
+    np_raw = hub.node_prices(NODE, s, e)
+    hp_raw = hub.hub_prices(HUB,  s, e)
+    if (np_raw is None or np_raw.empty or "spp" not in np_raw.columns
+            or hp_raw is None or hp_raw.empty or "spp" not in hp_raw.columns):
+        return pd.DataFrame()
+    np_ = np_raw[["interval_start", "spp"]].rename(columns={"spp": "node"})
+    hp_ = hp_raw[["interval_start", "spp"]].rename(columns={"spp": "hub"})
     np_["interval_start"] = pd.to_datetime(np_["interval_start"])
     hp_["interval_start"] = pd.to_datetime(hp_["interval_start"])
     df = np_.merge(hp_, on="interval_start", how="inner")
@@ -96,10 +104,12 @@ def _load(start_d, end_d):
     df["month"] = df["interval_start"].dt.to_period("M").dt.to_timestamp()
     df["hour"]  = df["interval_start"].dt.hour
 
-    gen = hub.generation(NODE, s, e)
+    gen = hub.generation(a["resource_node"], UNITS, s, e)
     if gen is not None and not gen.empty:
-        gen = gen[["interval_start", "mw"]].copy()
+        gen = gen.copy()
         gen["interval_start"] = pd.to_datetime(gen["interval_start"])
+        # generation returns one row per unit per interval — sum to plant MW
+        gen = gen.groupby("interval_start", as_index=False)["mw"].sum()
         df = df.merge(gen, on="interval_start", how="left")
     else:
         df["mw"] = np.nan
@@ -157,7 +167,9 @@ if has_gen and not np.isnan(cap_node):
                  delta=f"{'above' if cr_hub >= 1 else 'below'} flat avg" if not np.isnan(cr_hub) else None,
                  delta_color="normal" if cr_hub >= 1 else "inverse",
                  help="Hub capture ÷ avg hub spot. Shows the hub-level shape effect — "
-                      "typically < 1 for solar because midday depresses hub prices.")
+                      + ("typically < 1 for solar because midday depresses hub prices."
+                         if "solar" in str(a.get("tech", "")).lower() or "pv" in str(a.get("tech", "")).lower()
+                         else "reflects how the hub price shape lines up with the plant's output pattern."))
 
 st.caption(f"Settled window: **{start_d} → {end_d}** · "
            f"{len(df):,} 15-min intervals · node **{NODE}** vs hub **{HUB}**")
@@ -211,7 +223,10 @@ st.plotly_chart(fig1, use_container_width=True)
 if has_gen:
     st.caption("Solid lines = flat average price; dashed diamonds = generation-weighted "
                "capture price. A capture line below the spot line means the plant "
-               "generates when prices are relatively low (solar value-factor discount).")
+               "generates when prices are relatively low"
+               + (" (solar value-factor discount)."
+                  if "solar" in str(a.get("tech", "")).lower() or "pv" in str(a.get("tech", "")).lower()
+                  else " for this asset's generation profile."))
 
 # ── chart: capture premium (value factor deviation) ──────────────────────────
 if has_gen and "cap_node" in monthly.columns:

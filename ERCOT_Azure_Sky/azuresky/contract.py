@@ -21,6 +21,9 @@ ASSET = {
     # generation is summed from the four units below (see azuresky.hub).
     "resource_node": "AZURE_SKY_WIND_AGG",
     "units": ["VORTEX_WIND1", "VORTEX_WIND2", "VORTEX_WIND3", "VORTEX_WIND4"],
+    # Settlement-point (resource node) carrying AZURE_RN RT15 prices — distinct
+    # from the generation aggregate above. Drives the Hub vs Node basis analysis.
+    "price_node": "AZURE_RN",
     "capacity_mw": 350.0,
     "tech": "Wind",
     "turbine_model": "Nordex N149/4.X (Mixed Fleet)",

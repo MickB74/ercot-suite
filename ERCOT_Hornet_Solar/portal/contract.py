@@ -25,7 +25,7 @@ ASSET = {
     "tech": "Solar PV",
     "tracking_type": "single_axis",
     "hub": "HB_PAN",
-    "county": "Swisher",                # EIA-860: plant 67580, Bosque County
+    "county": "Swisher",                # EIA-860: plant 65463, Swisher County
     "lat": 34.485162,                      # EIA-860 authoritative (COD 2024-11-01)
     "lon": -101.971401,
     "dc_ac_ratio": 1.3,

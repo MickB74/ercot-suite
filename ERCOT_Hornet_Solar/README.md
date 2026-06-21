@@ -1,7 +1,7 @@
 # Hornet Solar — Settlement Portal
 
 A focused, customer-facing web app for a **single asset**: Hornet Solar
-(161 MW single-axis PV, Bosque County, ERCOT North hub, resource node
+(600 MW single-axis PV, Swisher County, ERCOT Panhandle hub, resource node
 `HRNT_SLR_RN`). It lets the offtaker log in and see, in plain language:
 
 - **Overview** — headline KPIs for the latest settled month and year-to-date,

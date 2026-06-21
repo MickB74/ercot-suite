@@ -164,10 +164,10 @@ def _audit_one(raw, sinfo):
     if net_mode:
         return analytics.audit_net_settlement(
             inv, price, terms, location=loc, resource_node=a["resource_node"],
-            units=[a["resource_name"]], gen_df=gen, volume_basis=volume_source, sign=stmt_sign,
+            units=a.get("sced_units") or [a["resource_name"]], gen_df=gen, volume_basis=volume_source, sign=stmt_sign,
             neg_treatment=neg_treatment, neg_floor=neg_floor)
     return INV.reconcile(inv, price_df=price, gen_df=gen, location=loc, market="RT15",
-                         resource_node=a["resource_node"], units=[a["resource_name"]],
+                         resource_node=a["resource_node"], units=a.get("sced_units") or [a["resource_name"]],
                          volume_source=volume_source)
 
 
@@ -190,7 +190,7 @@ def _run_batch(items):
                     rows.append({"Statement": label, "Status": "PDF — unrecognised layout"})
                     prog.progress((i + 1) / len(items)); continue
                 rr = analytics.audit_summary(summ, terms, resource_node=a["resource_node"],
-                                             units=[a["resource_name"]])
+                                             units=a.get("sced_units") or [a["resource_name"]])
                 ev = rr.get("volume_pct")
                 rows.append({"Statement": label,
                              "Status": "PDF summary" + (f" · EIA Δ {ev:+.1f}%" if ev is not None else ""),
@@ -273,7 +273,7 @@ def _pdf_audit(src, name):
                  "statement for this month instead.")
         st.caption(f"Recognised fields: {', '.join(summ) if summ else 'none'}")
         return
-    r = analytics.audit_summary(summ, terms, resource_node=a["resource_node"], units=[a["resource_name"]])
+    r = analytics.audit_summary(summ, terms, resource_node=a["resource_node"], units=a.get("sced_units") or [a["resource_name"]])
     st.caption("PDF invoices are **monthly summaries** (no interval detail). This validates the "
                "strike, the invoice arithmetic, and the billed volume against EIA-923 — for "
                "interval-level price/net checks, use the Excel/CSV statement.")
@@ -447,7 +447,7 @@ if _basis_choice == "auto-detect":
 if net_mode:
     res = analytics.audit_net_settlement(
         inv, price_df, terms, location=loc, resource_node=a["resource_node"],
-        units=[a["resource_name"]], gen_df=gen_df, volume_basis=volume_source, sign=stmt_sign,
+        units=a.get("sced_units") or [a["resource_name"]], gen_df=gen_df, volume_basis=volume_source, sign=stmt_sign,
         neg_treatment=neg_treatment, neg_floor=neg_floor)
     s = res["summary"]
     intervals = res["intervals"]
@@ -551,7 +551,7 @@ if net_mode:
 
 # ── gross energy-invoice reconcile (amount = price × volume) ────────────────
 res = INV.reconcile(inv, price_df=price_df, gen_df=gen_df, location=loc, market="RT15",
-                    resource_node=a["resource_node"], units=[a["resource_name"]],
+                    resource_node=a["resource_node"], units=a.get("sced_units") or [a["resource_name"]],
                     volume_source=volume_source)
 s = res["summary"]
 intervals = res["intervals"]

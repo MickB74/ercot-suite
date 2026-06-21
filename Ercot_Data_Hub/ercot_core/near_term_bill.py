@@ -133,6 +133,9 @@ def render_near_term_tab(
     next_month_end_date = (next_month_start + pd.offsets.MonthEnd(1)).date()
     cur_month_str = month_start_ct.strftime("%Y-%m")
     next_month_str = next_month_start.strftime("%Y-%m")
+    third_month_start = next_month_start + pd.offsets.MonthBegin(1)
+    third_month_end_date = (third_month_start + pd.offsets.MonthEnd(1)).date()
+    third_month_str = third_month_start.strftime("%Y-%m")
 
     # ── fetch weather forecast (standard 16-day + GEFS ensemble 35-day) ─────
     @st.cache_data(show_spinner="Fetching weather forecast…", ttl=7200)
@@ -171,7 +174,10 @@ def render_near_term_tab(
     # Fetches the same calendar window from last year as a climatological proxy
     # — gives realistic day-to-day variation vs a flat monthly average.
     _clim_start = month_start_ct.date().replace(year=month_start_ct.year - 1)
-    _clim_end = next_month_end_date.replace(year=next_month_end_date.year - 1)
+    try:
+        _clim_end = third_month_end_date.replace(year=third_month_end_date.year - 1)
+    except ValueError:  # Feb 29 -> non-leap prior year
+        _clim_end = third_month_end_date.replace(year=third_month_end_date.year - 1, day=28)
 
     @st.cache_data(show_spinner="Loading prior-year ERA5 (climatological baseline)…", ttl=86400)
     def _prior_year(lat, lon, tech_key, start_str, end_str):
@@ -379,10 +385,15 @@ def render_near_term_tab(
     for d_date, mwh in daily_fcast.items():
         if d_date < cur_month_start_date or d_date in settled_dates:
             continue
-        if d_date > next_month_end_date:
+        if d_date > third_month_end_date:
             continue
         net = float(mwh) * (fwd_price - strike)
-        kind = "forecast_cur" if d_date < next_month_start.date() else "forecast_next"
+        if d_date < next_month_start.date():
+            kind = "forecast_cur"
+        elif d_date < third_month_start.date():
+            kind = "forecast_next"
+        else:
+            kind = "forecast_third"
         forecast_rows.append({"date": d_date, "mwh": float(mwh), "net": net, "kind": kind})
 
     # Build prior-year daily MWh lookup for the climatological tail
@@ -395,9 +406,14 @@ def render_near_term_tab(
 
     # Fill days beyond the GEFS horizon — prior-year ERA5 first, flat shape as backstop
     d = weather_max_date + dt.timedelta(days=1)
-    while d <= next_month_end_date:
+    while d <= third_month_end_date:
         if d not in settled_dates and not any(r["date"] == d for r in forecast_rows):
-            month_tag = "cur" if d < next_month_start.date() else "next"
+            if d < next_month_start.date():
+                month_tag = "cur"
+            elif d < third_month_start.date():
+                month_tag = "next"
+            else:
+                month_tag = "third"
             try:
                 prior_date = d.replace(year=d.year - 1)
                 py_mwh = py_daily.get(prior_date)
@@ -423,18 +439,22 @@ def render_near_term_tab(
     actual_mask = all_df["kind"] == "actual"
     cur_mask = all_df["date"].apply(lambda d: str(d)[:7] == cur_month_str)
     next_mask = all_df["date"].apply(lambda d: str(d)[:7] == next_month_str)
+    third_mask = all_df["date"].apply(lambda d: str(d)[:7] == third_month_str)
 
     mtd_mwh = float(all_df.loc[actual_mask, "mwh"].sum())
     mtd_net = float(all_df.loc[actual_mask, "net"].sum())
     proj_cur = float(all_df.loc[cur_mask, "net"].sum())
     next_net = float(all_df.loc[next_mask, "net"].sum())
     next_mwh = float(all_df.loc[next_mask, "mwh"].sum())
+    third_net = float(all_df.loc[third_mask, "net"].sum())
+    third_mwh = float(all_df.loc[third_mask, "mwh"].sum())
 
     n_settled = int(actual_mask.sum())
     n_fcast_cur = int(all_df["kind"].str.contains("cur").sum())
     n_fcast_next = int(all_df["kind"].str.contains("next").sum())
+    n_fcast_third = int(all_df["kind"].str.contains("third").sum())
 
-    _ncols = 5 if has_prior else 4
+    _ncols = 6 if has_prior else 5
     _kcols = st.columns(_ncols)
     _ki = 0
     if has_prior:
@@ -477,6 +497,14 @@ def render_near_term_tab(
         delta_color="off",
     )
     _kcols[_ki + 3].metric(
+        f"{third_month_str} estimate",
+        branding.signed_money(third_net),
+        delta=f"{third_mwh:,.0f} MWh · {n_fcast_third} days",
+        delta_color="off",
+        help="Entirely climatological (prior-year ERA5 / historical shape) — "
+             "beyond the weather-forecast horizon, so treat as indicative.",
+    )
+    _kcols[_ki + 4].metric(
         "Cal. factor",
         f"{cal_factor:.3f}",
         delta=f"from {n_cal_days} SCED days" if n_cal_days else "no overlap — uncalibrated",
@@ -501,7 +529,7 @@ def render_near_term_tab(
         f"({n_settled} days settled, {mtd_mwh:,.0f} MWh) "
         f"+ remaining forecast **{branding.signed_money(remain_cur)}** "
         f"({n_fcast_cur} days, {proj_mwh - mtd_mwh:,.0f} MWh @ "
-        f"{fwd_price:,.2f}−{strike:,.2f}={fwd_price - strike:,.2f} $/MWh) "
+        f"{fwd_price:,.2f}−{strike:,.2f}={fwd_price - strike:,.2f} \\$/MWh) "
         f"= **{branding.signed_money(proj_cur)}** ({proj_mwh:,.0f} MWh)."
     )
 
@@ -512,6 +540,8 @@ def render_near_term_tab(
     FCAST_CUR_NEG = "rgba(178,58,72,0.50)"
     FCAST_NEXT_POS = "rgba(84,164,218,0.70)"
     FCAST_NEXT_NEG = "rgba(178,58,72,0.40)"
+    FCAST_THIRD_POS = "rgba(124,99,196,0.60)"   # +2 months — muted purple
+    FCAST_THIRD_NEG = "rgba(178,58,72,0.35)"
     HIST_POS = "rgba(84,164,218,0.40)"
     HIST_NEG = "rgba(178,58,72,0.30)"
     RETRO_POS = "rgba(155,155,155,0.70)"   # prior month ERA5 × actual
@@ -526,7 +556,9 @@ def render_near_term_tab(
             return SOLID_POS if pos else SOLID_NEG
         if "cur" in k:
             return FCAST_CUR_POS if pos else FCAST_CUR_NEG
-        return FCAST_NEXT_POS if pos else FCAST_NEXT_NEG
+        if "next" in k:
+            return FCAST_NEXT_POS if pos else FCAST_NEXT_NEG
+        return FCAST_THIRD_POS if pos else FCAST_THIRD_NEG
 
     bar_colors = [_bar_color(r) for _, r in all_df.iterrows()]
     x_labels = [str(r["date"]) for _, r in all_df.iterrows()]
@@ -540,6 +572,7 @@ def render_near_term_tab(
     fig.add_bar(x=[], y=[], name="Settled", marker_color=SOLID_POS, showlegend=True)
     fig.add_bar(x=[], y=[], name=f"Forecast – {cur_month_str}", marker_color=FCAST_CUR_POS, showlegend=True)
     fig.add_bar(x=[], y=[], name=f"Forecast – {next_month_str}", marker_color=FCAST_NEXT_POS, showlegend=True)
+    fig.add_bar(x=[], y=[], name=f"Forecast – {third_month_str}", marker_color=FCAST_THIRD_POS, showlegend=True)
 
     fig.add_bar(
         x=x_labels,
@@ -578,8 +611,9 @@ def render_near_term_tab(
 
     # Shaded month backgrounds + labels above the plot area
     bdy_str = next_month_start.strftime("%Y-%m-%d")
+    bdy2_str = third_month_start.strftime("%Y-%m-%d")
     cur_start_str = str(cur_month_start_date)
-    next_end_str = str(next_month_end_date + dt.timedelta(days=1))
+    third_end_str = str(third_month_end_date + dt.timedelta(days=1))
     if has_prior:
         prev_start_str = str(prev_month_start_date)
         fig.add_vrect(x0=prev_start_str, x1=cur_start_str,
@@ -587,12 +621,16 @@ def render_near_term_tab(
         fig.add_vline(x=cur_start_str, line_dash="dot", line_color="#848484", line_width=1.5)
     fig.add_vrect(x0=cur_start_str, x1=bdy_str,
                   fillcolor="rgba(136,169,24,0.06)", line_width=0)
-    fig.add_vrect(x0=bdy_str, x1=next_end_str,
+    fig.add_vrect(x0=bdy_str, x1=bdy2_str,
                   fillcolor="rgba(84,164,218,0.06)", line_width=0)
+    fig.add_vrect(x0=bdy2_str, x1=third_end_str,
+                  fillcolor="rgba(124,99,196,0.06)", line_width=0)
     fig.add_vline(x=bdy_str, line_dash="dot", line_color="#848484", line_width=1.5)
+    fig.add_vline(x=bdy2_str, line_dash="dot", line_color="#848484", line_width=1.5)
     # Month summary labels centred above each region
     cur_mid  = str(cur_month_start_date + dt.timedelta(days=15))
     next_mid = str(next_month_start.date() + dt.timedelta(days=15))
+    third_mid = str(third_month_start.date() + dt.timedelta(days=15))
     _lbl = dict(showarrow=False, yref="paper", y=1.07,
                 font=dict(size=11), xanchor="center",
                 bgcolor="rgba(255,255,255,0.88)",
@@ -600,13 +638,16 @@ def render_near_term_tab(
     if has_prior:
         prev_mid = str(prev_month_start_date + dt.timedelta(days=15))
         fig.add_annotation(x=prev_mid,
-                           text=f"<b>{prev_month_str}</b> ERA5×actual  {branding.signed_money(prior_net)}",
+                           text=f"<b>{prev_month_str}</b> ERA5×actual  {branding.signed_money_raw(prior_net)}",
                            **_lbl)
     fig.add_annotation(x=cur_mid,
-                       text=f"<b>Current month</b> ({cur_month_str})  {branding.signed_money(proj_cur)}",
+                       text=f"<b>Current month</b> ({cur_month_str})  {branding.signed_money_raw(proj_cur)}",
                        **_lbl)
     fig.add_annotation(x=next_mid,
-                       text=f"<b>Next month</b> ({next_month_str})  {branding.signed_money(next_net)}",
+                       text=f"<b>Next month</b> ({next_month_str})  {branding.signed_money_raw(next_net)}",
+                       **_lbl)
+    fig.add_annotation(x=third_mid,
+                       text=f"<b>+2 months</b> ({third_month_str})  {branding.signed_money_raw(third_net)}",
                        **_lbl)
 
     fig.update_layout(
@@ -647,6 +688,9 @@ def render_near_term_tab(
             "clim_next": f"Prior-year ERA5 – {next_month_str}",
             "hist_cur": f"Hist. shape – {cur_month_str}",
             "hist_next": f"Hist. shape – {next_month_str}",
+            "forecast_third": f"GEFS forecast – {third_month_str}",
+            "clim_third": f"Prior-year ERA5 – {third_month_str}",
+            "hist_third": f"Hist. shape – {third_month_str}",
         }
         show["kind"] = show["kind"].map(kind_labels).fillna(show["kind"])
         show.columns = ["Date", "MWh", "Net ($)", "Source"]
@@ -672,6 +716,9 @@ def render_near_term_tab(
             "clim_next":    f"Prior-year ERA5 – {next_month_str}",
             "hist_cur":     f"Hist. shape – {cur_month_str}",
             "hist_next":    f"Hist. shape – {next_month_str}",
+            "forecast_third": f"GEFS forecast – {third_month_str}",
+            "clim_third":   f"Prior-year ERA5 – {third_month_str}",
+            "hist_third":   f"Hist. shape – {third_month_str}",
         }
 
         def _build_excel() -> bytes:

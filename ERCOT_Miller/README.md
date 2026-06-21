@@ -1,8 +1,8 @@
 # Miller — Settlement Portal
 
 A focused, customer-facing web app for a **single asset**: Miller
-(161 MW single-axis PV, Bosque County, ERCOT North hub, resource node
-`MIL_MILG1_2`). It lets the offtaker log in and see, in plain language:
+(318 MW single-axis PV, Haskell County, ERCOT North hub, resource node
+`MLB_SLR_RN`). It lets the offtaker log in and see, in plain language:
 
 - **Overview** — headline KPIs for the latest settled month and year-to-date,
   plus a monthly settlement chart.

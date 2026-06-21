@@ -40,7 +40,7 @@ if win_start is None:
     st.info("No historical data is available yet to base a projection on.")
     st.stop()
 
-tab_near, tab_long = st.tabs(["📅 This month & next — weather forecast",
+tab_near, tab_long = st.tabs(["📅 Next 3 months — weather forecast",
                                "📈 Long range — TMY / history"])
 
 
@@ -72,8 +72,8 @@ hub_name = loc if loc.upper().startswith("HB_") else str(a.get("hub") or "HB_NOR
 
 
 # Forecast horizon, in months. We request a full 10-year band; the engine
-# returns as many months as the gas strip supports and the projection loop
-# falls back to a flat forward price for any month beyond the band.
+# returns as many months as the gas strip supports (~12), and the projection
+# loop repeats the seasonal forward shape beyond that (see the long-range tab).
 FORECAST_HORIZON_MONTHS = 120
 
 
@@ -182,8 +182,9 @@ with tab_long:
         help="Solar PV norm ≈0.5%/yr; wind default 0%.") / 100.0
     n_months = st.sidebar.slider("Months to project", 1, 120, 6,
                                  help="Up to 10 years. The price forecast band covers "
-                                      "as far as the gas strip supports; beyond that a "
-                                      "flat forward price is held constant.")
+                                      "as far as the gas strip supports (~12 months); "
+                                      "beyond that the seasonal forward shape repeats and "
+                                      "the P10/P90 band widens with horizon.")
 
     def _expected_mwh(cal_month: int) -> float:
         if basis == "Historical shape":
@@ -198,8 +199,18 @@ with tab_long:
     )
 
     start_month = (win_end.replace(day=1) + pd.offsets.MonthBegin(1)).date()
-    band_idx = (fwd_band.set_index("Month")
-                if (forecast_ok and not use_manual) else None)
+    use_forecast = forecast_ok and not use_manual and not fwd_band.empty
+    band_idx = fwd_band.set_index("Month") if use_forecast else None
+    # The engine returns only the liquid horizon (~12 months). Beyond it, repeat
+    # the per-calendar-month forward shape (so seasonality persists instead of a
+    # flat price) and fan the P10/P90 band out with horizon (so uncertainty grows
+    # rather than collapsing to a single line).
+    band_cal = band_last = None
+    if use_forecast:
+        _bc = fwd_band.copy()
+        _bc["cal_month"] = pd.to_datetime(_bc["Month"] + "-01").dt.month
+        band_cal = _bc.groupby("cal_month")[["p10", "p50", "p90"]].mean()
+        band_last = pd.Period(fwd_band["Month"].max(), freq="M")
     rows = []
     for i in range(n_months):
         mdate = (pd.Timestamp(start_month) + pd.offsets.MonthBegin(i)).date()
@@ -211,6 +222,13 @@ with tab_long:
             p10 = float(band_idx.at[month_key, "p10"])
             p50 = float(band_idx.at[month_key, "p50"])
             p90 = float(band_idx.at[month_key, "p90"])
+        elif band_cal is not None and mdate.month in band_cal.index:
+            row = band_cal.loc[mdate.month]
+            p50 = float(row["p50"])
+            months_beyond = max((pd.Period(month_key, "M") - band_last).n, 0)
+            widen = 1.0 + 0.5 * (months_beyond / 12.0) ** 0.5
+            p10 = p50 - (p50 - float(row["p10"])) * widen
+            p90 = p50 + (float(row["p90"]) - p50) * widen
         else:
             p50 = float(fwd)
             delta = float(band_manual or 0)

@@ -110,6 +110,21 @@ def datasets():
     return sced_plants, hub_price_pull, sced_disclosure
 
 
+def node_price_pullers():
+    """``(spp_archive, pull_nodes)`` for topping up the plant-node RT15 price lake.
+
+    Azure's priced settlement point (``AZURE_RN``) lives in the shared node-price
+    lake, pulled with the same archive path the single-node sibling portals use.
+    """
+    _wire_engine()
+    ds = str(hub_root() / "datasets" / "system_gen_by_fuel")
+    if ds not in sys.path:
+        sys.path.insert(0, ds)
+    import pull_nodes  # noqa: PLC0415
+    from ercot_core import spp_archive  # noqa: PLC0415
+    return spp_archive, pull_nodes
+
+
 def export_block():
     """Return the Hub's polished export helper (CSV/Excel/Markdown/PDF), or None."""
     _wire_engine()
@@ -184,6 +199,36 @@ def hub_prices(location: str, start: pd.Timestamp, end_excl: pd.Timestamp,
     """RT15 settlement-point prices at a trading hub over [start, end_excl)."""
     c = core()
     return c.prices.hub_store_prices([location], start, end_excl)
+
+
+def node_prices(resource_node: str, start: pd.Timestamp, end_excl: pd.Timestamp,
+                market: str = "RT15") -> pd.DataFrame:
+    """RT15 settlement-point prices at the plant node (e.g. ``AZURE_RN``).
+
+    Reads the Hub's shared node-price lake (``node_price_{year}.parquet``,
+    keyed by ``location``) — the same store the single-node sibling portals
+    use. The Azure aggregate (``AZURE_SKY_WIND_AGG``) has no price of its own,
+    but its physical settlement point ``AZURE_RN`` does; pass that here.
+    """
+    core()
+    from ercot_core import paths  # noqa: PLC0415
+    nd = paths.NODE_DATA_DIR
+    frames = []
+    for year in range(start.year, end_excl.year + 1):
+        path = nd / f"node_price_{year}.parquet"
+        if not path.exists():
+            continue
+        df = pd.read_parquet(path)
+        df = df[df["location"] == resource_node]
+        df = df[(df["interval_start"] >= start) & (df["interval_start"] < end_excl)]
+        if not df.empty:
+            frames.append(df)
+    if not frames:
+        return pd.DataFrame()
+    out = pd.concat(frames, ignore_index=True)
+    if "market" in out.columns:
+        out = out[out["market"] == market]
+    return out
 
 
 @lru_cache(maxsize=1)

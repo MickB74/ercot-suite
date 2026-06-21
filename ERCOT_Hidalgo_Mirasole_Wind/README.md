@@ -1,7 +1,7 @@
 # Hidalgo Mirasole Wind — Settlement Portal
 
 A focused, customer-facing web app for a **single asset**: Hidalgo Mirasole Wind
-(161 MW single-axis PV, Bosque County, ERCOT North hub, resource node
+(300 MW wind, Hidalgo County, ERCOT South hub, resource node
 `MIRASOLE_GEN`). It lets the offtaker log in and see, in plain language:
 
 - **Overview** — headline KPIs for the latest settled month and year-to-date,
