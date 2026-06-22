@@ -23,8 +23,15 @@ settlement math, and every material assumption and default baked into the code.
 | `Ercot_Solar_Forecast` | PVWatts solar generation forecast by lat/long |
 | `Ercot_Wind_Forecast` | Wind generation forecast with real turbine fleet + multi-source weather |
 | `Eroct_forecasts` | Forward power-price forecast (implied heat rate × gas strip + Monte Carlo) |
-| `ERCOT_Markum` | Markum Solar single-asset settlement portal |
-| `ERCOT_Azure_Sky` | Azure Sky Wind single-asset settlement portal |
+| `Ercot Queue` | Interconnection-queue search, analytics & due-diligence dossier builder ([README](Ercot%20Queue/README.md)) |
+| `ERCOT_Markum` | Markum Solar settlement portal (AdventHealth) |
+| `ERCOT_Azure_Sky` | Azure Sky Wind settlement portal |
+| `ERCOT_Hidalgo_Mirasole_Wind` | Hidalgo Los Mirasoles Wind settlement portal (GM / Home Depot / Bloomberg) |
+| `ERCOT_Hornet_Solar` | Hornet Solar settlement portal (Pfizer / Brunswick) |
+| `ERCOT_Miller` | Miller(s Branch) Solar settlement portal (Thermo Fisher) |
+| `ERCOT_Mesquite_Star` | Mesquite Star Wind settlement portal (Brown University / aggregated) |
+| `ERCOT_Stafford_Solar` | Stafford Solar settlement portal (AdventHealth) |
+| `ERCOT_Heart_of_Texas` | Heart of Texas Wind settlement portal (AdventHealth / Scout) |
 | `Ercot_Project Hub` | Data-quality index of every project loaded into the suite — completeness, source verification, calibration, and tool coverage per asset ([README](Ercot_Project%20Hub/README.md) · [CSV](Ercot_Project%20Hub/data_quality.csv)) |
 
 > **Project Hub:** A self-updating quality scorecard for all assets in the shared
@@ -35,6 +42,15 @@ settlement math, and every material assumption and default baked into the code.
 > GitHub repo. The hub vendors the 18 KB curated asset registry
 > (`Ercot_Data_Hub/ercot_core/registry/ercot_assets.json`) so it has no hard
 > dependency on a `price_settlements` checkout. See [§9](#9-the-price_settlements-relationship).
+
+### 1.1 Root-level scripts
+
+| Script | What it does |
+| --- | --- |
+| `restart_portals.sh` | Kill + restart portal Streamlit servers by name (`markum`, `hidalgo`, `azure`, `miller`, or `all`); pass no arg to restart whichever are currently running |
+| `gap_fill_generic.py` | Fill the 60-day SCED lag gap with ERA5 weather-modeled generation for any node/tech (`python gap_fill_generic.py NODE TECH CAP LAT LON`); rows tagged `source=era5_model` |
+| `build_forecast_deck.py` | Generate the SR Inc. executive briefing PowerPoint (`SR_ERCOT_Forecast_Methodology.pptx`) |
+| `backfill_mirasole.py` | One-off backfill of Hidalgo Los Mirasoles price + SCED history to 2020 |
 
 ---
 
@@ -72,7 +88,7 @@ cp Ercot_Data_Hub/config.example.json Ercot_Data_Hub/config.json
 | `ERCOT_HUB_DATA` | Relocate the hub data lake (e.g. a shared drive) |
 | `ERCOT_ASSETS_PATH` | Override the curated asset registry location |
 | `ERCOT_SCED_REUSE_DIR` | Read-only SCED disclosure cache to reuse (speed only) |
-| `MARKUM_HUB_ROOT` / `AZURE_HUB_ROOT` | Point a settlement portal at a specific hub checkout |
+| `*_HUB_ROOT` (`MARKUM_HUB_ROOT`, `AZURE_HUB_ROOT`, `HOT_WIND_HUB_ROOT`, etc.) | Point a settlement portal at a specific hub checkout (each portal has its own; defaults to sibling `Ercot_Data_Hub`) |
 | `PF_HUB_LAKE_DIR` | Point the price forecaster at a specific hub-price lake |
 
 ---
@@ -280,11 +296,11 @@ with historical or forecast hub prices to produce a **capture price** — the
 generation-weighted average price the asset actually realizes, versus the simple
 time-average. Profiles can be **SCED-anchored** to metered output by calendar
 month before valuation. This is the engine behind the hub's Plant Value page and
-both settlement portals.
+all settlement portals.
 
 ---
 
-## 8. Settlement modeling (`ERCOT_Markum`, `ERCOT_Azure_Sky`, `ercot_core/invoice.py`)
+## 8. Settlement modeling (portals + `ercot_core/invoice.py`)
 
 The engine computes several structures in parallel over 15-min intervals:
 
@@ -306,15 +322,28 @@ visible even when the contract settles at a hub.
   settles.
 - `price_floor = null`: full negative-price exposure.
 
-**Live contract defaults**
+**Settlement portals — contract defaults**
 
-| Parameter | Markum | Azure Sky |
-| --- | --- | --- |
-| Asset | Markum Solar (`MRKM_SLR_PV1`, EIA 67580) | Azure Sky Wind (`AZURE_SKY_WIND_AGG` = `VORTEX_WIND1..4`, 350 MW, EIA 64164) |
-| Strike | **$35.00/MWh** | **$17.34/MWh** |
-| Settle at | node | hub (HB_NORTH) |
-| Volume share | 100% | 19.43% (config override; 100% default) |
-| Price floor / apply / settle-below | $0.00 / per config / false | $0.00 / per config / false |
+Each portal is a standalone Streamlit app with a fixed port in the Data Hub
+Control Tower (`Ercot_Data_Hub/app/views/home.py`). All share the same
+`ercot_core` settlement engine; only the `config.json` differs.
+
+| Portal | Asset / Resource | Type | Strike | Settle at | Vol share | Port |
+| --- | --- | --- | --- | --- | --- | --- |
+| Markum | Markum Solar (`MRKM_SLR_PV1`, EIA 67580) | Solar | $35.00 | node | 100% | 8502 |
+| Azure Sky | Azure Sky Wind (`AZURE_SKY_WIND_AGG`, EIA 64164, 350 MW) | Wind | $17.34 | hub HB_NORTH | 19.43% | 8503 |
+| Hidalgo Mirasole | Hidalgo Los Mirasoles Wind (`MIRASOLE_GEN`, EIA 57617) | Wind | $35.00 | hub HB_SOUTH | 100% | 8504 |
+| Hornet Solar | Hornet Solar (`HRNT_SLR_RN`) | Solar | $25.00 | node | 100% | 8505 |
+| Miller | Miller(s Branch) Solar (`MLB_SLR_RN`) | Solar | $35.00 | hub HB_NORTH | 100% | 8506 |
+| Mesquite Star | Mesquite Star Wind (`WH_WIND_ALL`) | Wind | $29.00 | node | 100% | 8507 |
+| Stafford Solar | Stafford Solar (`STAFFORD_SOLAR_AGG`, EIA 68458, 252 MW) | Solar | $42.55 | hub HB_WEST | 100% | 8508 |
+| Heart of Texas | Heart of Texas Wind (`SHANNONW_RN`, EIA 61032, 180 MW) | Wind | $30.00 | hub HB_WEST | 50% | 8509 |
+
+Notable per-portal overrides:
+- **Stafford** has a negative price floor of **−$3.00/MWh** with `settle_below_floor = true` and a defined term (2025-10-01 → 2040-09-30).
+- **Heart of Texas** settles only **50%** of volume (AdventHealth share).
+- **Azure Sky** settles **19.43%** of volume (config override).
+- All others use the standard VPPA defaults: floor $0.00, `settle_below_floor = false`, 100% volume.
 
 **Invoice validation** (`ercot_core/invoice.py`) auto-detects column roles
 (time/location/price/volume/amount), normalizes DST-aware timestamps, validates
