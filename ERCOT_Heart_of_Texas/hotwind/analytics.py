@@ -36,8 +36,6 @@ def settle(start_date: dt.date, end_date: dt.date, terms: dict | None = None) ->
     end_excl = pd.Timestamp(end_date) + pd.Timedelta(days=1)
 
     gen_df = hub.generation(a["resource_node"], start, end_excl)
-    if terms.get("calibrate_to_eia", True):
-        gen_df = _calibrate_gen_to_eia(gen_df)
     ref = contract.settle_location(terms)         # node VENADO_ALL or a trading hub
     # Price at the settlement reference — node lake for the node, rich hub store
     # for a hub. Generation is always the plant's node.
@@ -66,48 +64,6 @@ def settle(start_date: dt.date, end_date: dt.date, terms: dict | None = None) ->
     if excl_pct > 0 and res and not res["intervals"].empty:
         res["intervals"] = _apply_monthly_exclusion(res["intervals"], excl_pct)
     return res
-
-
-def _calibrate_gen_to_eia(gen_df: pd.DataFrame) -> pd.DataFrame:
-    """Anchor each month's metered volume to EIA-923, keeping SCED's 15-min shape.
-
-    ERCOT's 60-Day SCED telemetry for Venado under-reports the revenue meter by a
-    large, *variable* amount (annual ~91% of EIA, but individual months range from
-    ~50% to >100%). EIA-923 net generation matches the executed-invoice "Site
-    Generation" within ~0.3% every month, so it is the authoritative volume.
-
-    We rescale every interval's ``mw`` by a per-calendar-month factor =
-    EIA_netgen / SCED_total so each month sums to the meter, while preserving the
-    relative intra-month 15-minute distribution (the best available timing for
-    weighting against RT15 prices). Months EIA hasn't published yet (the most
-    recent ~2–3) are left as raw SCED. The contracted volume share is applied
-    afterwards by ``compute_settlement`` — this operates on full-plant MWh.
-    """
-    plant_id = contract.eia_plant_id()
-    if plant_id is None or gen_df is None or gen_df.empty:
-        return gen_df
-    g = gen_df.copy()
-    ts = pd.to_datetime(g["interval_start"])
-    hrs = (pd.to_datetime(g["interval_end"]) - ts).dt.total_seconds() / 3600.0
-    ym = ts.dt.to_period("M")
-    sced_m = (g["mw"] * hrs).groupby(ym).sum()           # full-plant SCED MWh / month
-    years = sorted({p.year for p in sced_m.index})
-    eia = hub.eia_monthly_netgen(plant_id, min(years), max(years),
-                                 prime_mover=contract.ASSET.get("eia_prime_mover"))
-    if eia.empty:
-        return gen_df
-    eia_m = {(int(r.year), int(r.month)): float(r.eia_mwh) for r in eia.itertuples()}
-    factors = {}
-    for period, sced_mwh in sced_m.items():
-        e = eia_m.get((period.year, period.month))
-        if e is not None and sced_mwh > 0:
-            factors[period] = e / sced_mwh
-    if not factors:
-        return gen_df
-    g["mw"] = g["mw"] * ym.map(factors).fillna(1.0).astype(float)
-    if "base_point_mw" in g.columns:
-        g["base_point_mw"] = g["base_point_mw"] * ym.map(factors).fillna(1.0).astype(float)
-    return g
 
 
 def _apply_monthly_exclusion(intervals: pd.DataFrame, pct: float) -> pd.DataFrame:

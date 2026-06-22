@@ -66,13 +66,6 @@ DEFAULT_CONTRACT = {
     "annual_volume_cap_mwh": 0.0,
     "settlement_frequency": "Monthly",
     "notional_type": "As-generated",
-
-    # Venado's 60-Day SCED telemetry under-reads the revenue meter by a large,
-    # variable amount; EIA-923 matches the invoice within ~0.3%. When True
-    # (default), each settled month's metered volume is anchored to EIA-923 net
-    # generation, keeping SCED's 15-min shape. Recent months without EIA published
-    # fall back to raw SCED. Set False to settle on raw SCED telemetry.
-    "calibrate_to_eia": True,
 }
 
 CONFIG_PATH = Path(__file__).resolve().parents[1] / "config.json"
