@@ -167,7 +167,7 @@ _PORTALS = [
      "offtaker": "AdventHealth",                       "developer": "NextEra Energy Resources", "strike": 25.00,
      "dir": "ERCOT_Stafford_Solar",    "port": 8508},
     {"name": "Heart of Texas Wind",   "tech": "Wind",     "mw": 180,  "hub": "HB_WEST",  "icon": "🌬️",
-     "offtaker": "AdventHealth",                       "developer": "Scout Clean Energy",       "strike": 30.00,
+     "offtaker": "AdventHealth",                       "developer": "Scout Clean Energy",       "strike": 35.15,
      "dir": "ERCOT_Heart_of_Texas",    "port": 8509},
 ]
 

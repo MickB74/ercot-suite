@@ -1,9 +1,10 @@
 # Heart of Texas Wind — Settlement Portal
 
 A focused, customer-facing web app for a **single asset**: Heart of Texas Wind
-(180 MW wind farm, McCulloch County, ERCOT West hub, SCED unit
-`SHANNONW_RN` (SCED unit `SHANNONW_UNIT_1`); Scout Clean Energy developer, offtaker AdventHealth via a
-90 MW VPPA). It lets the offtaker log in and see, in plain language:
+(180 MW wind farm, McCulloch County, ERCOT West hub; ERCOT resource node
+`VENADO_ALL`, SCED units `VENADO_UNIT1` + `VENADO_UNIT2`; EIA plant 61032; Scout
+Clean Energy developer, offtaker AdventHealth via a 90 MW VPPA). It lets the
+offtaker log in and see, in plain language:
 
 - **Overview** — headline KPIs for the latest settled month and year-to-date,
   plus a monthly settlement chart.

@@ -13,12 +13,16 @@ from pathlib import Path
 
 # ── the asset ───────────────────────────────────────────────────────────────
 # Heart of Texas Wind — Scout Clean Energy, McCulloch County, TX.
-# Single ERCOT SCED unit (SHANNONW_UNIT_1), 180 MW nameplate, 64 turbines.
-# COD 2020. AdventHealth offtakes 90 MW (50%) under a VPPA.
+# ERCOT codename "VENADO": resource node VENADO_ALL, two SCED units
+# VENADO_UNIT1 (~94 MW) + VENADO_UNIT2 (~83 MW), combined peak 177 MW.
+# 180 MW nameplate, 64 turbines, COD 2020. AdventHealth offtakes 90 MW (50%).
+# Node confirmed via the Data Hub EIA↔SCED crosswalk + reconciliation (EIA 61032,
+# confirmed=True) and an exact peak match to the invoice. NOT "SHANNONW" — that
+# is Shannon Wind in Clay County (EIA 59034), a different plant 250 mi away.
 ASSET = {
     "project_name": "Heart of Texas Wind",
-    "resource_node": "SHANNONW_RN",
-    "sced_units": ["SHANNONW_UNIT_1"],
+    "resource_node": "VENADO_ALL",
+    "sced_units": ["VENADO_UNIT1", "VENADO_UNIT2"],
     "capacity_mw": 180.0,
     "tech": "Wind",
     "turbine_model": "GE Mixed Fleet (GE2.82-127 / GE2.72-116 / GE2.5-127)",
@@ -38,7 +42,7 @@ ASSET = {
 # ── default contract terms (seed; overridable in config.json / Contract page) ──
 DEFAULT_CONTRACT = {
     "structure": "VPPA / CfD",
-    "strike": 30.00,
+    "strike": 35.15,                 # Fixed Price per the executed PPA (Definitions tab)
     "volume_share_pct": 50.0,        # AdventHealth's 90 MW of 180 MW plant
     "settle_at": "hub",
     "settle_point": "HB_WEST",
@@ -62,6 +66,13 @@ DEFAULT_CONTRACT = {
     "annual_volume_cap_mwh": 0.0,
     "settlement_frequency": "Monthly",
     "notional_type": "As-generated",
+
+    # Venado's 60-Day SCED telemetry under-reads the revenue meter by a large,
+    # variable amount; EIA-923 matches the invoice within ~0.3%. When True
+    # (default), each settled month's metered volume is anchored to EIA-923 net
+    # generation, keeping SCED's 15-min shape. Recent months without EIA published
+    # fall back to raw SCED. Set False to settle on raw SCED telemetry.
+    "calibrate_to_eia": True,
 }
 
 CONFIG_PATH = Path(__file__).resolve().parents[1] / "config.json"

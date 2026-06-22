@@ -182,13 +182,14 @@ def settlement_prices(location: str, start: pd.Timestamp, end_excl: pd.Timestamp
 def available_locations() -> tuple[str, ...]:
     """Settlement points the portal can settle at — the plant's node + cached hubs.
 
-    The node (``SHANNONW_RN``) always leads; the trading hubs are those with
+    The node (``VENADO_ALL``) always leads; the trading hubs are those with
     cached RT15 prices in the Hub's hub store (so settlement always has a real
     price). Named averages (``HB_HUBAVG``/``HB_BUSAVG``) sort last.
     """
     core()
     from ercot_core import paths  # noqa: PLC0415
-    node = "SHANNONW_RN"
+    from . import contract  # noqa: PLC0415
+    node = contract.ASSET["resource_node"]
     hubs: list[str] = []
     if paths.HUB_PRICES_PARQUET.exists():
         df = pd.read_parquet(paths.HUB_PRICES_PARQUET, columns=["settlement_point"])
@@ -202,12 +203,14 @@ def wind_typical_hourly() -> pd.DataFrame | None:
     """Read the cached modelled typical-year hourly profile, or None.
 
     The Hub's ``plant_value`` step caches an 8,760-hour AC profile at
-    ``data/plant_value/windgen_SHANNONW_RN_*mw.parquet``. Returns an hourly
+    ``data/plant_value/windgen_VENADO_ALL_*mw.parquet``. Returns an hourly
     frame with an ``ac_kw`` column (tz-aware index), or None.
     """
     core()
     from ercot_core import paths  # noqa: PLC0415
-    matches = sorted(paths.PLANT_VALUE_DIR.glob("windgen_SHANNONW_RN_*mw.parquet"))
+    from . import contract  # noqa: PLC0415
+    node = contract.ASSET["resource_node"]
+    matches = sorted(paths.PLANT_VALUE_DIR.glob(f"windgen_{node}_*mw.parquet"))
     if not matches:
         return None
     df = pd.read_parquet(matches[-1])
