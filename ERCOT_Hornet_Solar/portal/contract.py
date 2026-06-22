@@ -28,7 +28,7 @@ ASSET = {
     "county": "Swisher",                # EIA-860: plant 65463, Swisher County
     "lat": 34.485162,                      # EIA-860 authoritative (COD 2024-11-01)
     "lon": -101.971401,
-    "dc_ac_ratio": 1.3,
+    "dc_ac_ratio": 1.24,
     # EIA-923 plant id for the independent generation cross-check (no public
     # ERCOT→EIA crosswalk, so mapped by hand). Hornet Solar = EIA 65463
     # ("Hornet Solar (TX)", 600 MW PV, Swisher County — exact node match;

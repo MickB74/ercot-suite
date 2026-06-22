@@ -98,7 +98,8 @@ def tmy_monthly_mwh(share: float = 1.0) -> pd.Series | None:
     """
     a = contract.ASSET
     tmy_res = a.get("tmy_resource_name") or a["resource_name"]
-    tmy_kw = a.get("tmy_capacity_kw") or (a["capacity_mw"] * 1000.0)
+    ratio = float(a.get("dc_ac_ratio") or 1.3)
+    tmy_kw = a.get("tmy_capacity_kw") or (a["capacity_mw"] * 1000.0 * ratio)
     hourly = hub.solar_tmy_hourly(tmy_res, tmy_kw)
     if hourly is None or hourly.empty:
         return None
@@ -108,24 +109,57 @@ def tmy_monthly_mwh(share: float = 1.0) -> pd.Series | None:
     return (mwh * float(share)).round(3)
 
 
-def calibrate(actual_by_month: pd.Series, tmy_by_month: pd.Series) -> dict:
-    """Anchor the TMY typical-year shape to Stafford Solar's real metered output.
+def calibrate(actual_by_month: pd.Series, tmy_by_month: pd.Series,
+              monthly_intervals: pd.Series | None = None,
+              monthly_counts: pd.Series | None = None,
+              min_years: int = 2) -> dict:
+    """Anchor the TMY typical-year shape to real metered output.
 
-    The physical model gives a clean weather-typical shape and magnitude; the
-    plant's metered history embeds what the model can't see (availability,
-    curtailment, soiling, true losses). The calibration factor rescales the whole
-    TMY profile so its total over the *observed* months equals the metered total:
+    Returns per-month calibration factors for months with sufficient history.
+    A calendar month needs at least *min_years* observations to be calibrated;
+    otherwise it falls back to raw TMY (factor 1.0).  Partial months (<80% of
+    expected intervals) and ramp months (<60% of TMY) are also excluded.
 
-        factor = Σ actual_mwh(observed months) / Σ tmy_mwh(same months)
-
-    Returns ``{factor, actual_mwh, tmy_mwh, months}`` — ``factor`` is 1.0 (and
-    ``months`` 0) when there's no overlap to calibrate against.
+    Returns ``{factor, per_month, actual_mwh, tmy_mwh, months}``.
+    ``per_month`` maps {cal_month: ratio} for qualifying months.
+    ``factor`` is the median of those ratios (for UI display / manual override).
     """
     common = actual_by_month.index.intersection(tmy_by_month.index)
+    _DAYS = {1: 31, 2: 28.25, 3: 31, 4: 30, 5: 31, 6: 30,
+             7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31}
+
+    full = []
+    for cm in common:
+        if monthly_counts is not None:
+            if int(monthly_counts.get(cm, 0)) < min_years:
+                continue
+        expected_intervals = _DAYS.get(cm, 30) * 24 * 4
+        if monthly_intervals is not None:
+            actual_n = float(monthly_intervals.get(cm, 0))
+            if actual_n / expected_intervals < 0.80:
+                continue
+        actual_mwh = float(actual_by_month[cm])
+        tmy_val = float(tmy_by_month.get(cm, 0))
+        if tmy_val > 0 and actual_mwh / tmy_val < 0.60:
+            continue
+        full.append(cm)
+    common = pd.Index(full)
+
+    per_month: dict[int, float] = {}
+    for cm in common:
+        a_val = float(actual_by_month[cm])
+        t_val = float(tmy_by_month[cm])
+        if t_val > 0:
+            per_month[cm] = a_val / t_val
     a_sum = float(actual_by_month.reindex(common).sum())
     t_sum = float(tmy_by_month.reindex(common).sum())
-    factor = (a_sum / t_sum) if t_sum > 0 else 1.0
-    return {"factor": factor, "actual_mwh": a_sum, "tmy_mwh": t_sum,
+    if per_month:
+        import statistics
+        factor = statistics.median(per_month.values())
+    else:
+        factor = 1.0
+    return {"factor": factor, "per_month": per_month,
+            "actual_mwh": a_sum, "tmy_mwh": t_sum,
             "months": int(len(common))}
 
 

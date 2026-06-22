@@ -120,10 +120,11 @@ def system_config_from_asset(asset: dict):
 
     tracking = str(asset.get("tracking_type", "") or "").lower()
     is_tracker = any(k in tracking for k in ("axis", "single", "track"))
+    ratio = float(asset.get("dc_ac_ratio") or 1.3)
     return sf.SystemConfig(
-        capacity_kw_dc=float(asset["capacity_mw"]) * 1000.0,
+        capacity_kw_dc=float(asset["capacity_mw"]) * 1000.0 * ratio,
         array_type="1-Axis Tracker" if is_tracker else "Fixed - Open Rack",
-        dc_ac_ratio=float(asset.get("dc_ac_ratio") or 1.3),
+        dc_ac_ratio=ratio,
         gcr=float(asset.get("solar_gcr") or 0.35),
     )
 

@@ -51,11 +51,16 @@ tab_near, tab_long = st.tabs(["📅 Next 3 months — weather forecast",
 def _history(win_start, win_end, terms_key):
     res = analytics.settle(win_start, win_end, dict(terms_key))
     if res is None:
-        return None
-    return analytics.monthly_breakdown(res["intervals"])
+        return None, None
+    iv = res["intervals"]
+    monthly = analytics.monthly_breakdown(iv)
+    iv2 = iv.copy()
+    iv2["_cm"] = pd.to_datetime(iv2["interval_start"]).dt.month
+    interval_counts = iv2.groupby("_cm")["interval_start"].count()
+    return monthly, interval_counts
 
 
-monthly = _history(win_start, win_end, tuple(sorted(terms.items())))
+monthly, _interval_counts = _history(win_start, win_end, tuple(sorted(terms.items())))
 if monthly is None or monthly.empty:
     st.info("Not enough history to project from.")
     st.stop()
@@ -63,8 +68,11 @@ if monthly is None or monthly.empty:
 m = monthly.copy()
 m["cal_month"] = pd.to_datetime(m["Month"] + "-01").dt.month
 hist_mwh = m.groupby("cal_month")["MWh"].mean()
+hist_counts = m.groupby("cal_month")["MWh"].count()
 tmy_mwh = analytics.tmy_monthly_mwh(share)
-cal = analytics.calibrate(hist_mwh, tmy_mwh) if tmy_mwh is not None else None
+cal = (analytics.calibrate(hist_mwh, tmy_mwh, monthly_intervals=_interval_counts,
+                           monthly_counts=hist_counts)
+       if tmy_mwh is not None else None)
 trailing_cap = (m["Market_value"].sum() / m["MWh"].sum()) if m["MWh"].sum() else strike
 
 # ── price forecast (per-hub P10/P50/P90, capture-adjusted) ────────────────────
@@ -80,13 +88,14 @@ FORECAST_HORIZON_MONTHS = 120
 
 
 @st.cache_data(show_spinner=f"Loading {hub_name} price forecast…")
-def _forecast_band(hub_name, horizon, ratio, asof_iso):
+def _forecast_band(hub_name, horizon, ratio_key, asof_iso):
+    ratios = dict(ratio_key) if ratio_key else 1.0
     return price_forecast.monthly_band(hub_name, asof=asof_iso, horizon_months=horizon,
-                                        capture_to_hub=ratio)
+                                        capture_to_hub=ratios)
 
 
 @st.cache_data(show_spinner="Calibrating capture-to-hub ratio…")
-def _capture_ratio(hub_name, win_start_iso, win_end_iso, monthly_key):
+def _capture_ratios(hub_name, win_start_iso, win_end_iso, monthly_key):
     try:
         h = hub.hub_prices(hub_name,
                            pd.Timestamp(win_start_iso),
@@ -95,17 +104,24 @@ def _capture_ratio(hub_name, win_start_iso, win_end_iso, monthly_key):
         h = pd.DataFrame()
     price_col = next((c for c in ("spp", "settlement_point_price", "price")
                       if c in h.columns), "spp")
-    # rebuild monthly_breakdown from the hashable key (st.cache_data can't hash a df)
-    md = pd.DataFrame(list(monthly_key), columns=["MWh", "Market_value"])
-    return price_forecast.capture_to_hub_ratio(md, h, price_col=price_col)
+    md = pd.DataFrame(list(monthly_key), columns=["MWh", "Market_value", "cal_month"])
+    cal_months = md["cal_month"].astype(int)
+    d = price_forecast.capture_to_hub_monthly(md, h, price_col=price_col,
+                                               cal_months=cal_months,
+                                               fleet_fallback=price_forecast.fleet_capture_ratios(hub_name))
+    return tuple(sorted(d.items()))
 
 
 _mb_key = tuple(zip(m["MWh"].astype(float).tolist(),
-                    m["Market_value"].astype(float).tolist()))
-cap_ratio = _capture_ratio(hub_name, str(win_start), str(win_end), _mb_key)
+                    m["Market_value"].astype(float).tolist(),
+                    m["cal_month"].astype(int).tolist()))
+cap_ratio_key = _capture_ratios(hub_name, str(win_start), str(win_end), _mb_key)
+cap_ratios = dict(cap_ratio_key)
+import statistics as _stats
+cap_ratio = _stats.median(cap_ratios.values()) if cap_ratios else 1.0
 forecast_ok = True
 try:
-    fwd_band = _forecast_band(hub_name, FORECAST_HORIZON_MONTHS, cap_ratio,
+    fwd_band = _forecast_band(hub_name, FORECAST_HORIZON_MONTHS, cap_ratio_key,
                               str(pd.Timestamp.today().date()))
     if fwd_band.empty:
         forecast_ok = False
@@ -120,7 +136,10 @@ if forecast_ok:
     p50_now = float(fwd_band["p50"].iloc[0])
     st.sidebar.caption(
         f"**{hub_name} forecast** · P50 \\${p50_now:,.2f}/MWh next month · "
-        f"capture-adjusted ({cap_ratio:,.2f}×). Range shown = P10/P90.")
+        f"capture-adjusted (median {cap_ratio:,.2f}×, "
+        f"{min(cap_ratios.values()) if cap_ratios else 1:.2f}–"
+        f"{max(cap_ratios.values()) if cap_ratios else 1:.2f}× by month). "
+        f"Range shown = P10/P90.")
     use_manual = st.sidebar.checkbox("Override with a flat manual price", value=False)
 else:
     p50_now = float(trailing_cap)
@@ -173,16 +192,20 @@ with tab_long:
              "**Historical shape** — mean of each calendar month across metered history.")
 
     auto_factor = float(cal["factor"]) if cal else 1.0
+    per_month_factors = cal.get("per_month", {}) if cal else {}
     cal_factor = auto_factor
     if basis == "Calibrated model":
+        n_cal = cal["months"] if cal else 0
+        observed = ", ".join(f"{cm}→{f:.2f}x" for cm, f in sorted(per_month_factors.items()))
         cal_factor = st.sidebar.number_input(
-            "Calibration factor", value=round(auto_factor, 3), step=0.01, format="%.3f",
-            help=f"Metered output runs at {auto_factor:,.1%} of the TMY typical year "
-                 f"over {cal['months'] if cal else 0} overlapping months.")
+            "Calibration factor (median)", value=round(auto_factor, 3), step=0.01, format="%.3f",
+            help=f"Median per-month ratio over {n_cal} full months. "
+                 f"Months with history use their own ratio; unobserved months use this median. "
+                 f"Per-month: {observed or 'none'}.")
     degr = st.sidebar.slider(
         "Annual degradation (%/yr)", 0.0, 2.0, 0.0 if is_wind else 0.5, 0.1,
         help="Solar PV norm ≈0.5%/yr; wind default 0%.") / 100.0
-    n_months = st.sidebar.slider("Months to project", 1, 120, 6,
+    n_months = st.sidebar.slider("Months to project", 1, 120, 72,
                                  help="Up to 10 years. The price forecast band covers "
                                       "as far as the gas strip supports (~12 months); "
                                       "beyond that the seasonal forward shape repeats and "
@@ -192,7 +215,10 @@ with tab_long:
         if basis == "Historical shape":
             return float(hist_mwh.get(cal_month, hist_mwh.mean()))
         base = float(tmy_mwh.get(cal_month, tmy_mwh.mean()))
-        return base * cal_factor if basis == "Calibrated model" else base
+        if basis == "Calibrated model":
+            f = per_month_factors.get(cal_month, 1.0)
+            return base * f
+        return base
 
     hist_cap = (
         m.groupby("cal_month")["Capture_$/MWh"].mean()
@@ -256,10 +282,13 @@ with tab_long:
             else f"Next {n_months} month(s)")
     st.subheader(_hdr)
     if basis == "Calibrated model" and cal:
+        n_pm = len(per_month_factors)
         st.caption(
             f"Generation basis: **calibrated model** — PVWatts typical year "
-            f"(**{tmy_mwh.sum():,.0f} MWh/yr** at your share) scaled by "
-            f"**{cal_factor:.3f}** over {cal['months']} months, degraded {degr:.1%}/yr.")
+            f"(**{tmy_mwh.sum():,.0f} MWh/yr** at your share). "
+            f"{n_pm} months have per-month calibration from history; "
+            f"unobserved months use the median factor (**{cal_factor:.3f}**), "
+            f"degraded {degr:.1%}/yr.")
     elif basis == "Physical model (TMY)":
         st.caption(f"**Physical model** — raw PVWatts typical year "
                    f"(**{tmy_mwh.sum():,.0f} MWh/yr** at your share), uncalibrated.")

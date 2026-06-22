@@ -37,6 +37,8 @@ ASSET = {
     # Left disabled until the node↔EIA phase mapping is confirmed.
     "eia_plant_id": None,
     "eia_prime_mover": "PV",
+    "tmy_resource_name": "MILLERS_BRANCH_2",
+    "tmy_capacity_kw": 65000,
 }
 
 # ── default contract terms (seed; overridable in config.json / Contract page) ──

@@ -17,7 +17,8 @@
     "lat": 31.3341,
     "lon": -94.7291,
     "county": "Angelina",
-    "project_name": "Azalea Springs Solar"
+    "project_name": "Azalea Springs Solar",
+    "dc_ac_ratio": 1.39
   },
   "Blevins Solar": {
     "resource_name": "BLVN_SLR_SOLAR3",
@@ -52,7 +53,8 @@
     "hub": "North",
     "lat": 31.5261854,
     "lon": -96.580617,
-    "county": "Limestone"
+    "county": "Limestone",
+    "dc_ac_ratio": 1.0
   },
   "Eldora Solar": {
     "resource_name": "DORA_SLR_SOLAR2",
@@ -144,7 +146,7 @@
     "county": "Fort Bend",
     "project_name": "Long Point Solar",
     "tracking_type": "single_axis",
-    "dc_ac_ratio": 1.255,
+    "dc_ac_ratio": 1.4,
     "uspvdb_id": 406714,
     "location_confidence": "medium",
     "location_source": "USPVDB: Old 300 Solar Center, LLC (6.2 km)"
@@ -196,7 +198,8 @@
     "lat": 31.7924,
     "lon": -100.0826,
     "county": "Runnels",
-    "project_name": "Norton Solar"
+    "project_name": "Norton Solar",
+    "dc_ac_ratio": 1.27
   },
   "Roseland Solar": {
     "resource_name": "ROSELAND_SOLAR1",
@@ -284,7 +287,7 @@
     "lon": -101.5966,
     "county": "Swisher",
     "tracking_type": "single_axis",
-    "dc_ac_ratio": 1.0,
+    "dc_ac_ratio": 1.26,
     "uspvdb_id": "405590",
     "project_name": "Frye Solar",
     "location_confidence": "high",
@@ -789,7 +792,7 @@
     "lon": -100.9,
     "county": "Motley",
     "tracking_type": "single_axis",
-    "dc_ac_ratio": 1.3,
+    "dc_ac_ratio": 1.27,
     "location_confidence": "high",
     "location_source": "user-provided coordinates"
   },
@@ -803,7 +806,7 @@
     "lat": 33.39167,
     "lon": -95.42519,
     "tracking_type": "single_axis",
-    "dc_ac_ratio": 1.3,
+    "dc_ac_ratio": 1.21,
     "sced_units": [
       "MLB_SLR_SOLAR1",
       "MLB_SLR_SOLAR2",
@@ -820,7 +823,7 @@
     "lat": 33.39167,
     "lon": -95.42519,
     "tracking_type": "single_axis",
-    "dc_ac_ratio": 1.3,
+    "dc_ac_ratio": 1.21,
     "sced_units": [
       "MLB_SLR_SOLAR1",
       "MLB_SLR_SOLAR2",
@@ -866,7 +869,7 @@
     "lon": -101.971401,
     "queue_id": "25INR0282",
     "tracking_type": "single_axis",
-    "dc_ac_ratio": 1.3,
+    "dc_ac_ratio": 1.24,
     "sced_units": [
       "HRNT_SLR_UNIT1",
       "HRNT_SLR_UNIT2",

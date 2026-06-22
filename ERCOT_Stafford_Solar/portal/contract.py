@@ -32,7 +32,7 @@ ASSET = {
     "county": "Motley",                 # Roaring Springs, Motley County, West TX
     "lat": 33.88,
     "lon": -100.9,
-    "dc_ac_ratio": 1.3,
+    "dc_ac_ratio": 1.27,
     # EIA-923 plant id for the independent generation cross-check (no public
     # ERCOT→EIA crosswalk, so mapped by hand). Stafford/Roaring Springs =
     # EIA plant 68458 ("Roaring Springs, LLC", 250 MW PV, Motley County).
@@ -42,7 +42,7 @@ ASSET = {
     # Hub registry uses STAFFORD_SOLAR_AGG / 250 MW for the TMY cache file;
     # the portal's resource_name is BUZI_SLR_UNIT1 (the SCED unit).
     "tmy_resource_name": "STAFFORD_SOLAR_AGG",
-    "tmy_capacity_kw": 250000,
+    "tmy_capacity_kw": 317500,
 }
 
 # ── default contract terms (seed; overridable in config.json / Contract page) ──

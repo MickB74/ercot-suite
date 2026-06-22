@@ -217,6 +217,21 @@ def solar_tmy_hourly(resource_name: str, capacity_kw: float) -> pd.DataFrame | N
     return df if "ac_kw" in df.columns else None
 
 
+def wind_typical_hourly() -> pd.DataFrame | None:
+    """Read the cached wind-model typical-year hourly profile, or None."""
+    core()
+    from ercot_core import paths  # noqa: PLC0415
+    import portal.contract as _c  # noqa: PLC0415
+    res = _c.ASSET["resource_name"]
+    matches = sorted(paths.PLANT_VALUE_DIR.glob(f"windgen_{res}_tmy_*mw.parquet"))
+    if not matches:
+        matches = sorted(paths.PLANT_VALUE_DIR.glob(f"windgen_{res}_*mw.parquet"))
+    if not matches:
+        return None
+    df = pd.read_parquet(matches[-1])
+    return df if "ac_kw" in df.columns else None
+
+
 def eia_monthly_netgen(plant_id, start_year: int, end_year: int,
                        prime_mover: str | None = None) -> pd.DataFrame:
     """EIA-923 monthly **net generation** (MWh) per (year, month).
