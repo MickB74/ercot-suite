@@ -166,6 +166,9 @@ _PORTALS = [
     {"name": "Stafford Solar",         "tech": "Solar PV", "mw": 252,  "hub": "HB_WEST",  "icon": "☀️",
      "offtaker": "AdventHealth",                       "developer": "NextEra Energy Resources", "strike": 25.00,
      "dir": "ERCOT_Stafford_Solar",    "port": 8508},
+    {"name": "Heart of Texas Wind",   "tech": "Wind",     "mw": 180,  "hub": "HB_WEST",  "icon": "🌬️",
+     "offtaker": "AdventHealth",                       "developer": "Scout Clean Energy",       "strike": 30.00,
+     "dir": "ERCOT_Heart_of_Texas",    "port": 8509},
 ]
 
 

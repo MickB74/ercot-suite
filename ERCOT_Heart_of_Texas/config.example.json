@@ -1,0 +1,13 @@
+{
+  "structure": "VPPA / CfD",
+  "strike": 30.0,
+  "volume_share_pct": 50.0,
+  "settle_at": "hub",
+  "settle_point": "HB_WEST",
+  "price_floor": 0.0,
+  "apply_floor": true,
+  "settle_below_floor": false,
+  "fee_per_mwh": 0.0,
+  "counterparty": "AdventHealth",
+  "currency": "USD"
+}
