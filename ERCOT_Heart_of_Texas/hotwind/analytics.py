@@ -36,7 +36,7 @@ def settle(start_date: dt.date, end_date: dt.date, terms: dict | None = None) ->
     end_excl = pd.Timestamp(end_date) + pd.Timedelta(days=1)
 
     gen_df = hub.generation(a["resource_node"], start, end_excl)
-    ref = contract.settle_location(terms)         # node VENADO_ALL or a trading hub
+    ref = contract.settle_location(terms)         # node RN_RTS1 or a trading hub
     # Price at the settlement reference — node lake for the node, rich hub store
     # for a hub. Generation is always the plant's node.
     price_df = hub.settlement_prices(ref, start, end_excl)

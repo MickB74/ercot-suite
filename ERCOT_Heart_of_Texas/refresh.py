@@ -4,7 +4,7 @@
 Advances both streams the portal settles on, into the shared Data Hub lake:
 
   * generation — SCED telemetered 15-min output (publishes on a ~60-day lag)
-  * node price — RT15 settlement-point price at VENADO_ALL
+  * node price — RT15 settlement-point price at RN_RTS1
 
 Node prices older than ERCOT's live window only exist in the **archive**, so this
 uses the archive fetch (``ercot_core.spp_archive``) — the same path that worked

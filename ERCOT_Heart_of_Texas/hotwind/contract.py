@@ -12,17 +12,27 @@ import json
 from pathlib import Path
 
 # ── the asset ───────────────────────────────────────────────────────────────
-# Heart of Texas Wind — Scout Clean Energy, McCulloch County, TX.
-# ERCOT codename "VENADO": resource node VENADO_ALL, two SCED units
-# VENADO_UNIT1 (~94 MW) + VENADO_UNIT2 (~83 MW), combined peak 177 MW.
-# 180 MW nameplate, 64 turbines, COD 2020. AdventHealth offtakes 90 MW (50%).
-# Node confirmed via the Data Hub EIA↔SCED crosswalk + reconciliation (EIA 61032,
-# confirmed=True) and an exact peak match to the invoice. NOT "SHANNONW" — that
-# is Shannon Wind in Clay County (EIA 59034), a different plant 250 mi away.
+# Heart of Texas Wind — Scout Clean Energy, McCulloch County, TX. 180 MW
+# nameplate, 64 turbines, COD 2020. AdventHealth offtakes 90 MW (50%) via VPPA.
+#
+# ERCOT settlement node ``RN_RTS1`` (a SHARED node — ~1.06M MWh/yr across several
+# plants). Heart of Texas is the ``RTS_U1`` resource specifically; the co-located
+# RTS2_U1/RTS2_U2 units are a DIFFERENT plant at the same node, so we settle the
+# price at RN_RTS1 but sum ONLY RTS_U1 for generation.
+#
+# Identity confirmed by REsurety CleanSight (node RN_RTS1, 179.88 MW, 64 turbines,
+# McCulloch), RTS_U1 annual SCED = 597,102 MWh vs EIA 61032 = 596,000 (0.2%),
+# 0.95 interval correlation with the AdventHealth invoice generation, and Dec-2025
+# settlement −$291k vs invoice −$300k.
+#
+# WRONG nodes tried earlier (both reconcile poorly — keep this history):
+#   * VENADO_ALL — a different plant; passed the auto-crosswalk on coincidental
+#     annual volume but interval corr only 0.32 and settlement off ~15×.
+#   * SHANNONW_RN — Shannon Wind, Clay County (EIA 59034), 250 mi away.
 ASSET = {
     "project_name": "Heart of Texas Wind",
-    "resource_node": "VENADO_ALL",
-    "sced_units": ["VENADO_UNIT1", "VENADO_UNIT2"],
+    "resource_node": "RN_RTS1",
+    "sced_units": ["RTS_U1"],
     "capacity_mw": 180.0,
     "tech": "Wind",
     "turbine_model": "GE Mixed Fleet (GE2.82-127 / GE2.72-116 / GE2.5-127)",
@@ -48,7 +58,10 @@ DEFAULT_CONTRACT = {
     "settle_point": "HB_WEST",
     "price_floor": 0.0,
     "apply_floor": True,
-    "settle_below_floor": False,
+    # PPA §4: when Floating Price < $0 the Floating Price is set to $0 but the
+    # interval STILL settles (offtaker pays full fixed on that MWh). That is
+    # settle_below_floor=True with a $0 floor — NOT exclusion of those intervals.
+    "settle_below_floor": True,
     "fee_per_mwh": 0.0,
     "counterparty": "AdventHealth",
     "offtaker": "AdventHealth",

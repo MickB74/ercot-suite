@@ -182,7 +182,7 @@ def settlement_prices(location: str, start: pd.Timestamp, end_excl: pd.Timestamp
 def available_locations() -> tuple[str, ...]:
     """Settlement points the portal can settle at — the plant's node + cached hubs.
 
-    The node (``VENADO_ALL``) always leads; the trading hubs are those with
+    The node (``RN_RTS1``) always leads; the trading hubs are those with
     cached RT15 prices in the Hub's hub store (so settlement always has a real
     price). Named averages (``HB_HUBAVG``/``HB_BUSAVG``) sort last.
     """
@@ -203,7 +203,7 @@ def wind_typical_hourly() -> pd.DataFrame | None:
     """Read the cached modelled typical-year hourly profile, or None.
 
     The Hub's ``plant_value`` step caches an 8,760-hour AC profile at
-    ``data/plant_value/windgen_VENADO_ALL_*mw.parquet``. Returns an hourly
+    ``data/plant_value/windgen_RN_RTS1_*mw.parquet``. Returns an hourly
     frame with an ``ac_kw`` column (tz-aware index), or None.
     """
     core()

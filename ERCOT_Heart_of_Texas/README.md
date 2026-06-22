@@ -2,7 +2,7 @@
 
 A focused, customer-facing web app for a **single asset**: Heart of Texas Wind
 (180 MW wind farm, McCulloch County, ERCOT West hub; ERCOT resource node
-`VENADO_ALL`, SCED units `VENADO_UNIT1` + `VENADO_UNIT2`; EIA plant 61032; Scout
+`RN_RTS1` (shared node; settle the `RTS_U1` resource only); EIA plant 61032; Scout
 Clean Energy developer, offtaker AdventHealth via a 90 MW VPPA). It lets the
 offtaker log in and see, in plain language:
 
