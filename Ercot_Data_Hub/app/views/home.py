@@ -163,6 +163,9 @@ _PORTALS = [
     {"name": "Mesquite Star",          "tech": "Wind",     "mw": 419,  "hub": "HB_WEST",  "icon": "🌬️",
      "offtaker": "Aggregated · Brown University",       "developer": "Clearway Energy Group", "strike": 29.00,
      "dir": "ERCOT_Mesquite_Star",     "port": 8507},
+    {"name": "Stafford Solar",         "tech": "Solar PV", "mw": 252,  "hub": "HB_WEST",  "icon": "☀️",
+     "offtaker": "AdventHealth",                       "developer": "NextEra Energy Resources", "strike": 25.00,
+     "dir": "ERCOT_Stafford_Solar",    "port": 8508},
 ]
 
 

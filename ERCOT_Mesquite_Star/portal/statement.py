@@ -136,14 +136,17 @@ def _detect_one(grid: pd.DataFrame):
         return None
     grid = grid.reset_index(drop=True)
 
-    # Score columns by parseable-timestamp count; pick the best.
-    best_col, best_parsed, best_score = None, None, 0
+    # Score columns by parseable-timestamp count; tiebreak by distinct-timestamp
+    # count so an interval-level column (unique per row) beats a daily date column
+    # (e.g. "Flow Date" repeats 96x/day) that parses equally well but would
+    # collapse every interval onto midnight and break the price/volume join.
+    best_col, best_parsed, best_score = None, None, (0, 0)
     for c in grid.columns:
         parsed = _parsed_dt(grid[c])
-        score = int(parsed.notna().sum())
+        score = (int(parsed.notna().sum()), int(parsed.dropna().nunique()))
         if score > best_score:
             best_col, best_parsed, best_score = c, parsed, score
-    if best_col is None or best_score < 3:
+    if best_col is None or best_score[0] < 3:
         return None
 
     # Data = the longest contiguous run of timestamp rows in that column
