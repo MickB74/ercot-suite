@@ -39,6 +39,10 @@ ASSET = {
     # Overridable via "eia_plant_id" in config.json; None ⇒ check disabled.
     "eia_plant_id": 68458,
     "eia_prime_mover": "PV",   # solar PV; None = all prime movers at the plant
+    # Hub registry uses STAFFORD_SOLAR_AGG / 250 MW for the TMY cache file;
+    # the portal's resource_name is BUZI_SLR_UNIT1 (the SCED unit).
+    "tmy_resource_name": "STAFFORD_SOLAR_AGG",
+    "tmy_capacity_kw": 250000,
 }
 
 # ── default contract terms (seed; overridable in config.json / Contract page) ──

@@ -97,7 +97,9 @@ def tmy_monthly_mwh(share: float = 1.0) -> pd.Series | None:
     plant. Returns a Series indexed 1–12, or None if no TMY profile is cached.
     """
     a = contract.ASSET
-    hourly = hub.solar_tmy_hourly(a["resource_name"], a["capacity_mw"] * 1000.0)
+    tmy_res = a.get("tmy_resource_name") or a["resource_name"]
+    tmy_kw = a.get("tmy_capacity_kw") or (a["capacity_mw"] * 1000.0)
+    hourly = hub.solar_tmy_hourly(tmy_res, tmy_kw)
     if hourly is None or hourly.empty:
         return None
     ac_kw = hourly["ac_kw"]

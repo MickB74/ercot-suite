@@ -289,11 +289,14 @@ def vppa_mapping(columns) -> dict:
               or find(lambda n: _is_volumeish(n)
                       and any(t in n for t in ("generation", "output", "metered", "produced", "production")))
               or find(lambda n: _is_volumeish(n)))
-    amount = (find(lambda n: "net" in n and "settlement" in n and "$" in n
-                   and "/mwh" not in n and "cumul" not in n)
+    amount = (find(lambda n: "settlement" in n and "amount" in n and "after price floor" in n
+                   and "cumul" not in n)
+              or find(lambda n: "net" in n and "settlement" in n and "$" in n
+                      and "/mwh" not in n and "cumul" not in n)
               or find(lambda n: "net" in n and ("$" in n or "amount" in n)
                       and "/mwh" not in n and "cumul" not in n)
-              or find(lambda n: "settlement" in n and "$" in n and "/mwh" not in n and "cumul" not in n))
+              or find(lambda n: "settlement" in n and ("$" in n or "amount" in n)
+                      and "/mwh" not in n and "cumul" not in n))
     return {"time_col": None, "price_col": price, "volume_col": volume,
             "amount_col": amount, "time_basis": "ending", "interval": "15min",
             "volume_unit": "MWh"}
