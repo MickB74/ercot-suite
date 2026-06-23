@@ -246,13 +246,13 @@ with tab_audit:
         # Contract cross-checks
         checks = []
         checks.append(("✅" if s["strike_ok"] else "⚠️")
-                      + f" Fixed price **${s.get('invoice_fixed_price') or 0:,.2f}** vs "
-                        f"contract strike **${s['strike']:,.2f}**")
+                      + f" Fixed price **\\${s.get('invoice_fixed_price') or 0:,.2f}** vs "
+                        f"contract strike **\\${s['strike']:,.2f}**")
         ipv = s.get("invoice_ptc_value")
         if ipv is not None:
             ok = abs(ipv - s["ptc_value"]) < 0.01
             checks.append(("✅" if ok else "⚠️")
-                          + f" \\|PTC Value\\| **${ipv:,.4f}** vs contract **${s['ptc_value']:,.4f}**")
+                          + f" \\|PTC Value\\| **\\${ipv:,.4f}** vs contract **\\${s['ptc_value']:,.4f}**")
         bdi_ok = s["inv_bdi_intervals"] == s["calc_bdi_intervals"]
         checks.append(("✅" if bdi_ok else "⚠️")
                       + f" Basis Differential Intervals: invoice **{s['inv_bdi_intervals']:,}**, "
@@ -260,8 +260,8 @@ with tab_audit:
         if "invoice_sheet_settlement" in s:
             sd = s.get("sheet_vs_data_delta", 0.0)
             checks.append(("✅" if abs(sd) < 1 else "⚠️")
-                          + f" Invoice summary sheet settlement **${s['invoice_sheet_settlement']:,.2f}** "
-                            f"vs Data-sheet total (Δ ${sd:,.2f})")
+                          + f" Invoice summary sheet settlement **\\${s['invoice_sheet_settlement']:,.2f}** "
+                            f"vs Data-sheet total (Δ \\${sd:,.2f})")
         if s.get("ercot_checked"):
             hm, ni = s.get("hub_price_matches", 0), s.get("ercot_intervals", 0)
             nm = s.get("node_price_matches", 0)
