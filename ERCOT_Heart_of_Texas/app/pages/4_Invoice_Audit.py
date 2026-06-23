@@ -17,7 +17,7 @@ import streamlit as st
 
 _boot.ensure_hub(st)
 
-from hotwind import analytics, branding, contract, hub, settings, statement  # noqa: E402
+from hotwind import analytics, branding, contract, htx_invoice, hub, settings, statement  # noqa: E402
 
 core = hub.core()
 INV = core.invoice
@@ -187,6 +187,23 @@ def _run_batch(items):
     prog = st.progress(0.0, text="Auditing…")
     for i, (label, src) in enumerate(items):
         try:
+            if htx_invoice.is_htx_invoice(label):   # §4(d) basis-differential invoice
+                hr = htx_invoice.audit(htx_invoice.read_invoice(src, label), terms,
+                                       check_ercot=False)
+                hs = hr["summary"]
+                nbad = hs["n_mismatch"] + hs["n_bdi_mismatch"]
+                # offtaker-signed for the portfolio table (− = offtaker/Buyer pays)
+                rows.append({
+                    "Statement": label,
+                    "Status": (f"✅ ties out · {hs['inv_bdi_intervals']} BDI" if nbad == 0
+                               else f"⚠ {nbad} flagged"),
+                    "Statement net $": round(-hs["inv_settlement"], 2),
+                    "Expected net $": round(-hs["calc_settlement"], 2),
+                    "Net Δ $": round(-hs["settlement_delta"], 2),
+                    "Net Δ %": None,
+                    "Bill MWh": round(hs.get("calc_buyer_mwh", 0.0), 1),
+                    "EIA-923 MWh": None, "EIA Δ %": None, "Flagged": nbad})
+                prog.progress((i + 1) / len(items)); continue
             if _is_pdf(label):   # monthly summary invoice (no interval detail)
                 summ = statement.read_pdf_summary(src, label)
                 if not all(k in summ for k in ("volume_mwh", "net_total")):
@@ -265,6 +282,22 @@ def _is_pdf(name):
     return str(name).lower().endswith(".pdf")
 
 
+def _route_htx(name):
+    """An HTX PPA invoice needs the §4(d) basis-differential engine, not the
+    generic net-settlement audit here — send the user to the right page."""
+    st.info(
+        f"📄 **{name}** is a **Heart of Texas PPA invoice** (Fixed/Floating legs "
+        "with the §4(d) basis-differential adjustment). This generic audit checks "
+        "`(price − strike) × volume` and can't reproduce that structure. Use the "
+        "**Basis Differential** page — its *Process an invoice* tab re-derives every "
+        "settled column and ties the bill out to the penny.")
+    if hasattr(st, "page_link"):
+        st.page_link("pages/8_Basis_Differential.py",
+                     label="➡️ Open Basis Differential → Process an invoice", icon="⚖️")
+    branding.footer(st)
+    st.stop()
+
+
 def _pdf_audit(src, name):
     """Audit a PDF **summary invoice** (monthly totals — no interval detail)."""
     st.subheader(f"PDF summary invoice — {name}")
@@ -322,6 +355,8 @@ elif mode == "Pick from linked folder":
     names = [p.name for p in files]
     pick = st.selectbox("Statement file", names, help="Files in the linked folder, newest first.")
     sel = files[names.index(pick)]
+    if htx_invoice.is_htx_invoice(sel.name):
+        _route_htx(sel.name)
     if _is_pdf(sel.name):
         _pdf_audit(sel, sel.name)
         branding.footer(st)
@@ -340,6 +375,8 @@ else:
         _run_batch([(u.name, u) for u in ups])
         branding.footer(st)
         st.stop()
+    if htx_invoice.is_htx_invoice(ups[0].name):
+        _route_htx(ups[0].name)
     if _is_pdf(ups[0].name):
         _pdf_audit(ups[0], ups[0].name)
         branding.footer(st)
