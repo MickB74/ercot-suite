@@ -79,6 +79,20 @@ DEFAULT_CONTRACT = {
     "annual_volume_cap_mwh": 0.0,
     "settlement_frequency": "Monthly",
     "notional_type": "As-generated",
+
+    # ── §4(d) Basis Differential mechanism (Definitions tab of the PPA) ──
+    # The VPPA settles the Floating Price at the West hub (HB_WEST) but the
+    # Facility injects at its node (RN_RTS1). To protect the Seller from the
+    # node↔hub basis, any Calculation Interval where the Floating Price exceeds
+    # (Interconnection Point LMP + Fixed Price + |PTC Value|) is a "Basis
+    # Differential Interval": the Floating Price is *deemed* to equal the node
+    # LMP + Fixed Price for that interval. ``ptc_amount`` × qualification ÷
+    # (1 − tax rate) is the per-MWh |PTC Value| used in the threshold.
+    "apply_basis_differential": True,
+    "basis_hub": "HB_WEST",          # where the Floating Price is published
+    "ptc_amount": 30.0,              # $/MWh PTC amount (= base × inflation factor)
+    "ptc_tax_rate": 0.21,            # combined corporate income tax rate
+    "ptc_qualification": 1.0,        # fraction of output qualifying for the PTC
 }
 
 CONFIG_PATH = Path(__file__).resolve().parents[1] / "config.json"
@@ -164,6 +178,27 @@ def offtake_label(terms: dict) -> str:
     """Human label, e.g. ``"90 MW (50.0% of plant)"``."""
     return (f"{offtake_mw(terms):,.0f} MW "
             f"({float(terms.get('volume_share_pct', 100.0)):.1f}% of plant)")
+
+
+def ptc_value(terms: dict) -> float:
+    """The |PTC Value| ($/MWh) used in the §4(d) basis-differential threshold.
+
+    Per the PPA's PTC support tab: ``PTC Value = (PTC Amount × qualification) /
+    (1 − combined tax rate)``. Returned as a positive number (the threshold uses
+    the absolute value). Matches the executed invoice's −$37.9747/MWh at the
+    seed inputs ($30 amount, 21% tax, 100% qualification).
+    """
+    amount = float(terms.get("ptc_amount", 0.0) or 0.0)
+    tax = float(terms.get("ptc_tax_rate", 0.0) or 0.0)
+    qual = float(terms.get("ptc_qualification", 1.0) or 0.0)
+    if amount <= 0 or tax >= 1.0:
+        return 0.0
+    return (amount * qual) / (1.0 - tax)
+
+
+def basis_hub(terms: dict) -> str:
+    """Hub where the Floating Price is published for the basis-differential test."""
+    return str(terms.get("basis_hub") or ASSET["hub"])
 
 
 def eia_plant_id() -> int | None:

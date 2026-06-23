@@ -77,6 +77,9 @@ with st.expander(hdr, expanded=folder is None and not cur):
         st.caption(f"Linked `{folder}` — no CSV/Excel statements found in it yet.")
     elif folder is not None:
         st.caption(f"Linked `{folder}` — {len(files)} statement file(s).")
+    _url = settings.get_invoice_folder_url()
+    if _url:
+        st.markdown(f"📦 [Open the invoices folder in Box]({_url})")
 
 
 # ── audit controls (apply to both single and batch) ─────────────────────────

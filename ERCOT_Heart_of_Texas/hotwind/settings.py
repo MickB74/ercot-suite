@@ -16,6 +16,7 @@ SETTINGS_PATH = Path(__file__).resolve().parents[1] / "settings.json"
 
 DEFAULTS = {
     "invoice_folder": "",   # absolute path to a folder of settlement statements
+    "invoice_folder_url": "",  # optional web link to that folder (e.g. the Box folder)
 }
 
 # Statement file types the Invoice Audit page can read.
@@ -47,6 +48,11 @@ def set_invoice_folder(path: str) -> None:
     s = load()
     s["invoice_folder"] = str(path or "").strip()
     save(s)
+
+
+def get_invoice_folder_url() -> str:
+    """Optional web link to the linked folder (e.g. the Box folder URL), or ''."""
+    return str(load().get("invoice_folder_url", "") or "")
 
 
 def invoice_folder() -> Path | None:
