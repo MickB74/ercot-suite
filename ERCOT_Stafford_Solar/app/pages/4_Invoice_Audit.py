@@ -475,7 +475,7 @@ if net_mode:
     k[2].metric("Flagged", f"{n_flagged:,}")
     k[3].metric("Net variance", branding.signed_money(var),
                 delta=f"{s['variance_pct']:+.2f}%",
-                delta_color=("off" if abs(var) < 1 else "inverse"))
+                delta_color=("off" if abs(var) < 1 else "off"))
     st.caption(f"Read as **{s.get('sign')}-signed**, volume from **{basis_note}**, "
                f"negative prices **{neg_treatment}**."
                + ("  ·  Status: " + " · ".join(
@@ -574,7 +574,7 @@ k[1].metric("Matched", f"{s['n_match']:,}")
 k[2].metric("Flagged", f"{n_flagged:,}")
 k[3].metric("Variance", branding.signed_money(var),
             delta=f"{s['variance_pct']:+.2f}%",
-            delta_color=("off" if abs(var) < 1 else "inverse"))
+            delta_color=("off" if abs(var) < 1 else "off"))
 if s.get("status_counts"):
     st.caption("Status breakdown: " + " · ".join(
         f"{kk.replace('_', ' ')}: {vv:,}" for kk, vv in s["status_counts"].items()))

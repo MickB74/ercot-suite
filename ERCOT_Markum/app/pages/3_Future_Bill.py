@@ -304,7 +304,7 @@ with tab_long:
     k[0].metric("Projected energy", f"{tot_mwh:,.0f} MWh")
     k[1].metric("Net (expected)", branding.signed_money(tot_net),
                 delta=("you receive" if receives else "you pay"),
-                delta_color=("normal" if receives else "inverse"))
+                delta_color=("normal" if receives else "off"))
     k[2].metric(f"Range ({range_label})", f"{branding.signed_money(tot_lo)} … {branding.signed_money(tot_hi)}")
 
     fig = go.Figure()

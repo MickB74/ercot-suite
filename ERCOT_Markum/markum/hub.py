@@ -302,3 +302,13 @@ def settlement_window(resource_node: str, location: str | None = None):
     if lo > hi:
         return None, None
     return pd.Timestamp(lo).date(), pd.Timestamp(hi).date()
+
+
+def clear_data_caches() -> None:
+    """Drop the cached data-span lookups after a refresh writes new parquet data.
+
+    ``_available_span`` / ``_hub_price_span`` are ``@lru_cache``-d for speed, so a
+    just-completed refresh isn't visible until they're cleared — otherwise the
+    settlement window reports the pre-refresh span (e.g. a stale ``None``)."""
+    _available_span.cache_clear()
+    _hub_price_span.cache_clear()

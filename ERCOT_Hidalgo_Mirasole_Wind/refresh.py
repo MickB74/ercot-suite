@@ -123,7 +123,7 @@ def main() -> int:
                 pull_nodes._merge_save(p, pull_nodes.PRICE_TEMPLATE, pull_nodes.PRICE_KEY)
             print()
 
-    ws, we = hub.settlement_window(node)
+    ws, we = hub.settlement_window(node, contract.settle_location(contract.load_contract()))
     print(f"✓ Done. Portal settlement window is now {ws} → {we}.")
     return 0
 

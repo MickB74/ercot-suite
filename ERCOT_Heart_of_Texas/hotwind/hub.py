@@ -280,6 +280,16 @@ def _hub_price_span(location: str):
     return (ie.min() - pd.Timedelta(minutes=15)), ie.max()
 
 
+def clear_data_caches() -> None:
+    """Drop the cached data-span lookups after a refresh writes new parquet data.
+
+    ``_available_span`` / ``_hub_price_span`` are ``@lru_cache``-d for speed, so a
+    just-completed refresh isn't visible until they're cleared — otherwise the
+    settlement window reports the pre-refresh span (e.g. a stale ``None``)."""
+    _available_span.cache_clear()
+    _hub_price_span.cache_clear()
+
+
 def settlement_window(resource_node: str, location: str | None = None):
     """(start_date, end_date) where BOTH metered generation and the price exist.
 

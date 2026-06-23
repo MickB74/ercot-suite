@@ -134,7 +134,7 @@ m[3].metric("Value at strike", f"${strike_val:,.0f}",
 m2 = st.columns(4)
 m2[0].metric("Net settlement", branding.signed_money(net),
              delta=("you receive" if receives else "you pay"),
-             delta_color=("normal" if receives else "inverse"),
+             delta_color=("normal" if receives else "off"),
              help="Σ MWh × (market − strike). Positive ⇒ you receive.")
 m2[1].metric("Settled intervals", f"{s['intervals']:,}")
 excl = s.get("excluded_mwh", 0.0) or 0.0

@@ -160,12 +160,12 @@ if has_gen and not np.isnan(cap_node):
                  help="Gen-weighted avg hub price during the same generation hours.")
     r2[2].metric("Capture ratio — node",  f"{cr_node:.1%}" if not np.isnan(cr_node) else "—",
                  delta=f"{'above' if cr_node >= 1 else 'below'} flat avg" if not np.isnan(cr_node) else None,
-                 delta_color="normal" if cr_node >= 1 else "inverse",
+                 delta_color="normal" if cr_node >= 1 else "off",
                  help="Node capture ÷ avg node spot. >100% = plant's generation hours "
                       "command above-average prices at this node.")
     r2[3].metric("Capture ratio — hub",   f"{cr_hub:.1%}"  if not np.isnan(cr_hub)  else "—",
                  delta=f"{'above' if cr_hub >= 1 else 'below'} flat avg" if not np.isnan(cr_hub) else None,
-                 delta_color="normal" if cr_hub >= 1 else "inverse",
+                 delta_color="normal" if cr_hub >= 1 else "off",
                  help="Hub capture ÷ avg hub spot. Shows the hub-level shape effect — "
                       + ("typically < 1 for solar because midday depresses hub prices."
                          if "solar" in str(a.get("tech", "")).lower() or "pv" in str(a.get("tech", "")).lower()

@@ -67,7 +67,7 @@ k[2].metric("Market value", f"${last['Market_value']:,.0f}",
             help="Σ MWh × real-time node price.")
 k[3].metric("Net settlement", branding.signed_money(cfd),
             delta=("you receive" if receives else "you pay"),
-            delta_color=("normal" if receives else "inverse"),
+            delta_color=("normal" if receives else "off"),
             help="Σ MWh × (market price − strike). Positive ⇒ you receive.")
 
 # ── year-to-date / full-history rollup ──────────────────────────────────────
@@ -82,7 +82,7 @@ y[2].metric("Market value", f"${ytd['Market_value'].sum():,.0f}")
 ytd_cfd = float(ytd["CfD"].sum())
 y[3].metric("Net settlement YTD", branding.signed_money(ytd_cfd),
             delta=("you receive" if ytd_cfd >= 0 else "you pay"),
-            delta_color=("normal" if ytd_cfd >= 0 else "inverse"))
+            delta_color=("normal" if ytd_cfd >= 0 else "off"))
 
 # ── monthly settlement chart ─────────────────────────────────────────────────
 st.subheader("Monthly settlement")
