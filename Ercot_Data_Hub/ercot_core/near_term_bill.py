@@ -211,7 +211,7 @@ def render_near_term_tab(
 
     @st.cache_data(show_spinner="Calibrating against SCED history…", ttl=3600)
     def _calibrate(lat, lon, tech_key, cal_start_str, win_end_str, rnode, units_tuple,
-                   cut_in_t, rated_t, cut_out_t, turbine_t):
+                   cut_in_t, rated_t, cut_out_t, turbine_t, sced_units_t=()):
         arch_df, err = _archive(lat, lon, tech_key, cal_start_str, win_end_str)
         if arch_df is None:
             return 1.0, 0
@@ -228,6 +228,15 @@ def render_near_term_tab(
         if gen_raw.empty:
             return 1.0, 0
         gen_raw = gen_raw.copy()
+        # Isolate this contract's resource(s) — the resource node can be SHARED by
+        # multiple plants (e.g. Heart of Texas settles RTS_U1 only at node RN_RTS1,
+        # which also hosts the co-located RTS2 units). Summing every unit at the
+        # node would ~2× the metered output and inflate the calibration factor.
+        # Mirror the settlement engine, which settles only the contract's units.
+        if sced_units_t and "resource_name" in gen_raw.columns:
+            _f = gen_raw[gen_raw["resource_name"].isin(sced_units_t)]
+            if not _f.empty:
+                gen_raw = _f
         gen_raw["mwh"] = gen_raw.get("mwh", gen_raw["mw"] * 0.25)
         gen_raw["date"] = pd.to_datetime(gen_raw["interval_start"]).dt.date
         sced_daily = gen_raw.groupby("date")["mwh"].sum() * share
@@ -243,6 +252,7 @@ def render_near_term_tab(
         a["resource_node"],
         tuple(_units),
         cut_in_ms, rated_ms, cut_out_ms, turbine_type,
+        tuple(a.get("sced_units") or ()),
     )
 
     # ── bias-correct the forecast wind product to the ERA5 baseline ──────────
