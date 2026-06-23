@@ -55,9 +55,11 @@ def _month_ranges(start_ts, end_ts):
 branding.hero(st, "Update data",
               "Pull the latest ERCOT generation and prices for this project.")
 
-ws, we = hub.settlement_window(node)
+loc = contract.settle_location(contract.load_contract())  # settlement reference (hub)
+ws, we = hub.settlement_window(a["units"], loc)
 if ws:
-    st.caption(f"Settlement window currently **{ws} → {we}** for node `{node}`.")
+    st.caption(f"Settlement window currently **{ws} → {we}** "
+               f"(generation × price at `{loc}`).")
 else:
     st.caption(f"No cached data yet for node `{node}`.")
 
@@ -132,7 +134,8 @@ if st.button("⬇️ Refresh now", type="primary",
                                                pull_nodes.PRICE_KEY)
                     done += 1
                 bar.progress(1.0, text="Done")
-                nws, nwe = hub.settlement_window(node)
+                hub.clear_data_caches()   # reflect the just-saved parquet data
+                nws, nwe = hub.settlement_window(a["units"], loc)
                 st.success(f"✓ Node data updated — settlement window now **{nws} → {nwe}**.")
         except Exception as exc:  # noqa: BLE001
             st.error(f"Node refresh failed: {exc}")

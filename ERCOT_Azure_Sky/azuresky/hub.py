@@ -373,3 +373,9 @@ def settlement_window(units: list[str], location: str):
     if lo > hi:
         return None, None
     return pd.Timestamp(lo).date(), pd.Timestamp(hi).date()
+
+
+def clear_data_caches() -> None:
+    """Drop cached data-span lookups after a refresh writes new parquet data."""
+    _gen_span.cache_clear()
+    _price_span.cache_clear()
