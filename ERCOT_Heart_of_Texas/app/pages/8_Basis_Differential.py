@@ -35,6 +35,66 @@ HUB = contract.basis_hub(terms)
 PTC = contract.ptc_value(terms)
 FIXED = float(terms.get("strike", 0.0))
 
+# ── export explainers (drive the Summary cover sheet in Excel/PDF) ──
+_HUB_SHORT = HUB.replace("HB_", "")
+_BDI_NOTES = [
+    f"This export settles Heart of Texas Wind under PPA Section 4(d). The Buyer "
+    f"(AdventHealth) takes a {terms.get('volume_share_pct', 50):.0f}% share of the plant.",
+    f"Each 15-minute interval: Fixed payment = Buyer MWh x ${FIXED:,.2f}. Floating "
+    f"payment = Buyer MWh x the {_HUB_SHORT} hub price (floored at $0).",
+    f"Basis Differential Interval: when the {_HUB_SHORT} hub price exceeds the "
+    f"{NODE} node price + ${FIXED:,.2f} + the |PTC value| (${PTC:,.2f}), the floating "
+    f"price is replaced by node + fixed. That lowers the floating leg and is the "
+    f"'basis savings' to the Seller.",
+    "Settlement = Fixed payment - Floating payment. Positive means the Buyer pays "
+    "the Seller; negative means the Seller pays the Buyer.",
+]
+_CALC_GLOSSARY = {
+    "interval_start": "Start of the 15-minute settlement interval (Central time)",
+    "buyer_mwh": f"Buyer's share ({terms.get('volume_share_pct', 50):.0f}%) of metered generation, MWh",
+    "floating_price": f"{_HUB_SHORT} hub real-time price, floored at $0 ($/MWh)",
+    "node_lmp": f"{NODE} node real-time price ($/MWh)",
+    "fixed_price": "Contract Fixed Price / strike ($/MWh)",
+    "ptc_value": "|PTC value| added to the basis-differential threshold ($/MWh)",
+    "is_bdi": "Yes if this interval qualified as a Basis Differential Interval",
+    "replacement_price": "Price actually used for the floating leg (node+fixed on BDI rows)",
+    "init_floating_payment": "Floating payment BEFORE the basis-differential adjustment ($)",
+    "floating_payment_wbd": "Floating payment AFTER the basis-differential adjustment ($)",
+    "basis_savings": "Init floating minus adjusted floating — the §4(d) saving ($)",
+    "fixed_payment": "Buyer MWh x Fixed Price ($)",
+    "settlement": "Fixed minus floating; positive = Buyer pays Seller ($)",
+}
+_AUDIT_GLOSSARY = dict(_CALC_GLOSSARY, **{
+    "site_gen": "Full-plant metered generation from the invoice (MWh)",
+    "inv_hub": f"{_HUB_SHORT} hub price as stated on the invoice ($/MWh)",
+    "inv_node": f"{NODE} node price as stated on the invoice ($/MWh)",
+    "inv_fixed_price": "Fixed Price as stated on the invoice ($/MWh)",
+    "inv_fixed_payment": "Fixed payment as stated on the invoice ($)",
+    "inv_init_floating": "Initial floating payment as stated on the invoice ($)",
+    "inv_bdi": "Basis Differential Interval flag as stated on the invoice",
+    "inv_replacement_price": "Replacement floating price as stated on the invoice ($/MWh)",
+    "inv_floating_wbd": "Floating payment w/ basis differential as stated on the invoice ($)",
+    "inv_savings": "Basis differential savings as stated on the invoice ($)",
+    "calc_is_bdi": "Basis Differential Interval as RECOMPUTED from the invoice's own inputs",
+    "calc_floating_wbd": "Floating payment w/ basis diff, recomputed ($)",
+    "calc_settlement": "Settlement recomputed from the invoice's inputs ($)",
+    "d_fixed": "Invoice minus recomputed fixed payment ($) — should be ~0",
+    "d_floating_wbd": "Invoice minus recomputed floating payment ($) — should be ~0",
+    "d_savings": "Invoice minus recomputed basis savings ($) — should be ~0",
+    "bdi_match": "Yes if the invoice's BDI election matches the recomputed one",
+    "status": "match / mismatch (arithmetic) / bdi_mismatch (election differs)",
+    "ercot_hub": f"{_HUB_SHORT} hub price from ERCOT's published RT15 data ($/MWh)",
+    "ercot_node": f"{NODE} node price from ERCOT's published RT15 data ($/MWh)",
+    "d_hub_price": "Invoice hub price minus ERCOT's published price ($/MWh)",
+    "d_node_price": "Invoice node price minus ERCOT's published price ($/MWh)",
+})
+_AUDIT_NOTES = _BDI_NOTES + [
+    "Columns starting 'inv_' are as printed on the Seller's invoice; 'calc_' are "
+    "recomputed independently from the invoice's own inputs; 'd_' is the difference "
+    "(invoice minus recomputed) and should be ~0 when the invoice is correct.",
+    "'ercot_' columns compare the invoice's prices to ERCOT's published RT15 prices.",
+]
+
 branding.hero(st, "Basis Differential",
               f"§4(d) settlement · Floating at {HUB.replace('HB_', '')} hub vs {NODE} node")
 
@@ -49,6 +109,26 @@ st.markdown(
     f"On those intervals the Floating Price is *deemed* equal to **node LMP + Fixed "
     f"Price**, lowering the Floating leg credited to the Buyer (and so raising what "
     f"the Buyer owes the Seller). The Floating Price is floored at \\$0 first.")
+
+def _file_bytes(src):
+    """Raw bytes of an uploaded file or a folder path (for stable caching)."""
+    if hasattr(src, "getvalue"):
+        return src.getvalue()
+    if hasattr(src, "read"):
+        b = src.read()
+        return b if isinstance(b, (bytes, bytearray)) else b.encode()
+    return Path(src).read_bytes()
+
+
+@st.cache_data(show_spinner="Processing invoice…")
+def _run_htx_audit(name, data_bytes):
+    """Parse + audit an HTX invoice. Cached on (name, bytes) so reruns triggered
+    by the export radio / download button don't recompute (and so the results
+    survive those reruns)."""
+    import io  # noqa: PLC0415
+    parsed = htx_invoice.read_invoice(io.BytesIO(data_bytes), name)
+    return htx_invoice.audit(parsed, terms, check_ercot=True)
+
 
 tab_audit, tab_calc = st.tabs(["🔍 Process an invoice", "📐 Compute from ERCOT"])
 
@@ -151,7 +231,8 @@ with tab_calc:
                              "Period": f"{start_d} → {end_d}",
                              "Fixed $/MWh": f"${FIXED:,.2f}", "|PTC| $/MWh": f"${PTC:,.2f}",
                              "BDI intervals": f"{s['bdi_intervals']:,}",
-                             "Settlement": branding.signed_money_raw(s["settlement"])})
+                             "Settlement": branding.signed_money_raw(s["settlement"])},
+                       notes=_BDI_NOTES, glossary=_CALC_GLOSSARY)
 
 # ───────────────────────────────────────────────────────────────────────────
 # TAB 2 — process / audit an HTX PPA invoice workbook
@@ -187,13 +268,17 @@ with tab_audit:
     if src is None:
         st.caption("Tip: link your Box invoices folder on the Invoice Audit page and the "
                    "HTX workbooks will appear here automatically.")
-    elif st.button("🔍 Process invoice", type="primary"):
+    # The result block must SURVIVE the rerun that clicking the export radio or
+    # the download button triggers — so we make "Process" sticky in session_state
+    # and re-render whenever it points at the currently-selected file.
+    elif (st.button("🔍 Process invoice", type="primary")
+          or st.session_state.get("_htx_for") == src_name):
+        st.session_state["_htx_for"] = src_name
         try:
-            parsed = htx_invoice.read_invoice(src, src_name)
+            res = _run_htx_audit(src_name, _file_bytes(src))
         except Exception as e:  # noqa: BLE001
             st.error(f"Couldn't read **{src_name}** as an HTX PPA invoice: {e}")
             st.stop()
-        res = htx_invoice.audit(parsed, terms, check_ercot=True)
         s = res["summary"]
         iv = res["intervals"]
 
@@ -330,6 +415,7 @@ with tab_audit:
                      "Intervals": f"{s['intervals']:,}", "Flagged": f"{n_bad:,}",
                      "BDI": f"{s['inv_bdi_intervals']:,}",
                      "Settlement": branding.signed_money_raw(s["inv_settlement"]),
-                     "Settlement Δ": branding.signed_money_raw(s["settlement_delta"])})
+                     "Settlement Δ": branding.signed_money_raw(s["settlement_delta"])},
+               notes=_AUDIT_NOTES, glossary=_AUDIT_GLOSSARY)
 
 branding.footer(st)

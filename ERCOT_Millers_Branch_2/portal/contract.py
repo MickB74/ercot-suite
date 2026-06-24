@@ -12,38 +12,43 @@ import json
 from pathlib import Path
 
 # ── the asset ───────────────────────────────────────────────────────────────
-# Millers Branch Solar — ERCOT resource node MLB_SLR_RN, three PVGR units
-# (MLB_SLR_SOLAR1/2/3). Haskell County (ERCOT North). Single-axis tracking PV.
-# EIA-860 "Millers Branch Solar" plant 69101. The full multi-phase plant (~318 MW
-# AC as SOLAR3 ramps in through 2026). NOTE: this portal was originally pointed at
-# MIL_MILG1_2 = "R W Miller", a NATURAL GAS plant (ERCOT resource_type GSREH/
-# SCGT90) — wrong node; corrected here to the real solar node MLB_SLR_RN.
+# Millers Branch 2 — the 50 MW PHASE II of Southern Power's Millers Branch Solar
+# development, Haskell County (ERCOT North). ERCOT queue 22INR0270, settlement
+# node MILLERS_BRANCH_2. This is a SEPARATE ERCOT resource from phase I
+# (Millers Branch Solar, 318 MW, node MLB_SLR_RN — see the ERCOT_Miller portal).
+#
+# STATUS: PRE-COD. As of scaffolding the registry lists COD 2026-06-30 and the
+# node has NO cached generation or price data yet, so settlement pages will show
+# "no data" until the node starts reporting and the Data Hub pulls it. Once it is
+# online, confirm:
+#   * the SCED resource name(s) at this node (sced_units below — currently a guess)
+#   * the EIA-860/923 plant id for the volume cross-check (eia_plant_id)
+#   * the executed contract terms (offtaker, strike, share) in config.json
 ASSET = {
-    "project_name": "Millers Branch Solar",
-    "resource_node": "MLB_SLR_RN",
-    "resource_name": "MLB_SLR_SOLAR1",
-    # All three PVGR units make up the plant; settlement must sum ALL,
-    # not just resource_name, or it counts a fraction of the plant.
-    "sced_units": ["MLB_SLR_SOLAR1", "MLB_SLR_SOLAR2", "MLB_SLR_SOLAR3"],
-    "capacity_mw": 318.0,
+    "project_name": "Millers Branch 2",
+    "resource_node": "MILLERS_BRANCH_2",
+    "resource_name": "MILLERS_BRANCH_2",
+    # Phase II unit list not yet observable (node not reporting). Defaults to the
+    # node name; CONFIRM the real SCED unit(s) once it appears in 60-Day SCED.
+    "sced_units": None,
+    "capacity_mw": 50.0,
     "tech": "Solar PV",
     "tracking_type": "single_axis",
     "hub": "HB_NORTH",                 # Haskell County = ERCOT North
     "county": "Haskell",
-    "lat": 33.221320,                  # EIA-860 plant 69101 (Millers Branch Solar)
-    "lon": -99.586520,
+    "lat": 33.22,                      # ERCOT queue location (Haskell, phase II)
+    "lon": -99.59,
     "dc_ac_ratio": 1.3,
-    # EIA-860 "Millers Branch Solar" = plant 69101 (aggregates all PV phases).
-    # Left disabled until the node↔EIA phase mapping is confirmed.
+    # EIA mapping unknown until the phase II plant id is published — disabled.
     "eia_plant_id": None,
     "eia_prime_mover": "PV",
-    # Typical-year solar profile for THIS plant (318 MW AC × 1.3 = 413,400 kW DC),
-    # at the Millers Branch site. Derived by exact linear scaling of the
-    # co-located phase-II PVWatts profile (same coords, same 1.3 DC:AC ratio), so
-    # it equals a fresh PVWatts run at 318 MW. Previously this borrowed the 50 MW
-    # phase-II profile, which understated projections ~6×.
-    "tmy_resource_name": "MLB_SLR_RN",
-    "tmy_capacity_kw": 413400,
+    # Typical-year solar profile for the 50 MW phase II (× 1.3 = 65,000 kW DC).
+    # The Data Hub has a cached PVWatts run for this node at this size.
+    "tmy_resource_name": "MILLERS_BRANCH_2",
+    "tmy_capacity_kw": 65000,
+    "status": "planned",
+    "cod": "2026-06-30",
+    "queue_id": "22INR0270",
 }
 
 # ── default contract terms (seed; overridable in config.json / Contract page) ──

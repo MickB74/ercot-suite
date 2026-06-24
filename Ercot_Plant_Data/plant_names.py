@@ -49,7 +49,7 @@ KNOWN_MAPPINGS = {
     "HHOLLOW": "Horse Hollow", "HOLSTEIN": "Holstein Solar", "HRFDWIND": "Hereford Wind",
     "JKLP_SLR": "Blue Jay Solar", "LILY": "Lily Solar", "LMWD_SLR": "Lakewood Solar",
     "LNP": "Long Point", "LON": "Lion Solar", "MERCURY_PV": "Mercury Solar", "MERCURY": "Mercury Solar",
-    "MIDP_SLR": "Midpoint Solar", "MIDWIND": "Midway Wind", "MLB_SLR": "Mockingbird Solar",
+    "MIDP_SLR": "Midpoint Solar", "MIDWIND": "Midway Wind", "MLB_SLR": "Millers Branch Solar",
     "MONTECR": "Monte Cristo", "MOZART": "Mozart Wind", "MRKM_SLR": "Markham Solar",
     "MROW_SLR": "Maryneal", "MUSTNGCK": "Mustang Creek", "NOBLESLR": "BT Noble",
     "NRTN_SLR": "Norton Solar", "PALMWIND": "Palmas Altas", "PHO": "Phoenix Solar",

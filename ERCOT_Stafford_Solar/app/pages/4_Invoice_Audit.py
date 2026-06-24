@@ -180,7 +180,9 @@ def _run_batch(items):
     st.caption(("Net-settlement basis. " if net_mode else "Energy-invoice basis. ")
                + "Each file is auto-mapped; open a row for interval detail. Use "
                  "single-file mode for manual column mapping.")
-    if not st.button("🔍 Audit all", type="primary"):
+    if st.button("🔍 Audit all", type="primary"):
+        st.session_state["_batch_go"] = True
+    if not st.session_state.get("_batch_go"):
         return
 
     rows, details = [], {}
@@ -410,7 +412,11 @@ m["volume_unit"] = "MWh"
 if not m["time_col"]:
     st.warning("Pick the interval-timestamp column to continue.")
     st.stop()
-if not st.button("🔍 Audit statement", type="primary"):
+# Sticky: keep the result+export alive across the reruns that clicking the
+# export-format radio / download button triggers (else they tear down).
+if st.button("🔍 Audit statement", type="primary"):
+    st.session_state["_audit_go"] = True
+if not st.session_state.get("_audit_go"):
     st.stop()
 
 # Safety net: drop stray non-timestamp rows so the strict parse can't be sunk.

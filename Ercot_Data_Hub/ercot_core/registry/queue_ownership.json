@@ -1,7 +1,7 @@
 {
   "11INR0062": {
     "project_name": "Shaffer Wind",
-    "owners": "Avangrid Renewables (Patriot Wind Farm, Nueces Co.); developed by Apex Clean Energy, Clearway, E.ON C&R, Wind Tex Energy \u2014 identity inferred from county/MW/entity",
+    "owners": "Avangrid Renewables (Patriot Wind Farm, Nueces Co.); developed by Apex Clean Energy, Clearway, E.ON C&R, Wind Tex Energy — identity inferred from county/MW/entity",
     "owner_source": "power-technology.com Patriot Wind Farm profile",
     "vppa": "",
     "vppa_source": "",
@@ -49,7 +49,7 @@
   },
   "17INR0043": {
     "project_name": "Vaquero 1 Wind",
-    "owners": "Enerverse (ERCOT entity); tied to Bordas Energy team (South Texas wind) \u2014 direct attribution unconfirmed",
+    "owners": "Enerverse (ERCOT entity); tied to Bordas Energy team (South Texas wind) — direct attribution unconfirmed",
     "owner_source": "enerverse.com / bordasenergy.com",
     "vppa": "",
     "vppa_source": "",
@@ -81,7 +81,7 @@
   },
   "18INR0031": {
     "project_name": "Maryneal Wind",
-    "owners": "Duke Energy Renewables / Deriva Energy (Maryneal Windpower, 182 MW, Nolan Co.) \u2014 registry lists Maryneal Solar/Wind on the same queue row; the asset is wind",
+    "owners": "Duke Energy Renewables / Deriva Energy (Maryneal Windpower, 182 MW, Nolan Co.) — registry lists Maryneal Solar/Wind on the same queue row; the asset is wind",
     "owner_source": "derivaenergy.com/projects/maryneal-windpower-project/; news.duke-energy.com Maryneal COD",
     "vppa": "Sprint (now T-Mobile) 12-yr VPPA, 173.3 MW, 2019",
     "vppa_source": "news.duke-energy.com 'Sprint and Duke Energy Renewables sign agreement on new 182 MW wind power project in Texas'",
@@ -105,7 +105,7 @@
   },
   "19INR0042": {
     "project_name": "Long Point Solar",
-    "owners": "Acciona Energ\u00eda (acquired 2020); developed by Red River Renewable Energy",
+    "owners": "Acciona Energía (acquired 2020); developed by Red River Renewable Energy",
     "owner_source": "solarpowerworldonline.com 'Acciona buys 240 MW solar project in Texas' (2020)",
     "vppa": "",
     "vppa_source": "",
@@ -123,7 +123,7 @@
     "project_name": "Hidalgo Wind",
     "owners": "EDP Renewables (EDPR NA); Los Mirasoles / Hidalgo wind complex, ~300 MW, Hidalgo & Starr Co.",
     "owner_source": "edp.com 'Construction completed Los Mirasoles II wind farm'; edpr.com 50 MW PPA release",
-    "vppa": "General Motors 30 MW (Q4 2016, Arlington Assembly Plant TX); The Home Depot 50 MW 20-yr PPA; Bloomberg LP VPPA; additional C&I PPAs \u2014 other counterparties not publicly named",
+    "vppa": "General Motors 30 MW (Q4 2016, Arlington Assembly Plant TX); The Home Depot 50 MW 20-yr PPA; Bloomberg LP VPPA; additional C&I PPAs — other counterparties not publicly named",
     "vppa_source": "renews.biz/44912/auto-giant-buys-wind-power/ (GM 30 MW); ir.homedepot.com/news-releases/2017/01-31-2017-130443167 (Home Depot 50 MW)",
     "ownership_updated": "2026-06-20"
   },
@@ -241,15 +241,15 @@
   },
   "20INR0142": {
     "project_name": "Ajax Wind",
-    "owners": "\u00d8rsted (via subsidiary Lincoln Clean Energy); Ajax Wind = dev name for \u00d8rsted's ~367 MW Western Trail Wind, Wilbarger/Baylor Co.",
-    "owner_source": "interconnection.fyi 20inr0142 + nsenergybusiness.com '\u00d8rsted completes 367MW Western Trail wind farm'",
+    "owners": "Ørsted (via subsidiary Lincoln Clean Energy); Ajax Wind = dev name for Ørsted's ~367 MW Western Trail Wind, Wilbarger/Baylor Co.",
+    "owner_source": "interconnection.fyi 20inr0142 + nsenergybusiness.com 'Ørsted completes 367MW Western Trail wind farm'",
     "vppa": "Corporate PPAs with PepsiCo, Hormel Foods, and Nucor",
-    "vppa_source": "energyindustryreview.com 'Western Trail Wind Farm, \u00d8rsted's Largest Onshore Wind Project'",
+    "vppa_source": "energyindustryreview.com 'Western Trail Wind Farm, Ørsted's Largest Onshore Wind Project'",
     "ownership_updated": "2026-06-20"
   },
   "20INR0160": {
     "project_name": "R-Cube Wind",
-    "owners": "Likely NextEra Energy Resources (ERCOT entity literally 'Nextera'; project withdrawn) \u2014 entity-name inference only",
+    "owners": "Likely NextEra Energy Resources (ERCOT entity literally 'Nextera'; project withdrawn) — entity-name inference only",
     "owner_source": "ERCOT queue entity field 'Nextera'",
     "vppa": "",
     "vppa_source": "",
@@ -289,7 +289,7 @@
   },
   "21INR0256": {
     "project_name": "Amsterdam Solar",
-    "owners": "Likely TotalEnergies (entity Cottonwood Bayou Solar II LLC; Cottonwood Bayou lineage = SunChase/Eolian -> TotalEnergies 2022) \u2014 inferred; withdrawn",
+    "owners": "Likely TotalEnergies (entity Cottonwood Bayou Solar II LLC; Cottonwood Bayou lineage = SunChase/Eolian -> TotalEnergies 2022) — inferred; withdrawn",
     "owner_source": "renews.biz TotalEnergies; comptroller ch313 1594",
     "vppa": "",
     "vppa_source": "",
@@ -329,15 +329,15 @@
   },
   "21INR0406": {
     "project_name": "Buffalo Creek",
-    "owners": "\u00d8rsted (entity Lincoln Clean Energy Development; acquired by \u00d8rsted 2018)",
-    "owner_source": "cleanview.co 21INR0406; prnewswire 'Lincoln Clean Energy becomes \u00d8rsted'",
+    "owners": "Ørsted (entity Lincoln Clean Energy Development; acquired by Ørsted 2018)",
+    "owner_source": "cleanview.co 21INR0406; prnewswire 'Lincoln Clean Energy becomes Ørsted'",
     "vppa": "",
     "vppa_source": "",
     "ownership_updated": "2026-06-20"
   },
   "21INR0481": {
     "project_name": "Old Lunar Solar",
-    "owners": "EDF Renewables (entity EDF Renewables Development, Inc.) \u2014 inferred from dev entity",
+    "owners": "EDF Renewables (entity EDF Renewables Development, Inc.) — inferred from dev entity",
     "owner_source": "interconnection.fyi entity 'EDF Renewables Development, Inc.'; edf-re.com",
     "vppa": "",
     "vppa_source": "",
@@ -345,7 +345,7 @@
   },
   "21INR0505": {
     "project_name": "Ramsey Storage",
-    "owners": "Hecate Energy (entity Hecate Energy Ramsey Storage LLC) \u2014 inferred from LLC + Ch.313",
+    "owners": "Hecate Energy (entity Hecate Energy Ramsey Storage LLC) — inferred from LLC + Ch.313",
     "owner_source": "comptroller.texas.gov ch313 1355 Louise-Hecate",
     "vppa": "",
     "vppa_source": "",
@@ -353,7 +353,7 @@
   },
   "21INR0546": {
     "project_name": "Anchor Wind Iii",
-    "owners": "Enel Green Power North America (ERCOT entity Ranchland Wind Project LLC; appears to be an expansion unit of Enel's Ranchland Wind+Storage \u2014 moderate confidence)",
+    "owners": "Enel Green Power North America (ERCOT entity Ranchland Wind Project LLC; appears to be an expansion unit of Enel's Ranchland Wind+Storage — moderate confidence)",
     "owner_source": "enelgreenpower.com/our-projects/operating/ranchland-wind-storage-farm",
     "vppa": "",
     "vppa_source": "",
@@ -449,7 +449,7 @@
   },
   "22INR0497": {
     "project_name": "TEXPO",
-    "owners": "Frontier Group of Companies (Frontier Energy); gas conversion of the former Oklaunion coal site (Oklaunion Power Station LLC) \u2014 inferred from site ownership",
+    "owners": "Frontier Group of Companies (Frontier Energy); gas conversion of the former Oklaunion coal site (Oklaunion Power Station LLC) — inferred from site ownership",
     "owner_source": "texomashomepage.com Frontier buys Oklaunion; frontier-companies.com/oklaunion-power-plant/",
     "vppa": "",
     "vppa_source": "",
@@ -481,7 +481,7 @@
   },
   "23INR0026": {
     "project_name": "Baker Branch Solar",
-    "owners": "\u00d8rsted (entity Mockingbird Solar Center, LLC; ~468-471 MW Lamar Co.; Baker Branch may be a phase)",
+    "owners": "Ørsted (entity Mockingbird Solar Center, LLC; ~468-471 MW Lamar Co.; Baker Branch may be a phase)",
     "owner_source": "us.orsted.com Mockingbird Solar Center (Nov 2024)",
     "vppa": "",
     "vppa_source": "",
@@ -505,7 +505,7 @@
   },
   "23INR0047": {
     "project_name": "Charger Solar",
-    "owners": "AP Solar Holdings, LLC \u2014 JV of Solar Plus Development (Plus Renewables), Avondale Solar, and J-POWER USA. NOT Apex Clean Energy",
+    "owners": "AP Solar Holdings, LLC — JV of Solar Plus Development (Plus Renewables), Avondale Solar, and J-POWER USA. NOT Apex Clean Energy",
     "owner_source": "apsolarholdings.com news (Aug 2020); jpowerusa.com/projects/charger-solar",
     "vppa": "",
     "vppa_source": "",
@@ -561,7 +561,7 @@
   },
   "23INR0190": {
     "project_name": "Cosmos Solar",
-    "owners": "EDF Renewables (entity EDF Renewables Development, Inc.) \u2014 inferred from dev entity",
+    "owners": "EDF Renewables (entity EDF Renewables Development, Inc.) — inferred from dev entity",
     "owner_source": "interconnection.fyi entity 'EDF Renewables Development, Inc.'; edf-re.com",
     "vppa": "",
     "vppa_source": "",
@@ -593,7 +593,7 @@
   },
   "23INR0233": {
     "project_name": "Earthwise Solar",
-    "owners": "Likely Chermac Energy (entity Quanah Solar 2 matches Chermac's Quanah Solar Project, Hardeman Co.) \u2014 inferred",
+    "owners": "Likely Chermac Energy (entity Quanah Solar 2 matches Chermac's Quanah Solar Project, Hardeman Co.) — inferred",
     "owner_source": "chermacenergy.com/projects",
     "vppa": "",
     "vppa_source": "",
@@ -601,8 +601,8 @@
   },
   "23INR0273": {
     "project_name": "Poco Trail Solar",
-    "owners": "\u00d8rsted (\u00d8rsted Onshore NA, ex-Lincoln Clean Energy; entity Eastern Trail Solar Center, LLC, Wilbarger Co.)",
-    "owner_source": "verdondailyrecord 'New solar project ... Wilbarger County' (2021); prnewswire 'Lincoln Clean Energy becomes \u00d8rsted'",
+    "owners": "Ørsted (Ørsted Onshore NA, ex-Lincoln Clean Energy; entity Eastern Trail Solar Center, LLC, Wilbarger Co.)",
+    "owner_source": "verdondailyrecord 'New solar project ... Wilbarger County' (2021); prnewswire 'Lincoln Clean Energy becomes Ørsted'",
     "vppa": "",
     "vppa_source": "",
     "ownership_updated": "2026-06-20"
@@ -617,7 +617,7 @@
   },
   "23INR0366": {
     "project_name": "Amsterdam Solar II",
-    "owners": "Likely TotalEnergies (entity Cottonwood Bayou Solar II LLC) \u2014 inferred; withdrawn",
+    "owners": "Likely TotalEnergies (entity Cottonwood Bayou Solar II LLC) — inferred; withdrawn",
     "owner_source": "renews.biz TotalEnergies; comptroller ch313 1594",
     "vppa": "",
     "vppa_source": "",
@@ -657,7 +657,7 @@
   },
   "24INR0011": {
     "project_name": "Pinnington Storage",
-    "owners": "Hecate Energy (entity Hecate Energy Longhorn Storage LLC; Jack Co.) \u2014 inferred from LLC + Ch.313",
+    "owners": "Hecate Energy (entity Hecate Energy Longhorn Storage LLC; Jack Co.) — inferred from LLC + Ch.313",
     "owner_source": "comptroller.texas.gov ch313 1727 Graford-Hecate; hecateenergy.com",
     "vppa": "",
     "vppa_source": "",
@@ -729,7 +729,7 @@
   },
   "24INR0125": {
     "project_name": "Grasshopper Solar",
-    "owners": "\u00d8rsted (\u00d8rsted Onshore NA; parent \u00d8rsted Onshore DevCo, LLC; Haskell Co.)",
+    "owners": "Ørsted (Ørsted Onshore NA; parent Ørsted Onshore DevCo, LLC; Haskell Co.)",
     "owner_source": "comptroller.texas.gov ch313 1616 Haskell-Grasshopper",
     "vppa": "",
     "vppa_source": "",
@@ -747,7 +747,7 @@
     "project_name": "Gaia Solar",
     "owners": "Sunraycer Renewables (owner/developer; backed by Crayhill Capital Management)",
     "owner_source": "pv-tech.org Sunraycer $475M financing",
-    "vppa": "Meta Platforms \u2014 Environmental Attribute Purchase Agreement (part of ~240 MWac deal), May 2025",
+    "vppa": "Meta Platforms — Environmental Attribute Purchase Agreement (part of ~240 MWac deal), May 2025",
     "vppa_source": "prnewswire.com 'Sunraycer Renewables Signs Agreements with Meta for 240 MWac of Solar Projects in Texas'",
     "ownership_updated": "2026-06-20"
   },
@@ -777,9 +777,9 @@
   },
   "24INR0201": {
     "project_name": "Short Creek Solar",
-    "owners": "TotalEnergies (Core Solar pipeline acquired Apr 2022; ERCOT entity Wichita Solar I, LLC \u2014 the 'Wichita' 805 MWp site)",
+    "owners": "TotalEnergies (Core Solar pipeline acquired Apr 2022; ERCOT entity Wichita Solar I, LLC — the 'Wichita' 805 MWp site)",
     "owner_source": "totalenergies.com press release (Feb 2026); power-technology.com Core Solar acquisition (2022)",
-    "vppa": "Google 15-yr solar PPA (Feb 2026) \u2014 'Wichita' 805 MWp, part of a 1 GW Google Texas deal",
+    "vppa": "Google 15-yr solar PPA (Feb 2026) — 'Wichita' 805 MWp, part of a 1 GW Google Texas deal",
     "vppa_source": "totalenergies.com press release (Feb 2026); pv-magazine (Feb 2026)",
     "ownership_updated": "2026-06-20"
   },
@@ -793,7 +793,7 @@
   },
   "24INR0264": {
     "project_name": "Goldenrod Creek Solar",
-    "owners": "Solar Proponent, LLC (EnCap/Yorktown/Mercuria-backed; entity registered at Solar Proponent's Austin address) \u2014 inferred; withdrawn",
+    "owners": "Solar Proponent, LLC (EnCap/Yorktown/Mercuria-backed; entity registered at Solar Proponent's Austin address) — inferred; withdrawn",
     "owner_source": "opencorporates Goldenrod Creek Solar LLC; gem.wiki; solarproponent.com",
     "vppa": "",
     "vppa_source": "",
@@ -817,7 +817,7 @@
   },
   "24INR0422": {
     "project_name": "Hollow Branch Creek Solar",
-    "owners": "Solar Proponent, LLC (EnCap-backed Texas solar developer) \u2014 moderate confidence",
+    "owners": "Solar Proponent, LLC (EnCap-backed Texas solar developer) — moderate confidence",
     "owner_source": "businesswire.com Solar Proponent/EnCap (2020); cleanview.co 24INR0422",
     "vppa": "",
     "vppa_source": "",
@@ -825,7 +825,7 @@
   },
   "24INR0433": {
     "project_name": "Tehuacana Creek Solar-Alt POI",
-    "owners": "Parliament Energy (entity Tehuacana Creek Solar LLC; developed by Solar Proponent) \u2014 inferred",
+    "owners": "Parliament Energy (entity Tehuacana Creek Solar LLC; developed by Solar Proponent) — inferred",
     "owner_source": "power-technology.com Tehuacana Creek; Navarro Co. road-use permit 'c/o Parliament Energy Holdings LLC'",
     "vppa": "",
     "vppa_source": "",
@@ -865,7 +865,7 @@
   },
   "25INR0087": {
     "project_name": "Capoterra",
-    "owners": "Avantus (formerly 8minute Solar Energy; KKR majority since Jul 2024; entity 206OF 8me LLC) \u2014 inferred from '8me' convention; suspended",
+    "owners": "Avantus (formerly 8minute Solar Energy; KKR majority since Jul 2024; entity 206OF 8me LLC) — inferred from '8me' convention; suspended",
     "owner_source": "pv-tech.org 8minute->Avantus rebrand; pv-magazine-usa.com KKR/Avantus (Jul 2024)",
     "vppa": "",
     "vppa_source": "",
@@ -873,7 +873,7 @@
   },
   "25INR0088": {
     "project_name": "Capoterra BESS",
-    "owners": "Avantus (8minute Energy; entity 206OF 8me LLC) \u2014 inferred from '8me' convention (CEQAnet confirms 8ME=8minute); suspended",
+    "owners": "Avantus (8minute Energy; entity 206OF 8me LLC) — inferred from '8me' convention (CEQAnet confirms 8ME=8minute); suspended",
     "owner_source": "interconnection.fyi 25inr0088; ceqanet.lci.ca.gov 2021020513",
     "vppa": "",
     "vppa_source": "",
@@ -881,7 +881,7 @@
   },
   "25INR0090": {
     "project_name": "Tempesta BESS",
-    "owners": "Avantus (8minute Energy; entity 207TK 8me LLC) \u2014 inferred from '8me' convention; suspended",
+    "owners": "Avantus (8minute Energy; entity 207TK 8me LLC) — inferred from '8me' convention; suspended",
     "owner_source": "interconnection.fyi 25inr0090; ceqanet.lci.ca.gov 2021020513",
     "vppa": "",
     "vppa_source": "",
@@ -889,7 +889,7 @@
   },
   "25INR0094": {
     "project_name": "Brittlebush Solar",
-    "owners": "Avantus (8minute Energy; entity 210MS 8me LLC) \u2014 inferred from '8me' convention; suspended",
+    "owners": "Avantus (8minute Energy; entity 210MS 8me LLC) — inferred from '8me' convention; suspended",
     "owner_source": "en.wikipedia.org/wiki/Avantus; interconnection.fyi 25inr0094",
     "vppa": "",
     "vppa_source": "",
@@ -897,7 +897,7 @@
   },
   "25INR0095": {
     "project_name": "Brittlebush BESS",
-    "owners": "Avantus (8minute Energy; entity 210MS 8me LLC) \u2014 inferred from '8me' convention; suspended",
+    "owners": "Avantus (8minute Energy; entity 210MS 8me LLC) — inferred from '8me' convention; suspended",
     "owner_source": "en.wikipedia.org/wiki/Avantus; interconnection.fyi 25inr0095",
     "vppa": "",
     "vppa_source": "",
@@ -937,7 +937,7 @@
   },
   "25INR0225": {
     "project_name": "Lucy Solar",
-    "owners": "High Road Clean Energy (developer) / Energy Innovation Partners (owner); 'Team Korea' consortium \u2014 Hyundai E&C, KOMIPO, KIND, PIS, Topsun; 350 MWac",
+    "owners": "High Road Clean Energy (developer) / Energy Innovation Partners (owner); 'Team Korea' consortium — Hyundai E&C, KOMIPO, KIND, PIS, Topsun; 350 MWac",
     "owner_source": "pv-magazine-usa.com (Jan 2026); Businesswire",
     "vppa": "15-yr VPPA portfolio (LevelTen-brokered) with Starbucks and Workday + others (~233 GWh/yr)",
     "vppa_source": "GeekWire (2025); LevelTen case studies (Workday, Starbucks)",
@@ -1009,7 +1009,7 @@
   },
   "26INR0089": {
     "project_name": "Crescent C BESS",
-    "owners": "OCI Energy (entity OCI La Salle ESS LLC matches OCI's TX ESS naming; La Salle Co.) \u2014 inferred",
+    "owners": "OCI Energy (entity OCI La Salle ESS LLC matches OCI's TX ESS naming; La Salle Co.) — inferred",
     "owner_source": "ocienergy.com; prnewswire.com OCI/Arava La Salle (Jun 2026)",
     "vppa": "",
     "vppa_source": "",
@@ -1043,7 +1043,7 @@
     "project_name": "Moccasin Solar",
     "owners": "ENGIE (ENGIE North America); project-dev entity Swenson Solar LLC",
     "owner_source": "engie-na.com 'ENGIE and Meta expand PPA to more than 1.3 GW'",
-    "vppa": "PPA with Meta \u2014 100% of ~600 MW output for US data centers (~2027; part of ENGIE-Meta >1.3 GW package across four TX projects)",
+    "vppa": "PPA with Meta — 100% of ~600 MW output for US data centers (~2027; part of ENGIE-Meta >1.3 GW package across four TX projects)",
     "vppa_source": "engie-na.com 'ENGIE and Meta expand PPA to more than 1.3 GW'",
     "ownership_updated": "2026-06-20"
   },
@@ -1064,16 +1064,16 @@
     "ownership_updated": "2026-06-20"
   },
   "26INR0350": {
-    "project_name": "Jack County III \u2013 138 kV",
-    "owners": "Likely LS Power (owns the existing Jack County complex, acquired from Brazos Electric 2023) \u2014 inferred; entity Jack County Power Development, LLC",
+    "project_name": "Jack County III – 138 kV",
+    "owners": "Likely LS Power (owns the existing Jack County complex, acquired from Brazos Electric 2023) — inferred; entity Jack County Power Development, LLC",
     "owner_source": "lspower.com Brazos Electric 2.1 GW acquisition (2023); gem.wiki Jack County Generation 3",
     "vppa": "",
     "vppa_source": "",
     "ownership_updated": "2026-06-20"
   },
   "26INR0351": {
-    "project_name": "Jack County III \u2013 345 kV",
-    "owners": "Likely LS Power (owns existing Jack County complex) \u2014 inferred (345 kV variant of Jack County III)",
+    "project_name": "Jack County III – 345 kV",
+    "owners": "Likely LS Power (owns existing Jack County complex) — inferred (345 kV variant of Jack County III)",
     "owner_source": "lspower.com (2023); gem.wiki Jack County Generation 3",
     "vppa": "",
     "vppa_source": "",
@@ -1097,7 +1097,7 @@
   },
   "26INR0560": {
     "project_name": "Fort Worth Power Core Bastrop Gas Plant",
-    "owners": "Fort Worth Power Core LLC \u2014 affiliated with Black Mountain (Rhett Bennett); data-center bridge power; inferred (distinct from Hull Street's Bastrop project)",
+    "owners": "Fort Worth Power Core LLC — affiliated with Black Mountain (Rhett Bennett); data-center bridge power; inferred (distinct from Hull Street's Bastrop project)",
     "owner_source": "fortworthreport.org (Feb 2026); aol.com Black Mountain",
     "vppa": "No announced third-party offtaker; data-center bridge/backup power",
     "vppa_source": "aol.com/Fort Worth Report (2026)",
@@ -1129,7 +1129,7 @@
   },
   "26INR0636": {
     "project_name": "Lyra Storage",
-    "owners": "Likely SB Energy (SoftBank; entity JUNO BESS I matches SB Energy's Juno program, Borden Co.) \u2014 inferred",
+    "owners": "Likely SB Energy (SoftBank; entity JUNO BESS I matches SB Energy's Juno program, Borden Co.) — inferred",
     "owner_source": "interconnection.fyi 26inr0636; sbenergy.com/project/juno/",
     "vppa": "",
     "vppa_source": "",
@@ -1193,7 +1193,7 @@
   },
   "27INR0082": {
     "project_name": "Orbit Energy Storage",
-    "owners": "Grid Connected Infrastructure (GCI; entity GCI Orbit Energy Storage LLC; partnered with Leyline Renewable Capital) \u2014 inferred from GCI prefix",
+    "owners": "Grid Connected Infrastructure (GCI; entity GCI Orbit Energy Storage LLC; partnered with Leyline Renewable Capital) — inferred from GCI prefix",
     "owner_source": "gci.energy/our-projects; prnewswire.com 'Leyline Partners with GCI'",
     "vppa": "",
     "vppa_source": "",
@@ -1201,7 +1201,7 @@
   },
   "27INR0084": {
     "project_name": "Aegle Power",
-    "owners": "Aegle Power LLC (led by CEO Kathleen Smith); NO verified parent \u2014 NextEra's name was used without authorization and NextEra disclaimed involvement; TEF loan denied",
+    "owners": "Aegle Power LLC (led by CEO Kathleen Smith); NO verified parent — NextEra's name was used without authorization and NextEra disclaimed involvement; TEF loan denied",
     "owner_source": "utilitydive.com 'Texas PUC denies Aegle Power loan application'",
     "vppa": "",
     "vppa_source": "",
@@ -1225,7 +1225,7 @@
   },
   "27INR0108": {
     "project_name": "Paint Rock Wind",
-    "owners": "\u00d8rsted (entity Orsted Onshore Development North America, LLC)",
+    "owners": "Ørsted (entity Orsted Onshore Development North America, LLC)",
     "owner_source": "us.orsted.com onshore wind; interconnection.fyi 27inr0108",
     "vppa": "",
     "vppa_source": "",
@@ -1233,7 +1233,7 @@
   },
   "27INR0115": {
     "project_name": "Diamante BESS",
-    "owners": "Flexen (Flexen Global; entity Flexen USA LLC; TX develop-and-sell) \u2014 inferred from entity name",
+    "owners": "Flexen (Flexen Global; entity Flexen USA LLC; TX develop-and-sell) — inferred from entity name",
     "owner_source": "flexenglobal.com/en",
     "vppa": "",
     "vppa_source": "",
@@ -1241,7 +1241,7 @@
   },
   "27INR0150": {
     "project_name": "Cielo Vista Solar",
-    "owners": "Titus Low Carbon Ventures (Titus LCV LLC, Fort Worth) \u2014 registration match",
+    "owners": "Titus Low Carbon Ventures (Titus LCV LLC, Fort Worth) — registration match",
     "owner_source": "cleanview.co project 27INR0150",
     "vppa": "",
     "vppa_source": "",
@@ -1273,7 +1273,7 @@
   },
   "27INR0334": {
     "project_name": "Buffalo Jump Wind",
-    "owners": "NextEra Energy Resources (ERCOT entity Boulevard Associates, LLC is NextEra's development subsidiary \u2014 project tie inferred from shared entity)",
+    "owners": "NextEra Energy Resources (ERCOT entity Boulevard Associates, LLC is NextEra's development subsidiary — project tie inferred from shared entity)",
     "owner_source": "wind-watch.org 2016 (Boulevard Associates = NextEra Energy Resources)",
     "vppa": "",
     "vppa_source": "",
@@ -1281,7 +1281,7 @@
   },
   "27INR0367": {
     "project_name": "Goat Mountain",
-    "owners": "Clearway Energy (100%); originally developed by Cielo Wind Power / Edison International (Goat Wind LP, online 2008) \u2014 moderate confidence (aggregator-sourced)",
+    "owners": "Clearway Energy (100%); originally developed by Cielo Wind Power / Edison International (Goat Wind LP, online 2008) — moderate confidence (aggregator-sourced)",
     "owner_source": "gridinfo.com/plant/goat-wind-lp/56754",
     "vppa": "",
     "vppa_source": "",
@@ -1289,7 +1289,7 @@
   },
   "27INR0434": {
     "project_name": "Lyra Solar",
-    "owners": "Likely SB Energy (SoftBank); entity 'Juno Solar 4' matches SB Energy's Borden Co. Juno program \u2014 unconfirmed for this ID",
+    "owners": "Likely SB Energy (SoftBank); entity 'Juno Solar 4' matches SB Energy's Borden Co. Juno program — unconfirmed for this ID",
     "owner_source": "sbenergy.com Juno project (Borden Co.)",
     "vppa": "",
     "vppa_source": "",
@@ -1297,7 +1297,7 @@
   },
   "27INR0443": {
     "project_name": "Serenity Wind",
-    "owners": "Likely Serena (Serena Energia, ex-Omega Energia, Brazil); dominant Armstrong Co. wind developer \u2014 inferred",
+    "owners": "Likely Serena (Serena Energia, ex-Omega Energia, Brazil); dominant Armstrong Co. wind developer — inferred",
     "owner_source": "prnewswire.com Serena Goodnight 1 (Dec 2023); abc7amarillo Serena Armstrong Co.",
     "vppa": "",
     "vppa_source": "",
@@ -1305,7 +1305,7 @@
   },
   "27INR0445": {
     "project_name": "Moon Chapel Wind",
-    "owners": "\u00d8rsted (entity Orsted Onshore Development North America, LLC)",
+    "owners": "Ørsted (entity Orsted Onshore Development North America, LLC)",
     "owner_source": "us.orsted.com onshore wind; interconnection.fyi 27inr0445",
     "vppa": "",
     "vppa_source": "",
@@ -1313,7 +1313,7 @@
   },
   "27INR0452": {
     "project_name": "Moccasin Storage",
-    "owners": "ENGIE North America (entity ENGIE IR Holdings LLC) \u2014 inferred from LLC; distinct from ENGIE's Moccasin Solar",
+    "owners": "ENGIE North America (entity ENGIE IR Holdings LLC) — inferred from LLC; distinct from ENGIE's Moccasin Solar",
     "owner_source": "energy-storage.news ENGIE TX BESS portfolio",
     "vppa": "",
     "vppa_source": "",
@@ -1385,7 +1385,7 @@
   },
   "28INR0017": {
     "project_name": "Sitges Wind",
-    "owners": "Likely NextEra Energy Resources (interconnection customer 'NextEra Energy Interconnection Holdings, LLC') \u2014 entity-name inference, not confirmed",
+    "owners": "Likely NextEra Energy Resources (interconnection customer 'NextEra Energy Interconnection Holdings, LLC') — entity-name inference, not confirmed",
     "owner_source": "interconnection.fyi project ercot-28inr0017",
     "vppa": "",
     "vppa_source": "",
@@ -1417,7 +1417,7 @@
   },
   "28INR0086": {
     "project_name": "West Royal Natural Gas (TEF-Due Diligence)",
-    "owners": "Invenergy (entity Invenergy Energy Transition Development LLC) \u2014 inferred from entity name; 888 MW gas, Upton Co.; TEF",
+    "owners": "Invenergy (entity Invenergy Energy Transition Development LLC) — inferred from entity name; 888 MW gas, Upton Co.; TEF",
     "owner_source": "invenergy.com; interconnection.fyi 28inr0086",
     "vppa": "",
     "vppa_source": "",
@@ -1481,7 +1481,7 @@
   },
   "28INR0132": {
     "project_name": "River Boat Solar",
-    "owners": "Titus Low Carbon Ventures (entity Champion Creek Solar, LLC) \u2014 inferred from capacity/region match",
+    "owners": "Titus Low Carbon Ventures (entity Champion Creek Solar, LLC) — inferred from capacity/region match",
     "owner_source": "tituslcv.com/portfolio/",
     "vppa": "",
     "vppa_source": "",
@@ -1497,7 +1497,7 @@
   },
   "28INR0215": {
     "project_name": "Complex Serenity Wind",
-    "owners": "Serena (Serena Energia S.A. / Serena US; Brazilian developer, B3: SRNA3); Armstrong Co. buildout (Serenity Wind LLC) \u2014 LLC-to-parent link strongly supported, not verbatim",
+    "owners": "Serena (Serena Energia S.A. / Serena US; Brazilian developer, B3: SRNA3); Armstrong Co. buildout (Serenity Wind LLC) — LLC-to-parent link strongly supported, not verbatim",
     "owner_source": "co.armstrong.tx.us Serenity Wind 2 executed tax abatement; abc7amarillo (Serena Armstrong Co. investment)",
     "vppa": "",
     "vppa_source": "",
@@ -1513,7 +1513,7 @@
   },
   "28INR0250": {
     "project_name": "Mojo Solar",
-    "owners": "Likely Misae Investments (Misae Energy Hub, Wilson Co.; ERCOT entity Power Synergy) \u2014 link to Power Synergy not explicitly sourced",
+    "owners": "Likely Misae Investments (Misae Energy Hub, Wilson Co.; ERCOT entity Power Synergy) — link to Power Synergy not explicitly sourced",
     "owner_source": "wilsoncountynews.com 'AI data center is coming to Wilson County'",
     "vppa": "",
     "vppa_source": "",
@@ -1537,7 +1537,7 @@
   },
   "28INR0360": {
     "project_name": "Zeus Armstrong BESS II",
-    "owners": "Zeus (Zeus Red; Armstrong Co. integrated data-center/solar/BESS campus) \u2014 inferred from project name",
+    "owners": "Zeus (Zeus Red; Armstrong Co. integrated data-center/solar/BESS campus) — inferred from project name",
     "owner_source": "zeusred.com (Armstrong Co. 1.0 GW BESS)",
     "vppa": "Co-located with Zeus's own hyperscale data-center load",
     "vppa_source": "zeusred.com",
@@ -1585,7 +1585,7 @@
   },
   "28INR0509": {
     "project_name": "Thunder Bird 2 Gas",
-    "owners": "Kalnin Ventures, LLC \u2014 subsidiary of BKV Corporation (NYSE: BKV), majority-backed by Banpu PCL (Thailand)",
+    "owners": "Kalnin Ventures, LLC — subsidiary of BKV Corporation (NYSE: BKV), majority-backed by Banpu PCL (Thailand)",
     "owner_source": "interconnection.fyi 28inr0509; bkv.com",
     "vppa": "",
     "vppa_source": "",
@@ -1601,7 +1601,7 @@
   },
   "29INR0004": {
     "project_name": "Aurelius Wind",
-    "owners": "Intersect Power (ERCOT entity IP Roman Wind, LLC follows Intersect's 'IP \u2026' SPV convention \u2014 aggregator-sourced)",
+    "owners": "Intersect Power (ERCOT entity IP Roman Wind, LLC follows Intersect's 'IP …' SPV convention — aggregator-sourced)",
     "owner_source": "cleanview.co project 29INR0004 Aurelius Wind",
     "vppa": "",
     "vppa_source": "",
@@ -1657,7 +1657,7 @@
   },
   "29INR0030": {
     "project_name": "Commodus Solar",
-    "owners": "Intersect Power (entity per Cleanview; 'IP \u2026' convention); Google-owned (~$4.75B, Jan 2026), grid-tied assets \u2192 IPX Power",
+    "owners": "Intersect Power (entity per Cleanview; 'IP …' convention); Google-owned (~$4.75B, Jan 2026), grid-tied assets → IPX Power",
     "owner_source": "cleanview.co 29INR0030; pv-magazine-usa.com Google acquires Intersect (Jan 2026)",
     "vppa": "",
     "vppa_source": "",
@@ -1665,7 +1665,7 @@
   },
   "29INR0031": {
     "project_name": "Commodus Wind",
-    "owners": "Intersect Power (ERCOT entity IP Blackwell, LLC follows Intersect's 'IP \u2026' SPV convention)",
+    "owners": "Intersect Power (ERCOT entity IP Blackwell, LLC follows Intersect's 'IP …' SPV convention)",
     "owner_source": "cleanview.co project 29INR0031 Commodus Wind",
     "vppa": "",
     "vppa_source": "",
@@ -1673,7 +1673,7 @@
   },
   "29INR0032": {
     "project_name": "Commodus 2 Solar",
-    "owners": "Intersect Power (entity IP Blackwell II, LLC; 'IP \u2026' convention) \u2014 inferred; now Google/IPX",
+    "owners": "Intersect Power (entity IP Blackwell II, LLC; 'IP …' convention) — inferred; now Google/IPX",
     "owner_source": "interconnection.fyi 29inr0032; pv-magazine-usa.com (Jan 2026)",
     "vppa": "",
     "vppa_source": "",
@@ -1689,7 +1689,7 @@
   },
   "29INR0034": {
     "project_name": "Cavell Solar",
-    "owners": "Intersect Power (entity IP Cavell, LLC; 'IP \u2026' convention) \u2014 inferred; now Google/IPX",
+    "owners": "Intersect Power (entity IP Cavell, LLC; 'IP …' convention) — inferred; now Google/IPX",
     "owner_source": "interconnection.fyi 29inr0034; pv-magazine-usa.com (Jan 2026)",
     "vppa": "",
     "vppa_source": "",
@@ -1697,7 +1697,7 @@
   },
   "29INR0035": {
     "project_name": "Cavell Wind",
-    "owners": "Intersect Power (entity IP Cavell, LLC; 'IP \u2026' = Intersect convention, now Google-owned) \u2014 inferred, not in a project-specific release",
+    "owners": "Intersect Power (entity IP Cavell, LLC; 'IP …' = Intersect convention, now Google-owned) — inferred, not in a project-specific release",
     "owner_source": "interconnection.fyi IP Cavell; utilitydive.com Google-Intersect acquisition",
     "vppa": "",
     "vppa_source": "",
@@ -1737,7 +1737,7 @@
   },
   "29INR0175": {
     "project_name": "Black Mountain Hale Gas",
-    "owners": "Black Mountain (Rhett Bennett group; entity Fort Worth Power Core LLC) \u2014 gas-to-power for data centers; inferred from shared branding",
+    "owners": "Black Mountain (Rhett Bennett group; entity Fort Worth Power Core LLC) — gas-to-power for data centers; inferred from shared branding",
     "owner_source": "aol.com/Fort Worth Report 'Black Mountain's Fort Worth data center'",
     "vppa": "Behind-the-meter bridge/backup power for an unnamed data center",
     "vppa_source": "aol.com/Fort Worth Report (2026)",
@@ -1761,7 +1761,7 @@
   },
   "29INR0191": {
     "project_name": "Black Mountain Fannin Gas",
-    "owners": "Black Mountain Power LLC (Rhett Bennett group) \u2014 data-center gas-to-power",
+    "owners": "Black Mountain Power LLC (Rhett Bennett group) — data-center gas-to-power",
     "owner_source": "aol.com/Fort Worth Report Black Mountain; datacentermap.com Black Mountain Power LLC",
     "vppa": "Behind-the-meter power for data centers; customer unnamed",
     "vppa_source": "aol.com/Fort Worth Report (2026)",
@@ -1777,7 +1777,7 @@
   },
   "29INR0206": {
     "project_name": "Riviera Gas",
-    "owners": "BKV-BPP Power, LLC \u2014 gas-gen JV of BKV Corporation (~75%) + Banpu Power US (~25%) \u2014 inferred via the BKV-BPP entity",
+    "owners": "BKV-BPP Power, LLC — gas-gen JV of BKV Corporation (~75%) + Banpu Power US (~25%) — inferred via the BKV-BPP entity",
     "owner_source": "bkv.com/power-generation; NaturalGasIntel 'BKV's Texas Power Footprint Expanding' (2026)",
     "vppa": "",
     "vppa_source": "",
@@ -1785,7 +1785,7 @@
   },
   "29INR0242": {
     "project_name": "Enfinity Redbud Storage",
-    "owners": "Enfinity Global (entity EG Redbud LLC; project carries Enfinity name) \u2014 inferred",
+    "owners": "Enfinity Global (entity EG Redbud LLC; project carries Enfinity name) — inferred",
     "owner_source": "enfinity.global press (TX BESS portfolio)",
     "vppa": "",
     "vppa_source": "",
@@ -1793,7 +1793,7 @@
   },
   "29INR0291": {
     "project_name": "Enfinity Post Oak Solar SLF",
-    "owners": "Enfinity Global (entity 'EG White Oak LLC'; project carries Enfinity name) \u2014 name inference",
+    "owners": "Enfinity Global (entity 'EG White Oak LLC'; project carries Enfinity name) — name inference",
     "owner_source": "enfinity.global press; entity name (EG = Enfinity Global)",
     "vppa": "",
     "vppa_source": "",
@@ -1801,7 +1801,7 @@
   },
   "29INR0298": {
     "project_name": "BM Freestone Energy Center",
-    "owners": "Black Mountain (Rhett Bennett group; entity Black Mountain Energy Storage II) \u2014 data-center gas; inferred (distinct from Constellation's Freestone plant)",
+    "owners": "Black Mountain (Rhett Bennett group; entity Black Mountain Energy Storage II) — data-center gas; inferred (distinct from Constellation's Freestone plant)",
     "owner_source": "aol.com/Fort Worth Report Black Mountain",
     "vppa": "Behind-the-meter bridge/backup for a data center; customer unnamed",
     "vppa_source": "aol.com/Fort Worth Report (2026)",
@@ -1897,7 +1897,7 @@
   },
   "30INR0071": {
     "project_name": "Prairie Ridge",
-    "owners": "Tenaska Power Generation, LLC; parent Tenaska, Inc. (Omaha, NE \u2014 employee-owned developer/operator)",
+    "owners": "Tenaska Power Generation, LLC; parent Tenaska, Inc. (Omaha, NE — employee-owned developer/operator)",
     "owner_source": "tenaska.com/who-we-are/",
     "vppa": "",
     "vppa_source": "",
@@ -1913,7 +1913,7 @@
   },
   "30INR0091": {
     "project_name": "BM Great Rock Energy Center",
-    "owners": "Black Mountain (Rhett Bennett group; entity Black Mountain Energy Storage II) \u2014 data-center gas; inferred",
+    "owners": "Black Mountain (Rhett Bennett group; entity Black Mountain Energy Storage II) — data-center gas; inferred",
     "owner_source": "aol.com/Fort Worth Report Black Mountain",
     "vppa": "Behind-the-meter bridge/backup for a data center; customer unnamed",
     "vppa_source": "aol.com/Fort Worth Report (2026)",
@@ -1921,7 +1921,7 @@
   },
   "30INR0110": {
     "project_name": "Thunder Bird 1 Gas",
-    "owners": "Kalnin Ventures, LLC \u2014 subsidiary of BKV Corporation (NYSE: BKV); majority-backed by Banpu PCL (Thailand)",
+    "owners": "Kalnin Ventures, LLC — subsidiary of BKV Corporation (NYSE: BKV); majority-backed by Banpu PCL (Thailand)",
     "owner_source": "bkv.com news",
     "vppa": "",
     "vppa_source": "",
@@ -1945,7 +1945,7 @@
   },
   "NAME:bobcat wind": {
     "project_name": "Bobcat Wind",
-    "owners": "EDF Renewables (Bobcat Bluff, Archer Co. \u2014 note registry county may be mislabeled); acquired from enXco/Element Power 2012",
+    "owners": "EDF Renewables (Bobcat Bluff, Archer Co. — note registry county may be mislabeled); acquired from enXco/Element Power 2012",
     "owner_source": "edf-re.com '150 MW Bobcat Bluff wind project' press release",
     "vppa": "",
     "vppa_source": "",
@@ -1961,7 +1961,7 @@
   },
   "NAME:green pastures": {
     "project_name": "Green Pastures",
-    "owners": "Acciona Energ\u00eda (acquired Green Pastures I & II in 2018 for $202.5M); originally Pioneer Green Energy, then Capital Dynamics (2014)",
+    "owners": "Acciona Energía (acquired Green Pastures I & II in 2018 for $202.5M); originally Pioneer Green Energy, then Capital Dynamics (2014)",
     "owner_source": "windpowermonthly.com 'Acciona buys two wind farms Texas'",
     "vppa": "",
     "vppa_source": "",
@@ -1999,14 +1999,6 @@
     "vppa_source": "power-technology.com Mesquite Star; blogs.cisco.com 'Cisco completes first wind energy project'",
     "ownership_updated": "2026-06-20"
   },
-  "NAME:mockingbird": {
-    "project_name": "mockingbird",
-    "owners": "\u00d8rsted (\u00d8rsted Onshore North America); 471 MW Mockingbird Solar Center, Lamar Co. \u2014 \u00d8rsted's largest global solar project",
-    "owner_source": "us.orsted.com 2024 Mockingbird Solar Center commencement",
-    "vppa": "Fully contracted: Bloomberg 80 MW/15-yr (2024), Royal DSM (10-yr), Covestro, plus a 4th offtaker",
-    "vppa_source": "prnewswire.com 'Bloomberg and \u00d8rsted announce 15-year renewable energy PPA'",
-    "ownership_updated": "2026-06-20"
-  },
   "NAME:route 66 wind": {
     "project_name": "Route 66 Wind",
     "owners": "Developed by First Wind (later SunEdison/Terraform); J.P. Morgan Asset Management majority investment (2014)",
@@ -2017,7 +2009,7 @@
   },
   "NAME:san roman wind": {
     "project_name": "San Roman Wind",
-    "owners": "ACCIONA Energ\u00eda (owner/operator; online 2016)",
+    "owners": "ACCIONA Energía (owner/operator; online 2016)",
     "owner_source": "acciona.com/projects/san-roman-wind-farm",
     "vppa": "",
     "vppa_source": "",
@@ -2025,7 +2017,7 @@
   },
   "NAME:south plains": {
     "project_name": "South Plains",
-    "owners": "South Plains I: TerraForm Power (now Brookfield Renewable); South Plains II: Novatus Energy, operated by E.ON \u2014 ~500 MW total, Floyd Co.",
+    "owners": "South Plains I: TerraForm Power (now Brookfield Renewable); South Plains II: Novatus Energy, operated by E.ON — ~500 MW total, Floyd Co.",
     "owner_source": "en.wikipedia.org/wiki/South_Plains_Wind_Farm",
     "vppa": "Phase I: 10-yr PPA to Morgan Stanley (2015); Phase II: HPE 12-yr PPA for 112 MW + ~188 MW to a Citigroup affiliate",
     "vppa_source": "en.wikipedia.org/wiki/South_Plains_Wind_Farm",
