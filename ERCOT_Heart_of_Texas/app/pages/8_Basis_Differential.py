@@ -50,7 +50,7 @@ st.markdown(
     f"Price**, lowering the Floating leg credited to the Buyer (and so raising what "
     f"the Buyer owes the Seller). The Floating Price is floored at \\$0 first.")
 
-tab_calc, tab_audit = st.tabs(["📐 Compute from ERCOT", "🔍 Process an invoice"])
+tab_audit, tab_calc = st.tabs(["🔍 Process an invoice", "📐 Compute from ERCOT"])
 
 # ───────────────────────────────────────────────────────────────────────────
 # TAB 1 — compute the §4(d) settlement from ERCOT-published data
@@ -262,6 +262,25 @@ with tab_audit:
             checks.append(("✅" if abs(sd) < 1 else "⚠️")
                           + f" Invoice summary sheet settlement **\\${s['invoice_sheet_settlement']:,.2f}** "
                             f"vs Data-sheet total (Δ \\${sd:,.2f})")
+        if s.get("volume_checked"):
+            inv_full = s.get("inv_full_mwh", 0.0)
+            if s.get("eia_full_mwh") is not None:
+                ep = s.get("eia_pct") or 0.0
+                checks.append(
+                    ("✅" if abs(ep) < 2 else "⚠️")
+                    + f" Volume vs **EIA-923** (authoritative): invoice **{inv_full:,.0f} MWh** "
+                      f"vs **{s['eia_full_mwh']:,.0f} MWh** — Δ {s['eia_delta_mwh']:+,.0f} MWh "
+                      f"({ep:+.1f}%) *full plant*")
+            else:
+                checks.append("ℹ️ EIA-923 volume check unavailable — not published for this "
+                              "month yet (~6-month lag).")
+            if s.get("sced_full_mwh") is not None:
+                sp = s.get("sced_pct") or 0.0
+                checks.append(
+                    f"📦 Volume vs **SCED telemetry** (approx.): invoice **{inv_full:,.0f} MWh** "
+                    f"vs **{s['sced_full_mwh']:,.0f} MWh** — Δ {s['sced_delta_mwh']:+,.0f} MWh "
+                    f"({sp:+.1f}%). *SCED runs below the settlement meter — expected to differ; "
+                    f"EIA-923 above is the authority.*")
         if s.get("ercot_checked"):
             hm, ni = s.get("hub_price_matches", 0), s.get("ercot_intervals", 0)
             nm = s.get("node_price_matches", 0)

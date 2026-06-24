@@ -227,6 +227,9 @@ def audit(parsed: dict, terms: dict | None = None, *, tol: float = 1.0,
             pm = price.pop("merged")
             j = j.merge(pm, on="interval_start", how="left")
 
+    # ── volume cross-check: invoice "Site Generation" vs SCED & EIA-923 ──
+    vol = _volume_check(d, terms) if check_ercot else {}
+
     fixed_strike = float(terms.get("strike", 0.0))
     inv_fixed_price = _num(d.get("inv_fixed_price")).dropna()
     seen_strike = float(inv_fixed_price.iloc[0]) if len(inv_fixed_price) else None
@@ -254,7 +257,7 @@ def audit(parsed: dict, terms: dict | None = None, *, tol: float = 1.0,
         "ptc_value": contract.ptc_value(terms),
         "invoice_ptc_value": parsed.get("meta", {}).get("ptc_value"),
         "share_pct": share * 100.0,
-        **price,
+        **price, **vol,
     }
     summary["inv_settlement"] = summary["inv_fixed_payment"] - summary["inv_floating_wbd"]
     summary["settlement_delta"] = summary["inv_settlement"] - summary["calc_settlement"]
@@ -269,6 +272,59 @@ def audit(parsed: dict, terms: dict | None = None, *, tol: float = 1.0,
 
 def _num(s):
     return pd.to_numeric(s, errors="coerce") if s is not None else pd.Series(dtype=float)
+
+
+def _volume_check(d: pd.DataFrame, terms: dict) -> dict:
+    """Invoice metered volume vs ERCOT SCED telemetry and EIA-923 net generation.
+
+    The invoice bills on its **Site Generation** (settlement-quality revenue
+    meter). SCED is ERCOT's ~real-time telemetry — it runs a few % below the
+    settlement meter, so it's an approximate check, not the authority. EIA-923
+    monthly net generation is the authoritative independent volume (~6-month
+    lag). Compares the FULL-plant figure (what the meter measures) and notes the
+    Buyer's share for context. All figures restricted to the invoice's month(s).
+    """
+    out: dict = {"volume_checked": False}
+    try:
+        a = contract.ASSET
+        node = a["resource_node"]
+        share = float(terms.get("volume_share_pct", 100.0)) / 100.0
+        inv_full = float(pd.to_numeric(d.get("site_gen"), errors="coerce").sum())
+        months = sorted({(t.year, t.month) for t in pd.to_datetime(d["interval_start"])})
+        out.update({"volume_checked": True, "inv_full_mwh": inv_full,
+                    "inv_buyer_mwh": inv_full * share})
+
+        # SCED telemetry (full plant) over the invoice's month(s).
+        lo = pd.Timestamp(d["interval_start"].min()).normalize() - pd.Timedelta(days=1)
+        hi = pd.Timestamp(d["interval_start"].max()).normalize() + pd.Timedelta(days=2)
+        gen = hub.generation(node, lo, hi)
+        if not gen.empty:
+            INV = hub.core().invoice
+            mv = INV.expected_volume(gen, node, units=a.get("sced_units")
+                                     or [a["resource_name"]], mw_scale=1.0)
+            ts = pd.to_datetime(mv["interval_start"]).dt.tz_localize(None)
+            keep = [(t.year, t.month) in months for t in ts]
+            sced_full = float(mv.loc[keep, "metered_mwh"].sum())
+            out["sced_full_mwh"] = sced_full
+            out["sced_delta_mwh"] = inv_full - sced_full
+            out["sced_pct"] = ((inv_full - sced_full) / sced_full * 100.0) if sced_full else None
+
+        # EIA-923 net generation (full plant) — authoritative, if published.
+        plant_id = contract.eia_plant_id()
+        if plant_id is not None:
+            yrs = sorted({y for y, _ in months})
+            eia = hub.eia_monthly_netgen(plant_id, min(yrs), max(yrs),
+                                         prime_mover=a.get("eia_prime_mover"))
+            if not eia.empty:
+                sel = eia[eia.apply(lambda r: (int(r["year"]), int(r["month"])) in months, axis=1)]
+                if not sel.empty:
+                    eia_full = float(sel["eia_mwh"].sum())
+                    out["eia_full_mwh"] = eia_full
+                    out["eia_delta_mwh"] = inv_full - eia_full
+                    out["eia_pct"] = ((inv_full - eia_full) / eia_full * 100.0) if eia_full else None
+    except Exception as e:  # noqa: BLE001 — volume check is a bonus, never fatal
+        out["volume_error"] = str(e)
+    return out
 
 
 def _ercot_price_check(d: pd.DataFrame, terms: dict, tol: float = 0.5) -> dict:
