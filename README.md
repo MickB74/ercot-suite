@@ -11,6 +11,35 @@ settlement math, and every material assumption and default baked into the code.
 
 ---
 
+## Quick start (new clone)
+
+Just cloned the repo and want to run it? One command sets up everything —
+builds the shared Data Hub + every portal's virtualenv, scaffolds the config
+files, and pulls the ERCOT data lake:
+
+```bash
+./setup.sh
+```
+
+Before the data pull works you must add your ERCOT API credentials (`username`,
+`password`, `subscription_key`) to `Ercot_Data_Hub/config.json` — `setup.sh`
+creates that file from the example and tells you if the keys are missing. The
+first run backfills data from scratch and can take a while.
+
+Options: `./setup.sh --no-data` (build environments only, skip the data pull),
+`./setup.sh --hub-full` (also pull every Data Hub dataset, not just the prices
+the portals need).
+
+Then launch a portal:
+
+```bash
+./launch_portal.sh            # interactive menu
+./launch_portal.sh azure      # by name
+./launch_portal.sh all        # start every portal
+```
+
+---
+
 ## 1. Projects
 
 | Folder | What it does |

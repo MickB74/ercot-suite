@@ -19,7 +19,7 @@ DEFAULTS = {
 }
 
 # Statement file types the Invoice Audit page can read.
-STATEMENT_SUFFIXES = (".csv", ".xlsx", ".xls", ".pdf")
+STATEMENT_SUFFIXES = (".csv", ".xlsx", ".xls", ".xlsb", ".pdf")
 
 
 def load() -> dict:

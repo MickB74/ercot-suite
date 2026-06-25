@@ -124,8 +124,10 @@ def _csv_grid(src) -> pd.DataFrame:
 
 def _grids(src, name: str) -> list[pd.DataFrame]:
     """Every sheet (Excel) / the file (CSV) as a header-less object grid."""
-    if str(name).lower().endswith((".xlsx", ".xls")):
-        sheets = pd.read_excel(src, header=None, dtype=object, sheet_name=None)
+    if str(name).lower().endswith((".xlsx", ".xls", ".xlsb")):
+        engine = "pyxlsb" if str(name).lower().endswith(".xlsb") else None
+        sheets = pd.read_excel(src, header=None, dtype=object,
+                               sheet_name=None, engine=engine)
         return list(sheets.values())
     return [_csv_grid(src)]
 
