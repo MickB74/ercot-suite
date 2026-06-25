@@ -51,11 +51,21 @@ FAILURES=()
 
 # ── preflight ────────────────────────────────────────────────────────────────
 section "Preflight"
-if ! command -v python3 >/dev/null 2>&1; then
-  err "python3 not found — install Python 3.10+ and re-run."; exit 1
+PYTHON3=""
+for candidate in python3.13 python3.12 python3.11 python3.10 python3; do
+  if command -v "$candidate" >/dev/null 2>&1; then
+    PYV="$("$candidate" -c 'import sys;print("%d.%d"%sys.version_info[:2])')"
+    MAJOR="${PYV%%.*}"; MINOR="${PYV##*.}"
+    if [ "$MAJOR" -gt 3 ] || { [ "$MAJOR" -eq 3 ] && [ "$MINOR" -ge 10 ]; }; then
+      PYTHON3="$candidate"; break
+    fi
+  fi
+done
+if [ -z "$PYTHON3" ]; then
+  err "Python 3.10+ not found — install it and re-run."; exit 1
 fi
-PYV="$(python3 -c 'import sys;print("%d.%d"%sys.version_info[:2])')"
-ok "python3 $PYV"
+PYV="$("$PYTHON3" -c 'import sys;print("%d.%d"%sys.version_info[:2])')"
+ok "python3 $PYV ($PYTHON3)"
 [ -d "$HUB" ] || { err "Ercot_Data_Hub not found at $HUB — clone the full monorepo."; exit 1; }
 ok "Data Hub present"
 
@@ -66,7 +76,7 @@ build_venv() {  # $1 = project dir
     ok "$name: venv exists"
   else
     echo "  $name: creating venv…"
-    if ! python3 -m venv "$d/.venv"; then err "$name: venv creation failed"; FAILURES+=("$name venv"); return 1; fi
+    if ! "$PYTHON3" -m venv "$d/.venv"; then err "$name: venv creation failed"; FAILURES+=("$name venv"); return 1; fi
   fi
   echo "  $name: installing requirements…"
   if "$d/.venv/bin/pip" install --quiet --upgrade pip \
