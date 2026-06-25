@@ -34,7 +34,8 @@ import re
 import sys
 import time
 import zipfile
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime, timezone
+from zoneinfo import ZoneInfo
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -404,7 +405,38 @@ def _days_in(m_start: date, m_end: date) -> list[str]:
 # A fully-present day has 7 hubs x 96 intervals = 672 rows; DST days have 92 or
 # 100 intervals (644 / 700 rows). 630 is a safe "this day is already complete"
 # floor that tolerates DST without skipping genuinely-partial days.
+#
+# NOTE: a flat floor is *wrong* for the November fall-back day — that day needs
+# 100 intervals/hub (700 rows), but an old pull that captured only one pass of
+# the duplicated 1-2 AM hour lands at 672, which clears any flat floor and so
+# the day is skipped forever (the repeated-hour second pass never gets pulled).
+# Use a DST-aware per-day target instead; keep the flat floor as a fallback.
 _DAY_COMPLETE_ROWS = 630
+
+_CENTRAL = ZoneInfo("America/Chicago")
+
+
+def _day_intervals(d: date) -> int:
+    """15-min intervals in an ERCOT delivery day: 96 normal, 100 on the November
+    fall-back day (clocks repeat 1-2 AM), 92 on the March spring-forward day."""
+    a = datetime(d.year, d.month, d.day, tzinfo=_CENTRAL).astimezone(timezone.utc)
+    nxt = date(d.year, d.month, d.day) + timedelta(days=1)
+    b = datetime(nxt.year, nxt.month, nxt.day, tzinfo=_CENTRAL).astimezone(timezone.utc)
+    return round((b - a).total_seconds() / 3600) * 4
+
+
+def _day_complete_rows(dstr: str, n_points: int) -> int:
+    """Rows that mark ``dstr`` fully present, given how many settlement points
+    the store carries. DST-aware: the November fall-back day (100 intervals)
+    must carry its extra hour, so a one-pass pull (672 rows) is NOT treated as
+    complete. Other days keep the flat floor to avoid mass re-pulls."""
+    try:
+        iv = _day_intervals(date.fromisoformat(dstr))
+    except (ValueError, TypeError):
+        return _DAY_COMPLETE_ROWS
+    if iv > 96 and n_points:   # fall-back day — require both passes of 1-2 AM
+        return n_points * iv - n_points   # tolerate 1 missing interval/point
+    return _DAY_COMPLETE_ROWS
 
 
 def archive_backfill(tokens, key, start: date, end: date, store: pd.DataFrame,
@@ -417,11 +449,13 @@ def archive_backfill(tokens, key, start: date, end: date, store: pd.DataFrame,
     Saves a checkpoint (parquet) after each downloaded month. Returns the store.
     """
     day_counts = store.groupby("delivery_date").size().to_dict() if not store.empty else {}
+    n_points = store["settlement_point"].nunique() if not store.empty else len(HUBS)
     months = list(_month_windows(start, end))
     log(f"Archive backfill: {start} -> {end}  ({len(months)} month(s) to consider).")
     log("This is the slow part (ERCOT archives one file per 15-min interval).")
     for mi, (m_start, m_end) in enumerate(months, 1):
-        if all(day_counts.get(d, 0) >= _DAY_COMPLETE_ROWS for d in _days_in(m_start, m_end)):
+        if all(day_counts.get(d, 0) >= _day_complete_rows(d, n_points)
+               for d in _days_in(m_start, m_end)):
             log(f"  Month {mi}/{len(months)}: {m_start:%Y-%m} already complete — skipping.")
             continue
         log(f"  Month {mi}/{len(months)}: {m_start} … listing files…")

@@ -22,6 +22,14 @@ from portal import analytics, branding, contract, hub, settings, statement  # no
 core = hub.core()
 INV = core.invoice
 
+# Audit statuses split into genuine billing discrepancies vs intervals that
+# simply couldn't be audited (ERCOT published no price, or the bill carried no
+# data there). A gap — e.g. an interval ERCOT never published RT SPP for, like a
+# missing midnight-boundary interval — is NOT a discrepancy.
+_REAL_FLAGS = ("net_mismatch", "price_mismatch", "volume_mismatch",
+               "amount_mismatch", "missing_in_invoice")
+_GAP_STATUSES = ("no_price", "no_volume", "no_amount", "blank", "extra_in_invoice")
+
 terms = contract.load_contract()
 a = contract.ASSET
 loc = contract.settle_location(terms)   # settlement reference (node or a hub)
@@ -66,8 +74,19 @@ with st.expander(hdr, expanded=folder is None and not cur):
              "them without uploading each one. Stored locally in settings.json.")
     b1, b2 = st.columns(2)
     if b1.button("🔗 Link / update folder", type="primary"):
-        settings.set_invoice_folder(new)
-        st.rerun()
+        typed = (new or "").strip()
+        if not typed:
+            st.warning("Enter a folder path first, then click Link / update folder.")
+        else:
+            settings.set_invoice_folder(typed)
+            linked = settings.invoice_folder()
+            if linked is None:
+                st.error(f"`{typed}` isn't a folder I can read — check the path "
+                         "(no trailing filename, and the drive is mounted).")
+            else:
+                n = len(settings.list_statements(linked))
+                st.success(f"Linked `{linked}` — found {n} statement file(s).")
+                st.rerun()
     if cur and b2.button("Unlink"):
         settings.set_invoice_folder("")
         st.rerun()
@@ -245,10 +264,21 @@ def _run_batch(items):
     st.dataframe(_arrow_safe(summ), hide_index=True, use_container_width=True)
 
     for label, iv in details.items():
-        fl = iv[iv["status"] != "match"] if "status" in iv.columns else iv
-        with st.expander(f"{label} — {len(fl)} flagged interval(s)"):
-            st.dataframe(_arrow_safe((fl if not fl.empty else iv).head(500)),
-                         hide_index=True, use_container_width=True, height=300)
+        if "status" in iv.columns:
+            mism = iv[iv["status"].isin(_REAL_FLAGS)]
+            gaps = iv[iv["status"].isin(_GAP_STATUSES)]
+        else:
+            mism, gaps = iv, iv.iloc[0:0]
+        with st.expander(f"{label} — {len(mism)} flagged interval(s)"
+                         + (f" · {len(gaps)} not audited" if not gaps.empty else "")):
+            if mism.empty:
+                st.caption("No price/settlement discrepancies.")
+            else:
+                st.dataframe(_arrow_safe(mism.head(500)),
+                             hide_index=True, use_container_width=True, height=300)
+            if not gaps.empty:
+                st.caption(f"{len(gaps)} interval(s) couldn't be audited (no ERCOT "
+                           "price published, or no bill data) — not a discrepancy.")
 
     dl = hub.export_block()
     if dl is not None:
@@ -531,10 +561,17 @@ if net_mode:
         "exp_price": "ERCOT price $/MWh", "price_delta": "Δ price",
         "inv_volume_mwh": "Bill MWh", "sced_volume_mwh": "SCED MWh (telem.)", "vol_delta": "Δ MWh",
         "inv_net": "Statement net $", "exp_net": "Expected net $", "net_delta": "Δ net $"})
-    flagged = disp[intervals["status"] != "match"]
+    flagged = disp[intervals["status"].isin(_REAL_FLAGS)]
     if not flagged.empty:
         st.subheader("Flagged intervals")
         st.dataframe(flagged, use_container_width=True, hide_index=True, height=360)
+    gaps = disp[intervals["status"].isin(_GAP_STATUSES)]
+    if not gaps.empty:
+        st.subheader("Not audited (no ERCOT price / no bill data)")
+        st.caption(f"{len(gaps)} interval(s) the audit couldn't compare — most often an "
+                   "interval ERCOT never published RT SPP for (e.g. a missing midnight "
+                   "boundary interval). These are data gaps, **not** billing discrepancies.")
+        st.dataframe(gaps, use_container_width=True, hide_index=True, height=200)
     with st.expander("All reconciled intervals"):
         st.dataframe(disp, use_container_width=True, hide_index=True, height=400)
 
@@ -585,10 +622,17 @@ if s.get("status_counts"):
     st.caption("Status breakdown: " + " · ".join(
         f"{kk.replace('_', ' ')}: {vv:,}" for kk, vv in s["status_counts"].items()))
 
-flagged = intervals[intervals["status"] != "match"]
+flagged = intervals[intervals["status"].isin(_REAL_FLAGS)]
 if not flagged.empty:
     st.subheader("Flagged intervals")
     st.dataframe(flagged, use_container_width=True, hide_index=True, height=360)
+gaps = intervals[intervals["status"].isin(_GAP_STATUSES)]
+if not gaps.empty:
+    st.subheader("Not audited (no ERCOT price / no bill data)")
+    st.caption(f"{len(gaps)} interval(s) the audit couldn't compare — most often an "
+               "interval ERCOT never published RT SPP for (e.g. a missing midnight "
+               "boundary interval). These are data gaps, **not** billing discrepancies.")
+    st.dataframe(gaps, use_container_width=True, hide_index=True, height=200)
 with st.expander("All reconciled intervals"):
     st.dataframe(intervals, use_container_width=True, hide_index=True, height=400)
 

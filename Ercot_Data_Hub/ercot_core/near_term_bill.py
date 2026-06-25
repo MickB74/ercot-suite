@@ -707,16 +707,20 @@ def render_near_term_tab(
     if has_prior:
         prev_mid = str(prev_month_start_date + dt.timedelta(days=15))
         fig.add_annotation(x=prev_mid,
-                           text=f"<b>{prev_month_str}</b> ERA5×actual  {branding.signed_money_raw(prior_net)}",
+                           text=f"<b>{prev_month_str}</b> ERA5×actual  {branding.signed_money_raw(prior_net)}"
+                                f"<br>{prior_mwh:,.0f} MWh",
                            **_lbl)
     fig.add_annotation(x=cur_mid,
-                       text=f"<b>Current month</b> ({cur_month_str})  {branding.signed_money_raw(proj_cur)}",
+                       text=f"<b>Current month</b> ({cur_month_str})  {branding.signed_money_raw(proj_cur)}"
+                            f"<br>{proj_mwh:,.0f} MWh",
                        **_lbl)
     fig.add_annotation(x=next_mid,
-                       text=f"<b>Next month</b> ({next_month_str})  {branding.signed_money_raw(next_net)}",
+                       text=f"<b>Next month</b> ({next_month_str})  {branding.signed_money_raw(next_net)}"
+                            f"<br>{next_mwh:,.0f} MWh",
                        **_lbl)
     fig.add_annotation(x=third_mid,
-                       text=f"<b>+2 months</b> ({third_month_str})  {branding.signed_money_raw(third_net)}",
+                       text=f"<b>+2 months</b> ({third_month_str})  {branding.signed_money_raw(third_net)}"
+                            f"<br>{third_mwh:,.0f} MWh",
                        **_lbl)
 
     fig.update_layout(

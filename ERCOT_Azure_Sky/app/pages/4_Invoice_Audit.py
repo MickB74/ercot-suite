@@ -22,6 +22,11 @@ from azuresky import analytics, branding, contract, hub, settings, statement  # 
 core = hub.core()
 INV = core.invoice
 
+# Statuses that mean "couldn't be audited" (not a billing discrepancy): ERCOT
+# published no price for the interval, the bill carried no volume/amount, or the
+# statement is blank there. Kept distinct from genuine ``net_mismatch`` flags.
+_GAP_STATUSES = ("no_price", "no_volume", "no_amount", "blank")
+
 terms = contract.load_contract()
 a = contract.ASSET
 loc = contract.settle_location(terms)   # settlement reference hub (configurable)
@@ -245,10 +250,21 @@ def _run_batch(items):
     st.dataframe(_arrow_safe(summ), hide_index=True, use_container_width=True)
 
     for label, iv in details.items():
-        fl = iv[iv["status"] != "match"] if "status" in iv.columns else iv
-        with st.expander(f"{label} — {len(fl)} flagged interval(s)"):
-            st.dataframe(_arrow_safe((fl if not fl.empty else iv).head(500)),
-                         hide_index=True, use_container_width=True, height=300)
+        if "status" in iv.columns:
+            mism = iv[iv["status"] == "net_mismatch"]
+            gaps = iv[iv["status"].isin(_GAP_STATUSES)]
+        else:
+            mism, gaps = iv, iv.iloc[0:0]
+        with st.expander(f"{label} — {len(mism)} flagged interval(s)"
+                         + (f" · {len(gaps)} not audited" if not gaps.empty else "")):
+            if mism.empty:
+                st.caption("No price/settlement discrepancies.")
+            else:
+                st.dataframe(_arrow_safe(mism.head(500)),
+                             hide_index=True, use_container_width=True, height=300)
+            if not gaps.empty:
+                st.caption(f"{len(gaps)} interval(s) couldn't be audited (no ERCOT "
+                           "price published, or no bill data) — not a discrepancy.")
 
     dl = hub.export_block()
     if dl is not None:
@@ -531,10 +547,17 @@ if net_mode:
         "exp_price": "ERCOT price $/MWh", "price_delta": "Δ price",
         "inv_volume_mwh": "Bill MWh", "sced_volume_mwh": "SCED MWh (telem.)", "vol_delta": "Δ MWh",
         "inv_net": "Statement net $", "exp_net": "Expected net $", "net_delta": "Δ net $"})
-    flagged = disp[intervals["status"] != "match"]
+    flagged = disp[intervals["status"] == "net_mismatch"]
     if not flagged.empty:
         st.subheader("Flagged intervals")
         st.dataframe(flagged, use_container_width=True, hide_index=True, height=360)
+    gaps = disp[intervals["status"].isin(_GAP_STATUSES)]
+    if not gaps.empty:
+        st.subheader("Not audited (no ERCOT price / no bill data)")
+        st.caption(f"{len(gaps)} interval(s) the audit couldn't compare — most often an "
+                   "interval ERCOT never published RT SPP for (e.g. a missing midnight "
+                   "boundary interval). These are data gaps, **not** billing discrepancies.")
+        st.dataframe(gaps, use_container_width=True, hide_index=True, height=200)
     with st.expander("All reconciled intervals"):
         st.dataframe(disp, use_container_width=True, hide_index=True, height=400)
 
