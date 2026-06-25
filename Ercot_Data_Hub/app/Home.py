@@ -50,6 +50,7 @@ nav = st.navigation({
         st.Page(f"{P}/3_Plant_SCED.py", title="Plant SCED", icon="🏭"),
         st.Page(f"{P}/5_Node_Explorer.py", title="Node Explorer", icon="📈"),
         st.Page(f"{P}/4_EIA_923.py", title="EIA-923 Generation", icon="📅"),
+        st.Page(f"{P}/21_EIA_930.py", title="EIA-930 by BA", icon="🛰️"),
         st.Page(f"{P}/10_EIA_860_Plants.py", title="EIA-860 Plants", icon="🗺️"),
     ],
     "Forecasts": [

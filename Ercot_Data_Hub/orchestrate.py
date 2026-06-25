@@ -81,6 +81,12 @@ def _jobs() -> dict[str, Job]:
             note=f"Full ERCOT plant inventory (identity/siting/sizing). Annual file lags; "
                  f"builds {yr - 2}. Pass a year to build another.",
         ),
+        "eia930": Job(
+            "eia930", "EIA-930 hourly net generation by balancing authority",
+            "eia930", "eia930.py", ["update"],
+            note="Near-real-time (~1-day lag) system sanity check: hourly net generation "
+                 "per BA from EIA's Hourly Grid Monitor. Incremental; --full to rebuild.",
+        ),
         "ifyi": Job(
             "ifyi", "interconnection.fyi project crawl (all ERCOT)",
             "plant_sced", "-m", ["ercot_core.ifyi"],

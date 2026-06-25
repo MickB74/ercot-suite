@@ -40,6 +40,7 @@ HUB_PRICES_DIR = DATA / "hub_prices"
 SOLAR_FORECAST_DIR = DATA / "solar_forecast"  # cached PVWatts forecasts (parquet)
 WIND_FORECAST_DIR = DATA / "wind_forecast"    # cached wind forecasts (parquet)
 PLANT_VALUE_DIR = DATA / "plant_value"        # cached plant capture-price valuations
+EIA930_DIR = DATA / "eia930"                  # EIA-930 hourly net generation by BA
 
 # --- shared / cross-dataset -------------------------------------------------
 SCED_CACHE_DIR = DATA / "sced_cache"          # shared 60-day SCED disclosures
@@ -65,6 +66,10 @@ IFYI_ERCOT_PARQUET = PLANT_SCED_DIR / "ifyi_ercot_projects.parquet"  # bulk inte
 HUB_PRICES_PARQUET = HUB_PRICES_DIR / "ercot_hub_prices_15min.parquet"
 HUB_PRICES_CSV = HUB_PRICES_DIR / "ercot_hub_prices_15min.csv"
 HUB_PRICES_STATE = HUB_PRICES_DIR / ".last_update.json"
+
+# eia930 store — hourly net generation (MWh) per balancing authority
+EIA930_REGION_PARQUET = EIA930_DIR / "eia930_region_ng_hourly.parquet"
+EIA930_STATE = EIA930_DIR / ".last_update.json"
 
 # Curated renewable asset registry. Source of truth lives in the separate
 # price_settlements repo; an 18 KB copy is vendored under ercot_core/registry/
@@ -94,7 +99,7 @@ _ALL_DIRS = [
     DATA, SYSTEM_GEN_DIR, NODE_DATA_DIR, EIA_DIR, EIA_RAW_DIR,
     PLANT_SCED_DIR, PLANT_DATA_DIR, HUB_PRICES_DIR, SCED_CACHE_DIR,
     CSV_EXPORTS_DIR, LOGS_DIR, SOLAR_FORECAST_DIR, WIND_FORECAST_DIR,
-    PLANT_VALUE_DIR,
+    PLANT_VALUE_DIR, EIA930_DIR,
 ]
 
 
