@@ -62,8 +62,11 @@ tab_map, tab_alerts = st.tabs(["📍 Price Map", "🔔 Alerts"])
 with tab_map:
     with st.container(border=True):
         c1, c2 = st.columns(2)
-        location_type = c1.radio("Settlement-point type", ["Trading Hub", "Load Zone"],
-                                 horizontal=True)
+        location_type = c1.radio("Settlement-point type",
+                                  ["Trading Hub", "Load Zone", "Resource Node"],
+                                  horizontal=True,
+                                  help="Resource Node = individual plant settlement "
+                                       "points cached in the suite node-price lake.")
         market = c2.radio("Market", ["RT15", "DAM"], horizontal=True,
                           help="RT15 = real-time 15-min; DAM = day-ahead hourly.")
         today = pd.Timestamp.now(tz="US/Central").date()
@@ -93,8 +96,12 @@ with tab_map:
         go = st.button("Load price map", type="primary")
 
     cf = coords.coords_frame(location_type)
-    st.caption(f"📍 {len(cf)} {location_type.lower()}s on the map "
-               f"(representative regional centroids).")
+    if location_type == "Resource Node":
+        st.caption(f"📍 {len(cf)} resource nodes on the map "
+                   f"(actual plant sites; only nodes cached in the suite lake).")
+    else:
+        st.caption(f"📍 {len(cf)} {location_type.lower()}s on the map "
+                   f"(representative regional centroids).")
 
     if go:
         prices, source = _snapshot(location_type, market, tuple(cf["location"]),
@@ -125,14 +132,22 @@ with tab_map:
             geo["price_label"] = geo["avg_spp"].map(lambda v: f"${v:,.2f}")
             geo["min_label"] = geo["min_spp"].map(lambda v: f"${v:,.2f}")
             geo["max_label"] = geo["max_spp"].map(lambda v: f"${v:,.2f}")
+            if location_type == "Resource Node":
+                geo["name"] = geo["location"].map(
+                    lambda loc: coords.NODE_COORDS.get(loc, (0, 0, loc))[2])
+            else:
+                geo["name"] = geo["location"]
 
-            unit = "hubs" if location_type == "Trading Hub" else "zones"
+            unit = {"Trading Hub": "hubs", "Load Zone": "zones",
+                    "Resource Node": "nodes"}[location_type]
+            cheap = geo.loc[geo["avg_spp"].idxmin()]
+            pricey = geo.loc[geo["avg_spp"].idxmax()]
             m = st.columns(4)
             m[0].metric(f"{unit.capitalize()}", f"{len(geo):,}")
-            m[1].metric("Cheapest", f"${geo['avg_spp'].min():,.2f}",
+            m[1].metric(f"Cheapest · {cheap['name']}", f"${cheap['avg_spp']:,.2f}",
                         help=f"Lowest-average {unit[:-1]} over the window.")
             m[2].metric(f"Avg of {unit}", f"${geo['avg_spp'].mean():,.2f}")
-            m[3].metric("Priciest", f"${geo['avg_spp'].max():,.2f}",
+            m[3].metric(f"Priciest · {pricey['name']}", f"${pricey['avg_spp']:,.2f}",
                         help=f"Highest-average {unit[:-1]} over the window.")
 
             layer = pdk.Layer(
@@ -143,7 +158,8 @@ with tab_map:
             deck = pdk.Deck(
                 layers=[layer], map_style=None,
                 initial_view_state=pdk.ViewState(latitude=31.2, longitude=-99.3, zoom=4.7),
-                tooltip={"html": "<b>{location}</b><br/>"
+                tooltip={"html": "<b>{name}</b><br/>"
+                                 "<span style='opacity:0.7'>{location}</span><br/>"
                                  "Avg {price_label} /MWh<br/>"
                                  "High {max_label} · Low {min_label}"})
             st.pydeck_chart(deck, use_container_width=True)
@@ -158,11 +174,16 @@ with tab_map:
 
             st.subheader(f"By {unit[:-1]}")
             by = geo.sort_values("avg_spp", ascending=False)
-            st.bar_chart(by.set_index("location")["avg_spp"],
+            chart_key = "name" if location_type == "Resource Node" else "location"
+            st.bar_chart(by.set_index(chart_key)["avg_spp"],
                          x_label=location_type, y_label="Avg $/MWh", horizontal=True)
 
-            show = (by[["location", "avg_spp", "min_spp", "max_spp", "n"]]
-                    .rename(columns={"location": location_type, "avg_spp": "avg $/MWh",
+            tbl_cols = (["name", "location", "avg_spp", "min_spp", "max_spp", "n"]
+                        if location_type == "Resource Node"
+                        else ["location", "avg_spp", "min_spp", "max_spp", "n"])
+            show = (by[tbl_cols]
+                    .rename(columns={"name": "plant", "location": location_type,
+                                     "avg_spp": "avg $/MWh",
                                      "min_spp": "low $/MWh", "max_spp": "high $/MWh",
                                      "n": "intervals"}))
             st.dataframe(show, hide_index=True, use_container_width=True,

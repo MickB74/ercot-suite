@@ -24,6 +24,9 @@ DATA_LAKE = Path(os.environ.get(
     Path(__file__).resolve().parent.parent / "Ercot_Data_Hub" / "data"))
 RT_HUB_STORE = DATA_LAKE / "hub_prices" / "ercot_hub_prices_15min.parquet"
 DAM_HUB_STORE = DATA_LAKE / "hub_prices" / "ercot_hub_dam_hourly.parquet"
+# Per-year resource-node SPP lake (one row per node per 15-min interval), shared
+# with the single-asset portals: node_price_{year}.parquet keyed by `location`.
+NODE_DATA_DIR = DATA_LAKE / "system_gen" / "node_data"
 
 _iso = None
 
@@ -123,10 +126,50 @@ def lake_prices(locations, location_type: str, market: str, start, end) -> pd.Da
                .sort_values(["location", "interval_start"]).reset_index(drop=True))
 
 
+def node_lake_prices(locations, market, start, end) -> pd.DataFrame:
+    """Resource-node SPP from the suite node-price lake, tidy long.
+
+    Columns: location, interval_start (naive Central), spp. Empty if the lake has
+    no node_price_{year}.parquet covering the window or none of the nodes match.
+    """
+    cols = ["location", "interval_start", "spp"]
+    start = pd.Timestamp(start).normalize()
+    end_excl = pd.Timestamp(end).normalize() + pd.Timedelta(days=1)
+    locset = set(locations)
+    frames = []
+    for year in range(start.year, end_excl.year + 1):
+        path = NODE_DATA_DIR / f"node_price_{year}.parquet"
+        if not path.exists():
+            continue
+        df = pd.read_parquet(path)
+        df = df[df["location"].isin(locset)]
+        if "market" in df.columns:
+            df = df[df["market"] == market]
+        if df.empty:
+            continue
+        ist = pd.to_datetime(df["interval_start"])
+        sub = pd.DataFrame({
+            "location": df["location"].astype(str),
+            "interval_start": ist,
+            "spp": pd.to_numeric(df["spp"], errors="coerce"),
+        })
+        frames.append(sub)
+    if not frames:
+        return pd.DataFrame(columns=cols)
+    out = pd.concat(frames, ignore_index=True)
+    out = out[(out["interval_start"] >= start) & (out["interval_start"] < end_excl)]
+    return (out.dropna(subset=["spp"])
+               .sort_values(["location", "interval_start"]).reset_index(drop=True))
+
+
 def get_prices(locations, location_type: str, market: str, start, end,
                prefer_lake: bool = True) -> tuple[pd.DataFrame, str]:
     """Prefer the data lake; fall back to a live gridstatus pull for anything it
     doesn't cover. Returns (tidy_df, source_label)."""
+    if location_type == "Resource Node":
+        # Nodes only live in the node-price lake (the live gridstatus path would
+        # need exact ERCOT settlement-point names we don't carry coords for).
+        return node_lake_prices(locations, market, start, end), "node data lake"
     if prefer_lake:
         df = lake_prices(locations, location_type, market, start, end)
         if not df.empty:
