@@ -1,0 +1,71 @@
+"""Geographic coordinates for ERCOT trading hubs and load zones.
+
+A hub/zone price is an index over many buses, not a single physical point, so
+these are representative regional centroids — meant for at-a-glance regional
+reads, not exact bus siting.
+"""
+
+from __future__ import annotations
+
+import pandas as pd
+
+HUB_ZONE_COORDS: dict[str, tuple[float, float]] = {
+    # Trading hubs
+    "HB_NORTH":   (32.90, -97.00),   # Dallas–Fort Worth
+    "HB_SOUTH":   (29.00, -98.20),   # South Texas (San Antonio / Corpus corridor)
+    "HB_WEST":    (32.00, -101.50),  # West Texas (Permian / Big Spring)
+    "HB_HOUSTON": (29.76, -95.37),   # Houston
+    "HB_PAN":     (35.20, -101.80),  # Panhandle (Amarillo)
+    "HB_BUSAVG":  (31.00, -99.30),   # grid bus average — geographic center
+    "HB_HUBAVG":  (31.40, -98.70),   # hub average — offset from BUSAVG so both read
+    # Load zones
+    "LZ_NORTH":   (32.50, -97.60),   # North zone (north-central TX)
+    "LZ_SOUTH":   (28.50, -98.60),   # South zone (south TX)
+    "LZ_WEST":    (32.10, -100.60),  # West zone (west TX)
+    "LZ_HOUSTON": (29.70, -95.30),   # Houston zone
+    "LZ_AEN":     (30.27, -97.74),   # Austin Energy
+    "LZ_CPS":     (29.42, -98.49),   # CPS Energy (San Antonio)
+    "LZ_LCRA":    (30.60, -98.30),   # Lower Colorado River Authority (hill country)
+    "LZ_RAYBN":   (33.10, -96.20),   # Rayburn Country (northeast TX)
+}
+
+HUBS = [k for k in HUB_ZONE_COORDS if k.startswith("HB_")]
+ZONES = [k for k in HUB_ZONE_COORDS if k.startswith("LZ_")]
+
+# Plain-English names for the pickers.
+LABELS: dict[str, str] = {
+    "HB_HUBAVG": "Hub average (grid-wide)",
+    "HB_BUSAVG": "Bus average (grid-wide)",
+    "HB_NORTH": "North hub (Dallas–Fort Worth)",
+    "HB_SOUTH": "South hub",
+    "HB_WEST": "West hub (Permian)",
+    "HB_HOUSTON": "Houston hub",
+    "HB_PAN": "Panhandle hub",
+    "LZ_NORTH": "North zone",
+    "LZ_SOUTH": "South zone",
+    "LZ_WEST": "West zone",
+    "LZ_HOUSTON": "Houston zone",
+    "LZ_AEN": "Austin Energy zone",
+    "LZ_CPS": "San Antonio (CPS) zone",
+    "LZ_LCRA": "LCRA zone (hill country)",
+    "LZ_RAYBN": "Rayburn zone (northeast TX)",
+}
+
+
+def label(loc: str) -> str:
+    """Friendly name + code, e.g. 'Hub average (grid-wide) — HB_HUBAVG'."""
+    return f"{LABELS.get(loc, loc)} — {loc}"
+
+
+def locations(location_type: str) -> list[str]:
+    return HUBS if location_type == "Trading Hub" else ZONES
+
+
+def coords_frame(location_type: str | None = None) -> pd.DataFrame:
+    """location, latitude, longitude — optionally filtered to one type."""
+    items = HUB_ZONE_COORDS.items()
+    if location_type is not None:
+        want = set(locations(location_type))
+        items = [(k, v) for k, v in items if k in want]
+    return pd.DataFrame([(loc, lat, lon) for loc, (lat, lon) in items],
+                        columns=["location", "latitude", "longitude"])

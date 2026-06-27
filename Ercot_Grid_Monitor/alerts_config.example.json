@@ -1,0 +1,54 @@
+{
+  "_comment": "Copy to alerts_config.json and edit (or edit/save from the app's Alerts tab). metric: rt_price (RT15) | dam_price (DAM). op: > >= < <=. location_type: Trading Hub | Load Zone.",
+  "rules": [
+    {
+      "id": "hubavg_spike",
+      "label": "Hub average price spike",
+      "metric": "rt_price",
+      "location": "HB_HUBAVG",
+      "location_type": "Trading Hub",
+      "op": ">",
+      "threshold": 500,
+      "cooldown_min": 60,
+      "enabled": true
+    },
+    {
+      "id": "hubavg_negative",
+      "label": "Hub average price negative",
+      "metric": "rt_price",
+      "location": "HB_HUBAVG",
+      "location_type": "Trading Hub",
+      "op": "<",
+      "threshold": 0,
+      "cooldown_min": 120,
+      "enabled": true
+    },
+    {
+      "id": "west_spike",
+      "label": "West hub scarcity",
+      "metric": "rt_price",
+      "location": "HB_WEST",
+      "location_type": "Trading Hub",
+      "op": ">",
+      "threshold": 1000,
+      "cooldown_min": 60,
+      "enabled": false
+    }
+  ],
+  "email": {
+    "enabled": false,
+    "host": "smtp.gmail.com",
+    "port": 465,
+    "username": "you@gmail.com",
+    "password": "your-app-password",
+    "from": "you@gmail.com",
+    "to": ["you@gmail.com"]
+  },
+  "sms": {
+    "enabled": false,
+    "account_sid": "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "auth_token": "your-twilio-auth-token",
+    "from": "+15555550100",
+    "to": ["+15555550123"]
+  }
+}
