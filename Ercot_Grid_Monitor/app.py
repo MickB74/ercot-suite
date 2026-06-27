@@ -44,6 +44,8 @@ def _snapshot(location_type, market, locs, start, end):
     if df.empty:
         return df, source
     agg = df.groupby("location", as_index=False).agg(avg_spp=("spp", "mean"),
+                                                      min_spp=("spp", "min"),
+                                                      max_spp=("spp", "max"),
                                                       n=("spp", "size"))
     return agg, source
 
@@ -65,10 +67,29 @@ with tab_map:
         market = c2.radio("Market", ["RT15", "DAM"], horizontal=True,
                           help="RT15 = real-time 15-min; DAM = day-ahead hourly.")
         today = pd.Timestamp.now(tz="US/Central").date()
-        d1, d2 = st.columns(2)
-        start_d = d1.date_input("From", value=today - pd.Timedelta(days=1), key="m_from")
-        end_d = d2.date_input("To", value=today, key="m_to",
-                              help="gridstatus serves recent dates; keep it near today.")
+        mode = st.radio("Date range", ["Custom", "Month", "Year"], horizontal=True,
+                        help="Month/Year pull the whole period from the suite data lake. "
+                             "Custom is best for recent dates (live gridstatus).")
+        if mode == "Month":
+            _MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                       "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+            yc, mc = st.columns(2)
+            yr = yc.selectbox("Year", list(range(today.year, 2009, -1)), key="m_year")
+            mo = mc.selectbox("Month", list(range(1, 13)), index=today.month - 1,
+                              format_func=lambda i: _MONTHS[i - 1], key="m_month")
+            start_d = pd.Timestamp(yr, mo, 1).date()
+            end_d = (pd.Timestamp(yr, mo, 1) + pd.offsets.MonthEnd(1)).date()
+            end_d = min(end_d, today)
+        elif mode == "Year":
+            yr = st.selectbox("Year", list(range(today.year, 2009, -1)), key="y_year")
+            start_d = pd.Timestamp(yr, 1, 1).date()
+            end_d = min(pd.Timestamp(yr, 12, 31).date(), today)
+        else:
+            d1, d2 = st.columns(2)
+            start_d = d1.date_input("From", value=today - pd.Timedelta(days=1), key="m_from")
+            end_d = d2.date_input("To", value=today, key="m_to",
+                                  help="gridstatus serves recent dates; keep it near today.")
+        st.caption(f"Window: **{start_d} → {end_d}**")
         go = st.button("Load price map", type="primary")
 
     cf = coords.coords_frame(location_type)
@@ -102,6 +123,8 @@ with tab_map:
                                     help="Locations at or above this are fully red.")
             geo["_fill"] = geo["avg_spp"].map(lambda v: _price_color(v, vmin, vmax))
             geo["price_label"] = geo["avg_spp"].map(lambda v: f"${v:,.2f}")
+            geo["min_label"] = geo["min_spp"].map(lambda v: f"${v:,.2f}")
+            geo["max_label"] = geo["max_spp"].map(lambda v: f"${v:,.2f}")
 
             m = st.columns(4)
             m[0].metric("Locations", f"{len(geo):,}")
@@ -117,7 +140,9 @@ with tab_map:
             deck = pdk.Deck(
                 layers=[layer], map_style=None,
                 initial_view_state=pdk.ViewState(latitude=31.2, longitude=-99.3, zoom=4.7),
-                tooltip={"html": "<b>{location}</b><br/>{price_label} /MWh"})
+                tooltip={"html": "<b>{location}</b><br/>"
+                                 "Avg {price_label} /MWh<br/>"
+                                 "High {max_label} · Low {min_label}"})
             st.pydeck_chart(deck, use_container_width=True)
 
             stops = ", ".join(f"rgb{_RAMP[i][1]}" for i in range(len(_RAMP)))
