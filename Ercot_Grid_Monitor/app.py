@@ -126,11 +126,14 @@ with tab_map:
             geo["min_label"] = geo["min_spp"].map(lambda v: f"${v:,.2f}")
             geo["max_label"] = geo["max_spp"].map(lambda v: f"${v:,.2f}")
 
+            unit = "hubs" if location_type == "Trading Hub" else "zones"
             m = st.columns(4)
-            m[0].metric("Locations", f"{len(geo):,}")
-            m[1].metric("Min", f"${geo['avg_spp'].min():,.2f}")
-            m[2].metric("Avg", f"${geo['avg_spp'].mean():,.2f}")
-            m[3].metric("Max", f"${geo['avg_spp'].max():,.2f}")
+            m[0].metric(f"{unit.capitalize()}", f"{len(geo):,}")
+            m[1].metric("Cheapest", f"${geo['avg_spp'].min():,.2f}",
+                        help=f"Lowest-average {unit[:-1]} over the window.")
+            m[2].metric(f"Avg of {unit}", f"${geo['avg_spp'].mean():,.2f}")
+            m[3].metric("Priciest", f"${geo['avg_spp'].max():,.2f}",
+                        help=f"Highest-average {unit[:-1]} over the window.")
 
             layer = pdk.Layer(
                 "ScatterplotLayer", id="prices", data=geo,
@@ -153,9 +156,21 @@ with tab_map:
                 f"background:linear-gradient(to right, {stops})'></div>"
                 f"<span>${vmax:,.0f}</span></div>", unsafe_allow_html=True)
 
-            show = (geo[["location", "avg_spp", "n"]].sort_values("avg_spp", ascending=False)
-                    .rename(columns={"avg_spp": "avg $/MWh", "n": "intervals"}))
-            st.dataframe(show, hide_index=True, use_container_width=True)
+            st.subheader(f"By {unit[:-1]}")
+            by = geo.sort_values("avg_spp", ascending=False)
+            st.bar_chart(by.set_index("location")["avg_spp"],
+                         x_label=location_type, y_label="Avg $/MWh", horizontal=True)
+
+            show = (by[["location", "avg_spp", "min_spp", "max_spp", "n"]]
+                    .rename(columns={"location": location_type, "avg_spp": "avg $/MWh",
+                                     "min_spp": "low $/MWh", "max_spp": "high $/MWh",
+                                     "n": "intervals"}))
+            st.dataframe(show, hide_index=True, use_container_width=True,
+                         column_config={
+                             "avg $/MWh": st.column_config.NumberColumn(format="$%.2f"),
+                             "low $/MWh": st.column_config.NumberColumn(format="$%.2f"),
+                             "high $/MWh": st.column_config.NumberColumn(format="$%.2f"),
+                         })
             st.download_button("⬇ Download CSV", show.to_csv(index=False).encode(),
                                file_name=f"ercot_price_map_{location_type.replace(' ', '_')}.csv")
     else:
