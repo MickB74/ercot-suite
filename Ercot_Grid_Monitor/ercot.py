@@ -162,10 +162,72 @@ def node_lake_prices(locations, market, start, end) -> pd.DataFrame:
                .sort_values(["location", "interval_start"]).reset_index(drop=True))
 
 
+_api = None
+_api_tried = False
+
+
+def _ercot_api():
+    """Cached gridstatus ErcotAPI (api.ercot.com) using the suite's shared creds,
+    or None if unavailable. This is the FAST path for any settlement point and
+    any window (live endpoint for recent, archive for older) — unlike the MIS
+    `get_spp` scrape, which is ~30x slower and only serves a recent window."""
+    global _api, _api_tried
+    if _api_tried:
+        return _api
+    _api_tried = True
+    try:
+        import json
+        cfg = json.loads((DATA_LAKE.parent / "config.json").read_text())
+        if not (cfg.get("username") and cfg.get("password") and cfg.get("subscription_key")):
+            return None
+        os.environ.setdefault("ERCOT_API_USERNAME", cfg["username"])
+        os.environ.setdefault("ERCOT_API_PASSWORD", cfg["password"])
+        os.environ.setdefault("ERCOT_PUBLIC_API_SUBSCRIPTION_KEY", cfg["subscription_key"])
+        from gridstatus.ercot_api.ercot_api import ErcotAPI
+        _api = ErcotAPI()
+    except Exception:
+        _api = None
+    return _api
+
+
+def api_prices(locations, market: str, start, end) -> pd.DataFrame:
+    """SPP for any settlement point(s) via the ERCOT public API, tidy long.
+
+    Columns: location, interval_start (naive Central), spp. Empty if the API is
+    unavailable (no creds) or returns nothing.
+    """
+    cols = ["location", "interval_start", "spp"]
+    api = _ercot_api()
+    if api is None:
+        return pd.DataFrame(columns=cols)
+    start = pd.Timestamp(start).normalize()
+    end_incl = pd.Timestamp(end).normalize()
+    fn = (api.get_spp_day_ahead_hourly if market == "DAM"
+          else api.get_spp_real_time_15_min)
+    try:
+        df = fn(date=start, end=end_incl + pd.Timedelta(days=1))
+    except Exception:
+        return pd.DataFrame(columns=cols)
+    if df is None or len(df) == 0:
+        return pd.DataFrame(columns=cols)
+    df = df[df["Location"].astype(str).isin(set(locations))]
+    if df.empty:
+        return pd.DataFrame(columns=cols)
+    out = pd.DataFrame({
+        "location": df["Location"].astype(str),
+        "interval_start": _to_naive_central(df["Interval Start"]),
+        "spp": pd.to_numeric(df["SPP"], errors="coerce"),
+    })
+    end_excl = end_incl + pd.Timedelta(days=1)
+    out = out[(out["interval_start"] >= start) & (out["interval_start"] < end_excl)]
+    return (out.dropna(subset=["spp"])
+               .sort_values(["location", "interval_start"]).reset_index(drop=True))
+
+
 def get_prices(locations, location_type: str, market: str, start, end,
                prefer_lake: bool = True) -> tuple[pd.DataFrame, str]:
-    """Prefer the data lake; fall back to a live gridstatus pull for anything it
-    doesn't cover. Returns (tidy_df, source_label)."""
+    """Prefer the data lake; then the fast ERCOT API; MIS scrape only as a last
+    resort. Returns (tidy_df, source_label)."""
     if location_type == "Resource Node":
         # Nodes only live in the node-price lake (the live gridstatus path would
         # need exact ERCOT settlement-point names we don't carry coords for).
@@ -174,6 +236,11 @@ def get_prices(locations, location_type: str, market: str, start, end,
         df = lake_prices(locations, location_type, market, start, end)
         if not df.empty:
             return df, "data lake"
+    # Load zones (and any window the hub lake misses) come from the ERCOT API —
+    # fast for the full history. MIS scrape is the slow last resort.
+    df = api_prices(locations, market, start, end)
+    if not df.empty:
+        return df, "ERCOT API"
     return fetch_spp(locations, location_type, market, start, end), "live (gridstatus)"
 
 

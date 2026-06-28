@@ -13,6 +13,7 @@ import streamlit as st
 import alerts
 import coords
 import ercot
+import spmap
 
 st.set_page_config(page_title="ERCOT Grid Monitor", page_icon="⚡", layout="wide")
 
@@ -135,6 +136,14 @@ with tab_map:
             if location_type == "Resource Node":
                 geo["name"] = geo["location"].map(
                     lambda loc: coords.NODE_COORDS.get(loc, (0, 0, loc))[2])
+                # Authoritative substation + load zone from NP4-160-SG.
+                attrs = spmap.node_attrs()
+                geo["substation"] = geo["location"].map(
+                    lambda loc: (attrs.get(loc) or {}).get("substation") or "—")
+                geo["zone"] = geo["location"].map(
+                    lambda loc: (attrs.get(loc) or {}).get("load_zone") or "—")
+                geo["trust"] = geo["location"].map(
+                    lambda loc: (coords.NODE_META.get(loc) or {}).get("trust") or "—")
             else:
                 geo["name"] = geo["location"]
 
@@ -160,8 +169,10 @@ with tab_map:
                 initial_view_state=pdk.ViewState(latitude=31.2, longitude=-99.3, zoom=4.7),
                 tooltip={"html": "<b>{name}</b><br/>"
                                  "<span style='opacity:0.7'>{location}</span><br/>"
-                                 "Avg {price_label} /MWh<br/>"
-                                 "High {max_label} · Low {min_label}"})
+                                 + ("{substation} · {zone}<br/>"
+                                    if location_type == "Resource Node" else "")
+                                 + "Avg {price_label} /MWh<br/>"
+                                   "High {max_label} · Low {min_label}"})
             st.pydeck_chart(deck, use_container_width=True)
 
             stops = ", ".join(f"rgb{_RAMP[i][1]}" for i in range(len(_RAMP)))
@@ -178,11 +189,13 @@ with tab_map:
             st.bar_chart(by.set_index(chart_key)["avg_spp"],
                          x_label=location_type, y_label="Avg $/MWh", horizontal=True)
 
-            tbl_cols = (["name", "location", "avg_spp", "min_spp", "max_spp", "n"]
+            tbl_cols = (["name", "location", "substation", "zone", "trust",
+                         "avg_spp", "min_spp", "max_spp", "n"]
                         if location_type == "Resource Node"
                         else ["location", "avg_spp", "min_spp", "max_spp", "n"])
             show = (by[tbl_cols]
                     .rename(columns={"name": "plant", "location": location_type,
+                                     "substation": "substation", "zone": "load zone",
                                      "avg_spp": "avg $/MWh",
                                      "min_spp": "low $/MWh", "max_spp": "high $/MWh",
                                      "n": "intervals"}))
@@ -196,6 +209,35 @@ with tab_map:
                                file_name=f"ercot_price_map_{location_type.replace(' ', '_')}.csv")
     else:
         st.info("Pick a type, market and window, then **Load price map**.")
+
+    # Full ERCOT resource-node reference (NP4-160-SG) — all ~1,024 nodes with
+    # their authoritative substation / load zone, whether or not we can plot them.
+    with st.expander("📖 All ERCOT resource nodes (NP4-160 mapping)"):
+        ref = spmap.load_mapping()
+        if ref.empty:
+            st.caption("Mapping unavailable (needs one ERCOT fetch).")
+        else:
+            plotted = set(coords.NODES)
+            ref = ref.assign(plant=ref["node"].map(coords.NODE_NAMES).fillna("—"),
+                             mapped=ref["node"].isin(plotted))
+            q = st.text_input("Filter (node / substation / zone)", key="np4_q").strip().upper()
+            view = ref
+            if q:
+                mask = (ref["node"].str.upper().str.contains(q, na=False)
+                        | ref["plant"].astype(str).str.upper().str.contains(q, na=False)
+                        | ref["substation"].astype(str).str.upper().str.contains(q, na=False)
+                        | ref["load_zone"].astype(str).str.upper().str.contains(q, na=False))
+                view = ref[mask]
+            st.caption(f"{len(ref):,} resource nodes · {ref['mapped'].sum()} plotted on the map above "
+                       f"· published {ref['publish_date'].iloc[0]}")
+            st.dataframe(
+                view[["node", "plant", "substation", "load_zone", "kv", "electrical_bus",
+                      "psse_bus", "mapped"]].sort_values("node"),
+                hide_index=True, use_container_width=True,
+                column_config={"mapped": st.column_config.CheckboxColumn("on map")})
+            st.download_button("⬇ Download full node mapping (CSV)",
+                               ref.to_csv(index=False).encode(),
+                               file_name="ercot_resource_node_mapping_NP4-160.csv")
 
 # =========================================================================== #
 # Alerts
