@@ -58,7 +58,8 @@ nav = st.navigation({
     "Forecasts": [
         st.Page(f"{P}/13_Solar_Forecast.py", title="Solar Forecast", icon="☀️"),
         st.Page(f"{P}/14_Wind_Forecast.py", title="Wind Forecast", icon="🌬️"),
-        st.Page(f"{P}/16_Price_Forecast.py", title="Price Forecast", icon="📉"),
+        st.Page(f"{P}/16_Price_Forecast.py", title="Price Forecast", icon="📉",
+                url_path="price-forecast"),
         st.Page(f"{P}/17_Plant_Value.py", title="Predicted Solar Settlement", icon="🔆"),
         st.Page(f"{P}/18_Wind_Capture.py", title="Predicted Wind Settlement", icon="💨"),
         st.Page(f"{P}/23_Forecast_Methodology.py", title="Forecast Methodology",
