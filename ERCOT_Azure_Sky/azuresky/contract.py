@@ -26,8 +26,10 @@ ASSET = {
     "price_node": "AZURE_RN",
     "capacity_mw": 350.0,
     "tech": "Wind",
+    "turbine_manuf": "Nordex",             # USWTDB (dominant: 65× N149/4.8)
     "turbine_model": "Nordex N149/4.X (Mixed Fleet)",
     "hub_height_m": 105.0,
+    "rotor_diameter_m": 149.0,             # USWTDB (dominant N149/4.8)
     # Nordex N149/4.X power curve parameters
     "cut_in_ms": 3.0,    # m/s
     "rated_ms": 13.0,    # m/s — N149 rated wind speed ~13 m/s

@@ -18,21 +18,26 @@ ASSET = {
     "project_name": "Aguayo Wind",
     "resource_node": "AGUAYO_UNIT1",
     "resource_name": "AGUAYO_UNIT1",
-    "capacity_mw": 161.0,
-    "tech": "Solar PV",
-    "tracking_type": "single_axis",
-    "hub": "HB_NORTH",
-    "county": "Bosque, TX",                # EIA-860: plant 67580, Bosque County
-    "lat": 31.694792,                      # EIA-860 authoritative (COD 2024-11-01)
-    "lon": -97.374883,
-    "dc_ac_ratio": 1.45,
+    "capacity_mw": 196.8,
+    "tech": "Wind",
+    "tracking_type": None,
+    "hub": "HB_WEST",
+    "county": "Mills",                # EIA-860: plant 67580, Bosque County
+    "lat": 31.39376,                      # EIA-860 authoritative (COD 2024-11-01)
+    "lon": -98.35936,
+    "dc_ac_ratio": None,
+    "panel_tech": "thin-film",             # USPVDB (Aguayo Wind Farm)
     # EIA-923 plant identifier for the independent generation cross-check. There
     # is no public ERCOT→EIA crosswalk, so this is supplied by hand once (the
     # plant's EIA ORIS code). Aguayo Wind Farm = 67580 (matched on EIA-860 name
     # "Aguayo Wind Farm", 161 MW PV, Bosque County). Overridable via
     # "eia_plant_id" in config.json; None ⇒ the cross-check is disabled.
-    "eia_plant_id": 67580,
-    "eia_prime_mover": "PV",   # solar PV; None = all prime movers at the plant
+    "eia_plant_id": 65790,
+    "eia_prime_mover": None,   # solar PV; None = all prime movers at the plant
+    "turbine_model": "N149/4.8",
+    "turbine_manuf": "Nordex",
+    "hub_height_m": 108.0,
+    "rotor_diameter_m": 149.0,
 }
 
 # ── default contract terms (seed; overridable in config.json / Contract page) ──
@@ -47,8 +52,8 @@ DEFAULT_CONTRACT = {
     "settle_below_floor": False,  # False: no settlement below floor (most VPPAs)
     "fee_per_mwh": 0.0,          # only used for "Merchant + fee"
     "counterparty": "Customer",  # label shown on the bill
-    "offtaker": "",              # full company name of the VPPA buyer
-    "developer": "",             # developer / entity above the project SPV
+    "offtaker": "TBD",              # full company name of the VPPA buyer
+    "developer": "Swift Current Energy",             # developer / entity above the project SPV
     "currency": "USD",
 
     # ── extended VPPA levers (all OFF / neutral by default) ──────────────────

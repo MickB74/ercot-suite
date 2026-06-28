@@ -48,6 +48,9 @@ st.markdown(
 - **Cross-check** — {xcheck}
 """)
 
+from ercot_core import portal_links  # noqa: E402
+portal_links.hub_coverage_link(st)
+
 st.subheader("🧾 Past Settlement — actual, not modelled")
 floor_txt = ("A **price floor** applies: intervals below it don't settle (typical VPPA)."
              if terms.get("apply_floor", True) else "No price floor is applied.")

@@ -893,5 +893,34 @@
     ],
     "lat": 33.22132,
     "lon": -99.58652
+  },
+  "Castle Gap/Aguayo Wind": {
+    "resource_name": "AGUAYO_UNIT1",
+    "project_name": "Castle Gap/Aguayo Wind",
+    "tech": "Wind",
+    "capacity_mw": 196.8,
+    "hub": "North",
+    "county": "Mills",
+    "lat": 31.39376,
+    "lon": -98.35936,
+    "turbine_manuf": "Nordex",
+    "turbine_model": "N149/4.8",
+    "hub_height_m": 108.0,
+    "rotor_diameter_m": 149.0
+  },
+  "Aguayo Wind": {
+    "resource_name": "AGUAYO_UNIT1",
+    "tech": "Wind",
+    "capacity_mw": 196.8,
+    "hub": "HB_WEST",
+    "lat": 31.39376,
+    "lon": -98.35936,
+    "county": "Mills",
+    "turbine_manuf": "Nordex",
+    "turbine_model": "N149/4.8",
+    "hub_height_m": 108.0,
+    "rotor_diameter_m": 149.0,
+    "eia_plant_id": 65790,
+    "project_name": "Aguayo Wind"
   }
 }

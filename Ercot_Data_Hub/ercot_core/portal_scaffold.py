@@ -202,116 +202,146 @@ def create_portal(asset: dict, *, strike: float, structure: str = "VPPA / CfD",
         shutil.rmtree(dest)
 
     # 1) Clone the template (minus venv/data/customer config).
-    shutil.copytree(TEMPLATE_DIR, dest, ignore=_IGNORE)
-
-    # 2) Token-rewrite every text file. Order matters: specific names before the
-    #    generic lowercase package token. Branding strings ("Markum"/"Markham")
-    #    become the project name; the lowercase import token becomes NEW_PKG.
-    slug_upper = slugify(project_name).upper()
-    replacements = [
-        (TPL_NODE, node),
-        (TPL_UNIT, primary_unit),
-        (TPL_ENV, f"{slug_upper}_HUB_ROOT"),
-        ("Markum Solar", project_name),
-        ("Markham Solar", project_name),
-        ("Markum", project_name),
-        ("Markham", project_name),
-        (TEMPLATE_PKG, NEW_PKG),  # lowercase 'markum' import token + CSS classes
-    ]
-    for f in dest.rglob("*"):
-        if f.is_file() and f.suffix.lower() in _TEXT_SUFFIXES:
-            try:
-                txt = f.read_text()
-            except (UnicodeDecodeError, OSError):
-                continue
-            for old, new in replacements:
-                txt = txt.replace(old, new)
-            f.write_text(txt)
-
-    # 2b) Rename the package dir (contents already rewritten) so the paths below resolve.
-    (dest / TEMPLATE_PKG).rename(dest / NEW_PKG)
-
-    # 3) Rewrite the ASSET facts + strike in contract.py (token pass already fixed
-    #    the names/node; here we set the numeric/identity fields from the registry).
-    contract_py = dest / NEW_PKG / "contract.py"
-    c = contract_py.read_text()
-    c = _set_field(c, "project_name", project_name)
-    c = _set_field(c, "resource_node", node)
-    c = _set_field(c, "resource_name", primary_unit)
-    c = _set_field(c, "capacity_mw", float(asset.get("capacity_mw") or 0.0))
-    c = _set_field(c, "tech", "Solar PV" if is_solar else "Wind")
-    c = _set_field(c, "hub", hub_code(asset.get("hub")))
-    c = _set_field(c, "county", str(asset.get("county") or ""))
-    c = _set_field(c, "lat", float(asset.get("lat") or 0.0))
-    c = _set_field(c, "lon", float(asset.get("lon") or 0.0))
-    # Solar-only attributes: keep for solar, blank for wind so contract.py is honest.
-    c = _set_field(c, "dc_ac_ratio", float(asset.get("dc_ac_ratio") or 1.3) if is_solar else None)
-    c = _set_field(c, "tracking_type",
-                   asset.get("tracking_type", "single_axis") if is_solar else None)
-    c = _set_field(c, "eia_plant_id", asset.get("eia_plant_id") if asset.get("eia_plant_id") else None)
-    c = _set_field(c, "eia_prime_mover", "PV" if is_solar else None)
-    c = _set_field(c, "strike", float(strike))
-    c = _set_field(c, "structure", structure)
-    c = _set_field(c, "counterparty", counterparty)
-    c = _set_field(c, "offtaker", str(offtaker or ""))
-    c = _set_field(c, "developer", str(developer or ""))
-    # Wind: carry turbine specs into the ASSET so the hero/contract show real facts.
-    if not is_solar:
-        c = _add_asset_fields(c, {k: asset.get(k) for k in
-                                  ("turbine_model", "turbine_manuf",
-                                   "hub_height_m", "rotor_diameter_m")})
-    contract_py.write_text(c)
-
-    # 4) Auto-select the settlement hub via price correlation (falls back to distance).
-    lat = float(asset.get("lat") or 0.0) or None
-    lon = float(asset.get("lon") or 0.0) or None
-    settle_hub: str | None = None
-    hub_method: str = "none"
     try:
-        from ercot_core import hub_affinity  # noqa: PLC0415
-        if lat and lon:
-            try:
-                aff = hub_affinity.best_hub(node, lat=lat, lon=lon)
-            except ValueError:
-                # No cached prices yet — fall back to geography
-                aff = hub_affinity.best_hub_by_distance(lat, lon)
-        else:
-            aff = hub_affinity.best_hub(node)
-        settle_hub = aff["hub"]
-        hub_method = aff["method"]
-    except Exception:  # noqa: BLE001 — affinity is best-effort; never block portal creation
-        pass
+        shutil.copytree(TEMPLATE_DIR, dest, ignore=_IGNORE)
 
-    # 4b) Write a fresh customer config.json with the contract terms + settlement hub.
-    cfg: dict = {
-        "structure": structure,
-        "strike": float(strike),
-        "volume_share_pct": 100.0,
-        "counterparty": counterparty,
-        "offtaker": str(offtaker or ""),
-        "developer": str(developer or ""),
-        "eia_plant_id": asset.get("eia_plant_id") or None,
-    }
-    if settle_hub:
-        cfg["settle_at"] = "hub"
-        cfg["settle_point"] = settle_hub
-    (dest / "config.json").write_text(json.dumps(cfg, indent=2) + "\n")
+        # 2) Token-rewrite every text file. Order matters: specific names before the
+        #    generic lowercase package token. Branding strings ("Markum"/"Markham")
+        #    become the project name; the lowercase import token becomes NEW_PKG.
+        slug_upper = slugify(project_name).upper()
+        replacements = [
+            (TPL_NODE, node),
+            (TPL_UNIT, primary_unit),
+            (TPL_ENV, f"{slug_upper}_HUB_ROOT"),
+            ("Markum Solar", project_name),
+            ("Markham Solar", project_name),
+            ("Markum", project_name),
+            ("Markham", project_name),
+            (TEMPLATE_PKG, NEW_PKG),  # lowercase 'markum' import token + CSS classes
+        ]
+        for f in dest.rglob("*"):
+            if f.is_file() and f.suffix.lower() in _TEXT_SUFFIXES:
+                try:
+                    txt = f.read_text()
+                except (UnicodeDecodeError, OSError):
+                    continue
+                for old, new in replacements:
+                    txt = txt.replace(old, new)
+                f.write_text(txt)
 
-    # 5) Rename launcher scripts that carry the old name in their filename.
-    for cmd in list(dest.glob("*.command")):
-        new_name = cmd.name.replace("Markum", project_name).replace("Markham", project_name)
-        if new_name != cmd.name:
-            cmd.rename(dest / new_name)
+        # 2b) Rename the package dir (contents already rewritten) so the paths below resolve.
+        (dest / TEMPLATE_PKG).rename(dest / NEW_PKG)
 
-    return {
-        "path": str(dest),
-        "name": project_name,
-        "node": node,
-        "package": NEW_PKG,
-        "launch": ".venv/bin/streamlit run app/Home.py",
-        "settle_hub": settle_hub,
-        "settle_hub_method": hub_method,
-    }
+        # 3) Rewrite the ASSET facts + strike in contract.py (token pass already fixed
+        #    the names/node; here we set the numeric/identity fields from the registry).
+        contract_py = dest / NEW_PKG / "contract.py"
+        c = contract_py.read_text()
+        c = _set_field(c, "project_name", project_name)
+        c = _set_field(c, "resource_node", node)
+        c = _set_field(c, "resource_name", primary_unit)
+        c = _set_field(c, "capacity_mw", float(asset.get("capacity_mw") or 0.0))
+        c = _set_field(c, "tech", "Solar PV" if is_solar else "Wind")
+        c = _set_field(c, "hub", hub_code(asset.get("hub")))
+        c = _set_field(c, "county", str(asset.get("county") or ""))
+        c = _set_field(c, "lat", float(asset.get("lat") or 0.0))
+        c = _set_field(c, "lon", float(asset.get("lon") or 0.0))
+        # Solar-only attributes: keep for solar, blank for wind so contract.py is honest.
+        c = _set_field(c, "dc_ac_ratio", float(asset.get("dc_ac_ratio") or 1.3) if is_solar else None)
+        c = _set_field(c, "tracking_type",
+                       asset.get("tracking_type", "single_axis") if is_solar else None)
+        c = _set_field(c, "eia_plant_id", asset.get("eia_plant_id") if asset.get("eia_plant_id") else None)
+        c = _set_field(c, "eia_prime_mover", "PV" if is_solar else None)
+        c = _set_field(c, "strike", float(strike))
+        c = _set_field(c, "structure", structure)
+        c = _set_field(c, "counterparty", counterparty)
+        c = _set_field(c, "offtaker", str(offtaker or ""))
+        c = _set_field(c, "developer", str(developer or ""))
+        # Wind: carry turbine specs into the ASSET so the hero/contract show real facts.
+        if not is_solar:
+            c = _add_asset_fields(c, {k: asset.get(k) for k in
+                                      ("turbine_model", "turbine_manuf",
+                                       "hub_height_m", "rotor_diameter_m")})
+        contract_py.write_text(c)
+
+        # 4) Auto-select the settlement hub via price correlation (falls back to distance).
+        lat = float(asset.get("lat") or 0.0) or None
+        lon = float(asset.get("lon") or 0.0) or None
+        settle_hub: str | None = None
+        hub_method: str = "none"
+        try:
+            from ercot_core import hub_affinity  # noqa: PLC0415
+            if lat and lon:
+                try:
+                    aff = hub_affinity.best_hub(node, lat=lat, lon=lon)
+                except ValueError:
+                    # No cached prices yet — fall back to geography
+                    aff = hub_affinity.best_hub_by_distance(lat, lon)
+            else:
+                aff = hub_affinity.best_hub(node)
+            settle_hub = aff["hub"]
+            hub_method = aff["method"]
+        except Exception:  # noqa: BLE001 — affinity is best-effort; never block portal creation
+            pass
+
+        # 4b) Write a fresh customer config.json with the contract terms + settlement hub.
+        cfg: dict = {
+            "structure": structure,
+            "strike": float(strike),
+            "volume_share_pct": 100.0,
+            "counterparty": counterparty,
+            "offtaker": str(offtaker or ""),
+            "developer": str(developer or ""),
+            "eia_plant_id": asset.get("eia_plant_id") or None,
+        }
+        if settle_hub:
+            cfg["settle_at"] = "hub"
+            cfg["settle_point"] = settle_hub
+        (dest / "config.json").write_text(json.dumps(cfg, indent=2) + "\n")
+
+        # 5) Rename launcher scripts that carry the old name in their filename.
+        for cmd in list(dest.glob("*.command")):
+            new_name = cmd.name.replace("Markum", project_name).replace("Markham", project_name)
+            if new_name != cmd.name:
+                cmd.rename(dest / new_name)
+
+        # 6) Give the portal its OWN port. The template launcher is pinned to the
+        #    Markum port (8502); without rewriting it, every generated portal collides
+        #    on that port and double-clicking just opens whatever app already holds it.
+        port = next_portal_port()
+        for cmd in dest.glob("*.command"):
+            t = cmd.read_text()
+            t2 = re.sub(r"PORT=\d+", f"PORT={port}", t)
+            if t2 != t:
+                cmd.write_text(t2)
+
+        return {
+            "path": str(dest),
+            "name": project_name,
+            "node": node,
+            "package": NEW_PKG,
+            "port": port,
+            "launch": ".venv/bin/streamlit run app/Home.py",
+            "settle_hub": settle_hub,
+            "settle_hub_method": hub_method,
+            # The Control Tower registry is a hand-curated list — paste this in:
+            "registry_hint": (f'{{"name": "{project_name}", "dir": "{dest.name}", '
+                              f'"port": {port}}}  # add to app/views/home.py _PORTALS'),
+        }
+    except Exception:
+        # Don't leave a half-built portal behind on any failure.
+        shutil.rmtree(dest, ignore_errors=True)
+        raise
+
+
+def next_portal_port() -> int:
+    """Next free settlement-portal port: one past the highest in the Control Tower
+    registry (app/views/home.py _PORTALS). Falls back to 8502."""
+    home = Path(__file__).resolve().parents[1] / "app" / "views" / "home.py"
+    try:
+        ports = [int(m) for m in re.findall(r'"port":\s*(\d+)', home.read_text())]
+    except Exception:
+        ports = []
+    return (max(ports) + 1) if ports else 8502
 
 
 # --------------------------------------------------------------------------
