@@ -165,6 +165,67 @@ def _registry_eia_ids(reg_key: tuple) -> dict:
     return out
 
 
+@st.cache_data(show_spinner=False)
+def _wind_fleet(lat: float, lon: float) -> dict | None:
+    """Real turbine fleet at a coordinate, from USWTDB (manufacturer/model/hub/
+    rotor + a description), for autofilling wind specs. None if no project nearby."""
+    try:
+        import turbine_db as tdb
+    except Exception:
+        return None
+    f = tdb.find_project_near(lat, lon, radius_km=15.0)
+    if not f or not getattr(f, "segments", None):
+        return None
+    dom = max(f.segments, key=lambda s: s.count)   # dominant turbine type
+    return {
+        "manuf": dom.manufacturer or "",
+        "model": dom.model or "",
+        "hub_m": round(float(f.mean_hub_height_m or dom.hub_height_m or 0.0), 1),
+        "rotor_m": round(float(dom.rotor_m or 0.0), 1),
+        "desc": f.describe(),
+    }
+
+
+@st.cache_data(show_spinner=False)
+def _solar_array(lat: float, lon: float) -> dict | None:
+    """Nearest USPVDB solar array at a coordinate — tracking, cell technology,
+    DC/AC ratio, tilt — for autofilling solar specs. None if none nearby."""
+    import json
+    import math
+    f = pathlib.Path(__file__).resolve().parents[2] / "datasets" / "solar_forecast" / "reference" / "uspvdb_tx.json"
+    try:
+        rows = json.loads(f.read_text())
+    except Exception:
+        return None
+    rows = rows if isinstance(rows, list) else (rows.get("features") or [])
+
+    def hv(a, b, c, d):
+        p1, p2 = math.radians(a), math.radians(c); dp = math.radians(c - a); dl = math.radians(d - b)
+        return 2 * 6371 * math.asin(math.sqrt(math.sin(dp / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dl / 2) ** 2))
+
+    best, bestd = None, 1e9
+    for t in rows:
+        p = t.get("properties", t)
+        la, lo = p.get("ylat"), p.get("xlong")
+        if la is None or lo is None:
+            continue
+        d = hv(lat, lon, float(la), float(lo))
+        if d < bestd:
+            best, bestd = p, d
+    if best is None or bestd > 10:
+        return None
+    axis = {"single-axis": "single_axis", "dual-axis": "single_axis",
+            "fixed-tilt": "fixed"}.get(str(best.get("p_axis") or "").lower())
+    ac, dc = best.get("p_cap_ac"), best.get("p_cap_dc")
+    return {
+        "name": best.get("p_name"),
+        "tracking": axis,
+        "panel_tech": best.get("p_tech_sec") or best.get("p_tech_pri"),
+        "dc_ac": round(float(dc) / float(ac), 2) if ac and dc else None,
+        "tilt": best.get("p_tilt"),
+    }
+
+
 def _prefill(res: dict) -> dict:
     """Pull capacity / county / queue id out of the queue or fyi match."""
     qm = (res.get("queue_matches") or [{}])[0]
@@ -396,6 +457,7 @@ defaults = {
     "pb_eia_q": _default_q,
     "pb_track": "fixed" if str(existing.get("tracking_type", "single_axis")) == "fixed" else "single_axis",
     "pb_dcac": float(existing.get("dc_ac_ratio") or 1.3),
+    "pb_paneltech": str(existing.get("panel_tech") or ""),
     "pb_tmanuf": str(existing.get("turbine_manuf") or ""),
     "pb_tmodel": str(existing.get("turbine_model") or ""),
     "pb_hh": float(existing.get("hub_height_m") or 0.0),
@@ -416,7 +478,9 @@ for k, v in defaults.items():
 with st.container(border=True):
     st.markdown("**🔎 Autofill from EIA-860**")
     st.caption("Search the EIA-860 directory and copy a plant's capacity, county and "
-               "coordinates into the form below.")
+               "coordinates into the form below. For wind, the real turbine fleet "
+               "(manufacturer, model, hub height, rotor) is autofilled from USWTDB; "
+               "for solar, tracking, cell technology and DC/AC ratio from USPVDB.")
     st.text_input("Search by plant name", key="pb_eia_q")
     eia_cands = _eia_candidates(st.session_state["pb_eia_q"], st.session_state["pb_tech"])
     if not eia_cands:
@@ -438,7 +502,29 @@ with st.container(border=True):
                 st.session_state["pb_lon"] = float(p["lon"])
             if p.get("tech") in TECHS:
                 st.session_state["pb_tech"] = p["tech"]
-            st.toast(f"Filled from {p['plant_name']}")
+            msg = f"Filled from {p['plant_name']}"
+            # Wind: pull the real turbine fleet (USWTDB); Solar: array specs (USPVDB).
+            if p.get("tech") == "Wind" and p.get("lat") and p.get("lon"):
+                fleet = _wind_fleet(float(p["lat"]), float(p["lon"]))
+                if fleet:
+                    st.session_state["pb_tmanuf"] = fleet["manuf"]
+                    st.session_state["pb_tmodel"] = fleet["model"]
+                    st.session_state["pb_hh"] = fleet["hub_m"]
+                    st.session_state["pb_rd"] = fleet["rotor_m"]
+                    msg += f" · turbines: {fleet['desc']} (USWTDB)"
+            elif p.get("tech") == "Solar" and p.get("lat") and p.get("lon"):
+                arr = _solar_array(float(p["lat"]), float(p["lon"]))
+                if arr:
+                    if arr.get("tracking"):
+                        st.session_state["pb_track"] = arr["tracking"]
+                    if arr.get("dc_ac"):
+                        st.session_state["pb_dcac"] = arr["dc_ac"]
+                    if arr.get("panel_tech"):
+                        st.session_state["pb_paneltech"] = arr["panel_tech"]
+                    bits = [arr.get("tracking"), arr.get("panel_tech"),
+                            f"DC/AC {arr['dc_ac']}" if arr.get("dc_ac") else None]
+                    msg += " · array: " + ", ".join(b for b in bits if b) + " (USPVDB)"
+            st.toast(msg)
             st.rerun()
 
 c1, c2, c3 = st.columns(3)
@@ -465,9 +551,12 @@ with st.expander(f"{tech} specs (optional, improves forecast accuracy)", expande
         s1, s2 = st.columns(2)
         tracking_type = s1.selectbox("Tracking", ["single_axis", "fixed"], key="pb_track")
         dc_ac_ratio = s2.number_input("DC/AC ratio", min_value=0.0, step=0.01, key="pb_dcac")
+        panel_tech = st.text_input("Panel / cell technology", key="pb_paneltech",
+                                   placeholder="e.g. c-si (crystalline silicon), cdte (thin-film)")
         wind_specs = {}
         solar_specs = {"tracking_type": tracking_type,
-                       "dc_ac_ratio": dc_ac_ratio if dc_ac_ratio > 0 else None}
+                       "dc_ac_ratio": dc_ac_ratio if dc_ac_ratio > 0 else None,
+                       "panel_tech": panel_tech or None}
     else:
         w1, w2 = st.columns(2)
         turbine_manuf = w1.text_input("Turbine manufacturer", key="pb_tmanuf")
