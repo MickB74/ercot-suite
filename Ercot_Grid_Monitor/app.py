@@ -339,7 +339,7 @@ with tab_alerts:
     with st.expander("📧 Email setup (Gmail or any SMTP)"):
         e_on = st.checkbox("Send me email alerts", value=bool(email.get("enabled")))
         e_to = st.text_input("Send alerts to (email address)",
-                             value=(email.get("to", [""])[0] if isinstance(email.get("to"), list)
+                             value=((email.get("to") or [""])[0] if isinstance(email.get("to"), list)
                                     else email.get("to", "")))
         e_user = st.text_input("Your Gmail address (the account that sends)",
                                value=email.get("username", ""))
@@ -360,7 +360,7 @@ with tab_alerts:
     with st.expander("📱 Text/SMS setup (Twilio)"):
         s_on = st.checkbox("Send me text alerts", value=bool(sms.get("enabled")))
         s_to = st.text_input("Send texts to (your phone, +1…)",
-                             value=(sms.get("to", [""])[0] if isinstance(sms.get("to"), list)
+                             value=((sms.get("to") or [""])[0] if isinstance(sms.get("to"), list)
                                     else sms.get("to", "")))
         s_sid = st.text_input("Twilio Account SID", value=sms.get("account_sid", ""))
         s_tok = st.text_input("Twilio Auth Token", type="password",
