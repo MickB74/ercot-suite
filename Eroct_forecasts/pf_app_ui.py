@@ -532,18 +532,40 @@ def _gas_curve_section(asof: pd.Timestamp, horizon: int):
     return out[["month", "gas"]], label
 
 
+@st.cache_data(ttl=7 * 86400, show_spinner=False)
+def _cdr_autorefresh() -> str:
+    """Pull the latest ERCOT CDR automatically (throttled to ~once/week/session).
+
+    ERCOT's CDR is the one ERCOT-side forward signal that's free to automate
+    (it's on ercot.com, not license-gated), so we keep it current hands-off.
+    Any failure (offline, layout change) silently falls back to the cached
+    table. Returns a short status string for display.
+    """
+    try:
+        fresh = public_forecasts.refresh_cdr()
+        return f"auto-refreshed from ercot.com — {len(fresh)} forecast years"
+    except Exception:  # noqa: BLE001
+        cur = public_forecasts.ercot_reserve_margin()
+        n = 0 if cur is None or cur.empty else len(cur)
+        return f"using cached CDR table ({n} years; live refresh unavailable)"
+
+
 def _ercot_fundamentals_section() -> tuple[bool, pd.DataFrame | None]:
     """ERCOT reserve-margin scarcity overlay + EIA STEO cross-check.
 
-    Returns ``(scarcity_on, steo_power_df)``. The CDR table is editable in-app and
-    persisted back to the manual override CSV so it carries across runs.
+    Returns ``(scarcity_on, steo_power_df)``. The CDR auto-refreshes from
+    ercot.com and the scarcity overlay is **on by default** — the ERCOT-side
+    forward signal is hands-off (no traded power curve needed). The table stays
+    editable and persists to the override CSV.
     """
     st.subheader("🏗️ ERCOT fundamentals & cross-checks")
-    st.caption("There is **no free traded ERCOT forward**, so the ERCOT-side signal "
-               "is *fundamentals*: ERCOT's CDR planning reserve margins widen the "
-               "scarcity tail in tight forward years (the central P50 is unchanged). "
-               "The EIA STEO line is a **cross-check only — never blended**.")
+    st.caption("No free traded ERCOT forward exists, so the ERCOT-side signal is "
+               "*fundamentals*, fully automated: ERCOT's CDR planning reserve margins "
+               "(auto-pulled from ercot.com) widen the scarcity tail in tight forward "
+               "years — the central P50 is unchanged. The EIA STEO line is a "
+               "**cross-check only — never blended**.")
 
+    cdr_status = _cdr_autorefresh()
     cdr = public_forecasts.ercot_reserve_margin()
     if cdr is None or cdr.empty:
         cdr = pd.DataFrame({"year": [], "reserve_margin_pct": []})
@@ -557,9 +579,11 @@ def _ercot_fundamentals_section() -> tuple[bool, pd.DataFrame | None]:
                     "Reserve margin (%)", format="%.1f")})
     with c2:
         scarcity = st.checkbox(
-            "Apply scarcity overlay", value=False,
-            help="Widen the heat-rate upper tail (P90/P95) for forecast years whose "
-                 "ERCOT reserve margin is below ~15%. Median P50 is left unchanged.")
+            "Apply scarcity overlay", value=True,
+            help="On by default. Widens the heat-rate upper tail (P90/P95) for forecast "
+                 "years whose ERCOT reserve margin is below ~15%. Median P50 is left "
+                 "unchanged. Uncheck to ignore ERCOT scarcity fundamentals.")
+        st.caption(f"📡 CDR: {cdr_status}.")
         if st.button("💾 Save CDR table"):
             df = edited.dropna(subset=["year"]).copy()
             if not df.empty:
@@ -684,20 +708,47 @@ def _save_power_strip(df: pd.DataFrame) -> None:
     pf_paths.POWER_STRIP_CSV = path
 
 
-def _power_strip_section(hubs: list[str], asof) -> None:
-    """Slick in-app paste/edit for the traded ERCOT power-futures strip."""
-    with st.container(border=True):
-        st.subheader("📈 Traded power futures (optional calibration)")
-        st.caption("ERCOT power forwards aren't on a free feed, so paste ICE / Nodal "
-                   "settlements here to anchor the near months to the traded market — "
-                   "they blend into the near curve and fade to the gas × heat-rate "
-                   "model over the **blend-fade** window. Leave empty for model-only.")
+# CME Group publishes the ERCOT forward settlement curve free to *view* (the
+# exchange itself — authoritative, no login). CME's terms forbid automated
+# scraping, so these are human-read lookups: open, read 3-4 months, type them in.
+_CME = "https://www.cmegroup.com/markets/energy/electricity/"
+_CME_LINKS = {
+    "HB_NORTH":   _CME + "ercot-north-zone-mcpe-5-mw-peak-swap-futures.settlements.html",
+    "HB_HOUSTON": _CME + "ercot-houston-zone-mcpe-5-mw-peak-swap-futures.settlements.html",
+    "HB_SOUTH":   _CME + "ercot-south-zone-mcpe-5-mw-peak-swap-futures.settlements.html",
+    "HB_WEST":    _CME + "ercot-west-zone-mcpe-5-mw-peak-swap-futures.settlements.html",
+}
+_CME_INDEX = "https://www.cmegroup.com/markets/energy/electricity.html"
 
-        default_hub = hubs[0] if hubs else "HB_NORTH"
-        hub_opts = hubs or list(pf_history.HUBS)
-        existing = power_futures.load_strip()
-        if existing is None or existing.empty:
-            existing = pd.DataFrame(columns=["month", "hub", "block", "price"])
+
+def _power_strip_section(hubs: list[str], asof) -> None:
+    """In-app paste/edit for the OPTIONAL traded ERCOT power-futures strip.
+
+    Tucked in a collapsed expander: ERCOT power forwards aren't on a free feed,
+    so this only matters when the user has a broker run or licensed curve to
+    paste. Empty = model-only (already anchored to traded Henry Hub gas).
+    """
+    default_hub = hubs[0] if hubs else "HB_NORTH"
+    hub_opts = hubs or list(pf_history.HUBS)
+    existing = power_futures.load_strip()
+    if existing is None or existing.empty:
+        existing = pd.DataFrame(columns=["month", "hub", "block", "price"])
+    has_strip = not existing.empty
+    label = ("📈 Traded power futures — optional"
+             + (f" · {len(existing)} loaded" if has_strip else " · model-only"))
+    with st.expander(label, expanded=has_strip):
+        st.caption("Optional calibration. ERCOT power forwards aren't on a free feed, so "
+                   "this only matters if you have a broker run or licensed curve to "
+                   "paste. Leave it empty and the forecast runs model-only — already "
+                   "anchored to traded Henry Hub gas. Pasted months blend into the near "
+                   "curve and fade to the model over the **blend-fade** window.")
+
+        cme_url = _CME_LINKS.get(default_hub, _CME_INDEX)
+        st.link_button(f"📊 Look up live {default_hub.replace('HB_', '')} curve on CME (free)",
+                       cme_url,
+                       help="Opens CME Group's official ERCOT settlement page (authoritative, "
+                            "free to view). Read the front few months and type them below — "
+                            "a 15-second human lookup, no subscription.")
 
         tab_paste, tab_grid = st.tabs(["📋 Quick paste", "✏️ Edit grid"])
 

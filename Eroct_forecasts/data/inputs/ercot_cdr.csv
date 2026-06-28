@@ -1,4 +1,8 @@
-# ERCOT reserve margins (CDR) — edited in-app. Source: ERCOT CDR report.
+# ERCOT reserve-margin table — auto-refreshed from CDR XLSX.
+# Source: https://www.ercot.com/files/docs/2025/12/19/CapacityDemandandReservesReport_December2025.xlsx
+# Report: CapacityDemandandReservesReport_December2025.xlsx
+# Scenario: Protocol-prescribed (committed resources only, Summer Peak Load Hour).
+# Update: run  python cli.py --refresh-cdr  or use the app button.
 year,reserve_margin_pct
 2026,18.3
 2027,11.4
