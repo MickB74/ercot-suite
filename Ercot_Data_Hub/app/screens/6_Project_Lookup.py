@@ -25,6 +25,7 @@ import pandas as pd  # noqa: E402
 import streamlit as st  # noqa: E402
 
 from ercot_core import paths, project_lookup  # noqa: E402
+from ercot_core.eia_links import EIA_PLANT_URL  # noqa: E402
 
 HUBS = ["North", "Houston", "South", "West", "Pan"]
 TECHS = ["Solar", "Wind"]
@@ -113,6 +114,57 @@ def _eia_candidates(query: str, tech: str, limit: int = 8) -> list[dict]:
     return out
 
 
+@st.cache_data(show_spinner=False)
+def _registry_eia_ids(reg_key: tuple) -> dict:
+    """project_name -> EIA plant_id. Primary: resource_name -> resource node ->
+    EIA id (node_eia.json, built via the station-name→EIA-860 crosswalk). Fallback:
+    nearest EIA-860 plant to the registry's authoritative lat/lon with a name check.
+    reg_key is a hashable tuple of (project_name, resource_name, lat, lon)."""
+    import json
+    import math
+    import eia860
+    out = {}
+
+    # Primary — the curated node→EIA crosswalk.
+    try:
+        reg_dir = pathlib.Path(paths.__file__).parent / "registry"
+        node_eia = json.loads((reg_dir / "node_eia.json").read_text())
+        cat = pd.read_parquet(paths.NODE_DATA_DIR.parent / "resource_node_catalog.parquet")
+        sced2node = dict(zip(cat["sced_resource_name"], cat["resource_node"]))
+    except Exception:
+        node_eia, sced2node = {}, {}
+
+    yrs = eia860.available_years("ercot")
+    df = eia860.load([max(yrs)], "ercot").dropna(subset=["latitude", "longitude"]) if yrs else pd.DataFrame()
+    if not df.empty:
+        plants = df.groupby("plant_id", as_index=False).agg(
+            name=("plant_name", "first"), lat=("latitude", "first"), lon=("longitude", "first"))
+        stop = {"SOLAR", "WIND", "FARM", "PROJECT", "ENERGY", "STORAGE", "LLC", "CENTER",
+                "POWER", "PLANT", "BESS", "THE", "OF"}
+
+        def toks(s):
+            return {w for w in re.split(r"[^A-Z0-9]+", str(s).upper()) if w and w not in stop and len(w) > 2}
+        plants["toks"] = plants["name"].map(toks)
+
+        def hv(a, b, c, d):
+            p1, p2 = math.radians(a), math.radians(c); dp = math.radians(c - a); dl = math.radians(d - b)
+            x = math.sin(dp / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dl / 2) ** 2
+            return 2 * 6371 * math.asin(math.sqrt(x))
+
+    for pname, rname, lat, lon in reg_key:
+        node = sced2node.get(rname)
+        if node and node in node_eia:                       # primary path
+            out[pname] = int(node_eia[node]["eia_id"]); continue
+        if df.empty or lat is None or lon is None:          # fallback: lat/lon
+            continue
+        plants["_d"] = plants.apply(lambda r: hv(lat, lon, r["lat"], r["lon"]), axis=1)
+        pt = toks(pname or "")
+        for _, r in plants.nsmallest(3, "_d").iterrows():
+            if r["_d"] <= 0.5 or (r["_d"] <= 12 and (pt & r["toks"])):
+                out[pname] = int(r["plant_id"]); break
+    return out
+
+
 def _prefill(res: dict) -> dict:
     """Pull capacity / county / queue id out of the queue or fyi match."""
     qm = (res.get("queue_matches") or [{}])[0]
@@ -141,6 +193,9 @@ st.caption("Stand up a new project the way the **Markham** and **Azure Sky** por
 registered = project_lookup.registered_projects()
 with st.expander(f"📋 {len(registered)} projects already registered", expanded=False):
     if registered:
+        reg_key = tuple((r.get("project_name"), r.get("resource_name"),
+                         r.get("lat"), r.get("lon")) for r in registered)
+        eia_ids = _registry_eia_ids(reg_key)
         reg_df = pd.DataFrame([{
             "Project": r.get("project_name"),
             "Tech": r.get("tech"),
@@ -148,8 +203,11 @@ with st.expander(f"📋 {len(registered)} projects already registered", expanded
             "Hub": r.get("hub"),
             "County": r.get("county"),
             "Resource node": r.get("resource_name"),
+            "EIA": (EIA_PLANT_URL.format(id=eia_ids[r.get("project_name")])
+                    if r.get("project_name") in eia_ids else None),
         } for r in registered])
-        st.dataframe(reg_df, hide_index=True, use_container_width=True)
+        st.dataframe(reg_df, hide_index=True, use_container_width=True,
+                     column_config={"EIA": st.column_config.LinkColumn("EIA", display_text="EIA ↗")})
         st.caption("Re-entering an existing project name below lets you update its specs.")
     else:
         st.info("No projects registered yet.")
@@ -160,17 +218,33 @@ st.divider()
 # Step 1 — Find the project
 # --------------------------------------------------------------------------
 st.header("1 · Find the project")
+
+
+@st.cache_data(show_spinner=False)
+def _project_options() -> list[str]:
+    """Searchable list: registered projects + every ERCOT queue project name."""
+    names = {r["project_name"] for r in project_lookup.registered_projects()
+             if r.get("project_name")}
+    try:
+        names.update(pd.read_parquet(paths.IFYI_ERCOT_PARQUET)["name"].dropna().astype(str))
+    except Exception:
+        pass
+    return sorted(names, key=str.lower)
+
+
 col1, col2 = st.columns([4, 1])
-query = col1.text_input(
+query = col1.selectbox(
     "Project name or ERCOT queue ID",
-    placeholder="e.g. Azure Sky  ·  Markham Solar  ·  21INR0477",
-    help="Type the project's name, or its ERCOT interconnection queue ID "
-         "(e.g. 21INR0477 / ercot-21inr0477).")
+    options=_project_options(), index=None,
+    placeholder="Search projects… or type a name / queue ID (e.g. 21INR0477)",
+    accept_new_options=True,
+    help="Pick a project from the list, or type its name or ERCOT interconnection "
+         "queue ID (e.g. 21INR0477 / ercot-21inr0477).")
 offline = col2.toggle("Offline", value=False,
                       help="Skip the live ERCOT queue lookup; use cached data only.")
 
 if not query:
-    st.info("Enter a project name or queue ID to begin.")
+    st.info("Choose or type a project name or queue ID to begin.")
     st.stop()
 
 

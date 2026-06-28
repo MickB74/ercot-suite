@@ -57,6 +57,29 @@ _NAMES_FILE = _Path(__file__).with_name("node_names.json")
 NODE_NAMES: dict[str, str] = (
     _json.loads(_NAMES_FILE.read_text()) if _NAMES_FILE.exists() else {})
 
+# node -> EIA plant ({eia_id, eia_name}) for deep links to EIA's plant data.
+_EIA_FILE = _Path(__file__).with_name("node_eia.json")
+NODE_EIA: dict[str, dict] = (
+    _json.loads(_EIA_FILE.read_text()) if _EIA_FILE.exists() else {})
+
+# Canonical EIA URL lives in the suite's ercot_core (one edit updates every app);
+# fall back to a local copy if the Grid Monitor is run fully detached.
+try:
+    import sys as _sys
+    _hub = _Path(__file__).resolve().parent.parent / "Ercot_Data_Hub"
+    if (_hub / "ercot_core" / "eia_links.py").exists():
+        _sys.path.insert(0, str(_hub))
+    from ercot_core.eia_links import EIA_PLANT_URL
+except Exception:
+    EIA_PLANT_URL = "https://www.eia.gov/electricity/data/browser/#/plant/{id}"
+
+
+def eia_url(node: str) -> str:
+    """EIA Electricity Data Browser link for a node's plant, or '' if unmapped."""
+    info = NODE_EIA.get(node)
+    return EIA_PLANT_URL.format(id=info["eia_id"]) if info else ""
+
+
 NODES = list(NODE_COORDS)
 
 # Plain-English names for the pickers.

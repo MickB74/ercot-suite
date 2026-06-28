@@ -1,0 +1,1986 @@
+{
+ "7RNCHSLR_ALL": {
+  "eia_id": 64239,
+  "eia_name": "7V Solar Ranch"
+ },
+ "ALGOD_ALL_RN": {
+  "eia_id": 64591,
+  "eia_name": "El Algodon Alto Wind Farm, LLC"
+ },
+ "AMADEUS_ALL": {
+  "eia_id": 62142,
+  "eia_name": "Amadeus Wind Farm"
+ },
+ "AMISTAD_ALL": {
+  "eia_id": 6128,
+  "eia_name": "Amistad Dam & Power"
+ },
+ "ANACACHO_ANA": {
+  "eia_id": 58000,
+  "eia_name": "Anacacho Wind Farm, LLC"
+ },
+ "ANG_ALL": {
+  "eia_id": 68145,
+  "eia_name": "Angelo Solar"
+ },
+ "ANSON1_ALL": {
+  "eia_id": 64026,
+  "eia_name": "ANSON Solar Center, LLC"
+ },
+ "APPALOSA_ALL": {
+  "eia_id": 65335,
+  "eia_name": "Appaloosa Run Wind"
+ },
+ "AQUI_ALL": {
+  "eia_id": 66775,
+  "eia_name": "Morrow Lake Solar"
+ },
+ "ARAGORN_RN": {
+  "eia_id": 63329,
+  "eia_name": "Aragorn Solar Project"
+ },
+ "ASCK_SLR_RN": {
+  "eia_id": 66774,
+  "eia_name": "Ash Creek Solar"
+ },
+ "AUSTPL_ALL": {
+  "eia_id": 3594,
+  "eia_name": "Austin"
+ },
+ "AVIAT_ALL": {
+  "eia_id": 63209,
+  "eia_name": "Aviator Wind"
+ },
+ "AZSP_SLR_RN": {
+  "eia_id": 68470,
+  "eia_name": "Azalea Springs Solar Park"
+ },
+ "AZURE_RN": {
+  "eia_id": 63905,
+  "eia_name": "Azure Sky Solar"
+ },
+ "BAFFIN_ALL": {
+  "eia_id": 57927,
+  "eia_name": "Baffin Wind"
+ },
+ "BAIRDWND_ALL": {
+  "eia_id": 65998,
+  "eia_name": "True North Solar, LLC"
+ },
+ "BAKE_RN_ALL": {
+  "eia_id": 69101,
+  "eia_name": "Millers Branch Solar"
+ },
+ "BARROW_ALL": {
+  "eia_id": 64239,
+  "eia_name": "7V Solar Ranch"
+ },
+ "BASTEN_CCU": {
+  "eia_id": 55168,
+  "eia_name": "Bastrop Energy Center"
+ },
+ "BBREEZE_1_2": {
+  "eia_id": 59066,
+  "eia_name": "Bruennings Breeze Wind Farm"
+ },
+ "BCATWD_WD_1": {
+  "eia_id": 57974,
+  "eia_name": "Bobcat Bluff Wind Project LLC"
+ },
+ "BCK_RN": {
+  "eia_id": 3609,
+  "eia_name": "Leon Creek"
+ },
+ "BELM_SLR_RN": {
+  "eia_id": 68180,
+  "eia_name": "Big Elm Solar"
+ },
+ "BIGSAMWD_RN": {
+  "eia_id": 68873,
+  "eia_name": "Big Sampson Wind"
+ },
+ "BIGSTAR_ALL": {
+  "eia_id": 64202,
+  "eia_name": "Big Star Solar, LLC (Hybrid)"
+ },
+ "BLACKJAK_RN": {
+  "eia_id": 62783,
+  "eia_name": "Blackjack Creek Wind Farm"
+ },
+ "BLSMT1_5_A_6": {
+  "eia_id": 62566,
+  "eia_name": "Blue Summit III Wind"
+ },
+ "BLUEJAY_RN": {
+  "eia_id": 64672,
+  "eia_name": "Blue Jay Solar I, LLC"
+ },
+ "BLVN_RN": {
+  "eia_id": 69414,
+  "eia_name": "Blevins Solar & Storage"
+ },
+ "BOARDCRK_ALL": {
+  "eia_id": 68739,
+  "eia_name": "Uva Creek Solar"
+ },
+ "BOOTLEG_UN1": {
+  "eia_id": 60436,
+  "eia_name": "East Pecos Solar"
+ },
+ "BORDAS_345": {
+  "eia_id": 60645,
+  "eia_name": "Javelina Wind Energy II, LLC"
+ },
+ "BRAUNIG_VHB1": {
+  "eia_id": 3612,
+  "eia_name": "V H Braunig"
+ },
+ "BRAUNIG_VHB2": {
+  "eia_id": 3612,
+  "eia_name": "V H Braunig"
+ },
+ "BRAUNIG_VHB3": {
+  "eia_id": 3612,
+  "eia_name": "V H Braunig"
+ },
+ "BRAZ_WND_ALL": {
+  "eia_id": 56111,
+  "eia_name": "Brazos Wind Farm"
+ },
+ "BRA_AVR1_CT2": {
+  "eia_id": 3612,
+  "eia_name": "V H Braunig"
+ },
+ "BRA_AVR_CST1": {
+  "eia_id": 3612,
+  "eia_name": "V H Braunig"
+ },
+ "BRIGHTSD_U1": {
+  "eia_id": 63223,
+  "eia_name": "Brightside"
+ },
+ "BRTSW_BCW1": {
+  "eia_id": 57156,
+  "eia_name": "Barton Chapel Wind Farm"
+ },
+ "BR_ARROW_ALL": {
+  "eia_id": 66688,
+  "eia_name": "Bright Arrow Solar, LLC"
+ },
+ "BR_VHB6CT5_6": {
+  "eia_id": 3612,
+  "eia_name": "V H Braunig"
+ },
+ "BR_VHB6CT7_8": {
+  "eia_id": 3612,
+  "eia_name": "V H Braunig"
+ },
+ "BTM_ALL": {
+  "eia_id": 65373,
+  "eia_name": "Brotman Power Station"
+ },
+ "BUCHAN_ALL": {
+  "eia_id": 3595,
+  "eia_name": "Buchanan Dam (TX)"
+ },
+ "BUCKTHRN_RN": {
+  "eia_id": 60983,
+  "eia_name": "Buckthorn Wind"
+ },
+ "BUFF_GAP_ALL": {
+  "eia_id": 56484,
+  "eia_name": "Buffalo Gap 2 Wind Farm"
+ },
+ "BULLCRK_1_2": {
+  "eia_id": 56956,
+  "eia_name": "Bull Creek Wind"
+ },
+ "BVE_UNIT1": {
+  "eia_id": 56111,
+  "eia_name": "Brazos Wind Farm"
+ },
+ "BVE_UNIT2": {
+  "eia_id": 56111,
+  "eia_name": "Brazos Wind Farm"
+ },
+ "BVE_UNIT3": {
+  "eia_id": 56111,
+  "eia_name": "Brazos Wind Farm"
+ },
+ "B_DAVIS_3": {
+  "eia_id": 4939,
+  "eia_name": "Barney M Davis"
+ },
+ "B_DAVIS_4": {
+  "eia_id": 4939,
+  "eia_name": "Barney M Davis"
+ },
+ "B_D_B_DAVIG1": {
+  "eia_id": 4939,
+  "eia_name": "Barney M Davis"
+ },
+ "B_D_B_DAVIG2": {
+  "eia_id": 4939,
+  "eia_name": "Barney M Davis"
+ },
+ "CALAVER_JKS1": {
+  "eia_id": 64821,
+  "eia_name": "FELPS 1 - Calaveras"
+ },
+ "CALAVER_JKS2": {
+  "eia_id": 64821,
+  "eia_name": "FELPS 1 - Calaveras"
+ },
+ "CALAVER_OWS1": {
+  "eia_id": 64821,
+  "eia_name": "FELPS 1 - Calaveras"
+ },
+ "CALAVER_OWS2": {
+  "eia_id": 64821,
+  "eia_name": "FELPS 1 - Calaveras"
+ },
+ "CALHOUN_ALL": {
+  "eia_id": 60459,
+  "eia_name": "Calhoun Port Comfort"
+ },
+ "CALLAHA_WND1": {
+  "eia_id": 56270,
+  "eia_name": "Callahan Divide Wind Energy Center"
+ },
+ "CAMWIND_RN": {
+  "eia_id": 59118,
+  "eia_name": "Cameron Wind 1 LLC"
+ },
+ "CANYONWD_ALL": {
+  "eia_id": 60271,
+  "eia_name": "Canyon Wind Project, LLC"
+ },
+ "CAPRIDG4_CR4": {
+  "eia_id": 56763,
+  "eia_name": "Capricorn Ridge Wind LLC"
+ },
+ "CAPRIDGE_ALL": {
+  "eia_id": 56763,
+  "eia_name": "Capricorn Ridge Wind LLC"
+ },
+ "CASL_GAP_UN1": {
+  "eia_id": 65790,
+  "eia_name": "Castle Gap Wind"
+ },
+ "CBECII_89": {
+  "eia_id": 60122,
+  "eia_name": "Colorado Bend II"
+ },
+ "CBECII_CT7": {
+  "eia_id": 60122,
+  "eia_name": "Colorado Bend II"
+ },
+ "CBEC_ALL": {
+  "eia_id": 56350,
+  "eia_name": "Colorado Bend Energy Center"
+ },
+ "CBY4_ALL": {
+  "eia_id": 56806,
+  "eia_name": "Cedar Bayou 4"
+ },
+ "CBY_CBY_G1": {
+  "eia_id": 3460,
+  "eia_name": "Cedar Bayou"
+ },
+ "CBY_CBY_G2": {
+  "eia_id": 3460,
+  "eia_name": "Cedar Bayou"
+ },
+ "CEDROHI_CHW1": {
+  "eia_id": 57260,
+  "eia_name": "Cedro Hill Wind LLC"
+ },
+ "CHALUP_ALL": {
+  "eia_id": 63624,
+  "eia_name": "La Chalupa, LLC"
+ },
+ "CHAMON_UN1": {
+  "eia_id": 60460,
+  "eia_name": "Chamon"
+ },
+ "CHAMON_UN2": {
+  "eia_id": 60460,
+  "eia_name": "Chamon"
+ },
+ "CHIL_SLR": {
+  "eia_id": 68065,
+  "eia_name": "Chillingham Solar"
+ },
+ "CITYVICT_ALL": {
+  "eia_id": 61241,
+  "eia_name": "Tres City Power LLC"
+ },
+ "CMPD_SLR_RN": {
+  "eia_id": 67765,
+  "eia_name": "Compadre Solar"
+ },
+ "COL_COLETOG1": {
+  "eia_id": 6178,
+  "eia_name": "Coleto Creek"
+ },
+ "CONIGLIO_RN": {
+  "eia_id": 62772,
+  "eia_name": "Coniglio Solar"
+ },
+ "CORAZON_RN": {
+  "eia_id": 64538,
+  "eia_name": "Corazon Energy LLC"
+ },
+ "COTTON_PAP2": {
+  "eia_id": 57212,
+  "eia_name": "Papalote Creek II LLC"
+ },
+ "COYOTSPR_AGR": {
+  "eia_id": 65811,
+  "eia_name": "Coyote Springs (TX)"
+ },
+ "CRANELL_ALL": {
+  "eia_id": 62416,
+  "eia_name": "Cranell Wind Farm LLC"
+ },
+ "CRWN_SLR_UN1": {
+  "eia_id": 64259,
+  "eia_name": "BPL Crown Solar LLC"
+ },
+ "CSC_CSECG1_2": {
+  "eia_id": 66905,
+  "eia_name": "Ables Springs Solar & Storage"
+ },
+ "CTW_RN": {
+  "eia_id": 66915,
+  "eia_name": "Cottonwood Bayou Solar"
+ },
+ "CVC_CVCG1_5": {
+  "eia_id": 10298,
+  "eia_name": "Bayou Cogen Plant"
+ },
+ "CVC_CVC_G2": {
+  "eia_id": 10298,
+  "eia_name": "Bayou Cogen Plant"
+ },
+ "CVC_CVC_G3": {
+  "eia_id": 10298,
+  "eia_name": "Bayou Cogen Plant"
+ },
+ "DAG_ALL": {
+  "eia_id": 66046,
+  "eia_name": "Brazoria County Solar Project (Danciger)"
+ },
+ "DANSBY_ALL": {
+  "eia_id": 6243,
+  "eia_name": "Dansby"
+ },
+ "DAN_ALL": {
+  "eia_id": 66914,
+  "eia_name": "Danish Fields Solar, LLC"
+ },
+ "DC2SES_ALL": {
+  "eia_id": 8063,
+  "eia_name": "DeCordova Steam Electric Station"
+ },
+ "DDPEC_GT1": {
+  "eia_id": 55464,
+  "eia_name": "Deer Park Energy Center"
+ },
+ "DDPEC_GT2": {
+  "eia_id": 55464,
+  "eia_name": "Deer Park Energy Center"
+ },
+ "DDPEC_GT3": {
+  "eia_id": 55464,
+  "eia_name": "Deer Park Energy Center"
+ },
+ "DDPEC_GT4": {
+  "eia_id": 55464,
+  "eia_name": "Deer Park Energy Center"
+ },
+ "DDPEC_GT6": {
+  "eia_id": 55464,
+  "eia_name": "Deer Park Energy Center"
+ },
+ "DDPEC_ST1": {
+  "eia_id": 55464,
+  "eia_name": "Deer Park Energy Center"
+ },
+ "DECKER_GT": {
+  "eia_id": 3548,
+  "eia_name": "Decker Creek"
+ },
+ "DENISON_G1_2": {
+  "eia_id": 6416,
+  "eia_name": "Denison"
+ },
+ "DERMOTT_ALL": {
+  "eia_id": 63655,
+  "eia_name": "Coyote Wind LLC"
+ },
+ "DILEOS_UNIT1": {
+  "eia_id": 67023,
+  "eia_name": "Dileo Solar"
+ },
+ "DIVR_SLR_RN": {
+  "eia_id": 68483,
+  "eia_name": "Diver Solar, LLC"
+ },
+ "DRCK_SLR_RN": {
+  "eia_id": 64132,
+  "eia_name": "Oak Hill - Dry Creek"
+ },
+ "DRYFRIO_RN": {
+  "eia_id": 64258,
+  "eia_name": "AP Sunray LLC"
+ },
+ "EIFSLR_UNIT1": {
+  "eia_id": 66471,
+  "eia_name": "Eiffel Solar Project"
+ },
+ "ELSAUZ_ALL": {
+  "eia_id": 65760,
+  "eia_name": "El Sauz Ranch Wind, LLC"
+ },
+ "ELS_RN_1": {
+  "eia_id": 63797,
+  "eia_name": "Ellis Solar LLC"
+ },
+ "ERSL_RN": {
+  "eia_id": 64204,
+  "eia_name": "Elara Solar"
+ },
+ "ESTONIAN_ALL": {
+  "eia_id": 66872,
+  "eia_name": "Estonian Solar Project, LLC"
+ },
+ "ETCCS_CCU": {
+  "eia_id": 55223,
+  "eia_name": "Ennis Power Company LLC"
+ },
+ "EXGNSND_RN": {
+  "eia_id": 59654,
+  "eia_name": "Sendero"
+ },
+ "EXGNWTL_1": {
+  "eia_id": 58021,
+  "eia_name": "Whitetail"
+ },
+ "E_BLACK_RN": {
+  "eia_id": 57659,
+  "eia_name": "East Blackland Solar Project 1"
+ },
+ "FAGUSSLR_RN": {
+  "eia_id": 67123,
+  "eia_name": "Fagus Solar Park"
+ },
+ "FAL_FALCONG1": {
+  "eia_id": 6410,
+  "eia_name": "Falcon Dam & Power"
+ },
+ "FAL_FALCONG2": {
+  "eia_id": 6410,
+  "eia_name": "Falcon Dam & Power"
+ },
+ "FAL_FALCONG3": {
+  "eia_id": 6410,
+  "eia_name": "Falcon Dam & Power"
+ },
+ "FEGC_RN": {
+  "eia_id": 60468,
+  "eia_name": "Friendswood Energy"
+ },
+ "FENCESLR_ALL": {
+  "eia_id": 66801,
+  "eia_name": "Fence Post Solar Hybrid Project, LLC"
+ },
+ "FERGCC_GT1_1": {
+  "eia_id": 4937,
+  "eia_name": "Thomas C Ferguson"
+ },
+ "FERGCC_GT2_3": {
+  "eia_id": 4937,
+  "eia_name": "Thomas C Ferguson"
+ },
+ "FERGCC_ST1_5": {
+  "eia_id": 4937,
+  "eia_name": "Thomas C Ferguson"
+ },
+ "FILESSLR_PV1": {
+  "eia_id": 66324,
+  "eia_name": "BPL Files Solar"
+ },
+ "FIVEWSLR_ALL": {
+  "eia_id": 66420,
+  "eia_name": "Five Wells Solar Center - Hybrid"
+ },
+ "FLCNS_UNIT1": {
+  "eia_id": 6410,
+  "eia_name": "Falcon Dam & Power"
+ },
+ "FLCNS_UNIT2": {
+  "eia_id": 6410,
+  "eia_name": "Falcon Dam & Power"
+ },
+ "FLTCK_SSI": {
+  "eia_id": 68334,
+  "eia_name": "Evans Creek Energy Storage Project"
+ },
+ "FLUVANNA_1_2": {
+  "eia_id": 59245,
+  "eia_name": "Fluvanna"
+ },
+ "FOARDCTY_ALL": {
+  "eia_id": 61402,
+  "eia_name": "Foard City Wind"
+ },
+ "FPPYD_FPP_G1": {
+  "eia_id": 6179,
+  "eia_name": "Fayette Power Project"
+ },
+ "FPPYD_FPP_G2": {
+  "eia_id": 6179,
+  "eia_name": "Fayette Power Project"
+ },
+ "FPPYD_FPP_G3": {
+  "eia_id": 6179,
+  "eia_name": "Fayette Power Project"
+ },
+ "FREC_1_CCU": {
+  "eia_id": 55226,
+  "eia_name": "Freestone Energy Center"
+ },
+ "FREC_2_CCU": {
+  "eia_id": 55226,
+  "eia_name": "Freestone Energy Center"
+ },
+ "FRNYPP_1_CCU": {
+  "eia_id": 55480,
+  "eia_name": "Forney Energy Center"
+ },
+ "FRNYPP_2_CCU": {
+  "eia_id": 55480,
+  "eia_name": "Forney Energy Center"
+ },
+ "FRONT_EC_RN1": {
+  "eia_id": 55098,
+  "eia_name": "Frontera Energy Center"
+ },
+ "FRONT_EC_RN2": {
+  "eia_id": 55098,
+  "eia_name": "Frontera Energy Center"
+ },
+ "FRONT_EC_RN3": {
+  "eia_id": 55098,
+  "eia_name": "Frontera Energy Center"
+ },
+ "FRYE_SLR_ALL": {
+  "eia_id": 64233,
+  "eia_name": "Hecate Energy Frye Solar LLC"
+ },
+ "FTR_FTR_G1_4": {
+  "eia_id": 55062,
+  "eia_name": "Tenaska Frontier Generation Station"
+ },
+ "FTWIND_UNIT1": {
+  "eia_id": 61212,
+  "eia_name": "Flat Top Wind I"
+ },
+ "FWLR_SLR_1": {
+  "eia_id": 64239,
+  "eia_name": "7V Solar Ranch"
+ },
+ "GALO_RN1": {
+  "eia_id": 61920,
+  "eia_name": "Galloway 1 Solar Farm"
+ },
+ "GBY_GT": {
+  "eia_id": 69691,
+  "eia_name": "Greens Bayou 6"
+ },
+ "GID_GIDEONG1": {
+  "eia_id": 3601,
+  "eia_name": "Sim Gideon"
+ },
+ "GID_GIDEONG2": {
+  "eia_id": 3601,
+  "eia_name": "Sim Gideon"
+ },
+ "GID_GIDEONG3": {
+  "eia_id": 3601,
+  "eia_name": "Sim Gideon"
+ },
+ "GOA_GOATWIND": {
+  "eia_id": 56754,
+  "eia_name": "Goat Wind LP"
+ },
+ "GOODNIT1_ALL": {
+  "eia_id": 59246,
+  "eia_name": "Goodnight"
+ },
+ "GPASTURE_ALL": {
+  "eia_id": 59732,
+  "eia_name": "Green Pastures Wind I"
+ },
+ "GRANDVW1_A_B": {
+  "eia_id": 58596,
+  "eia_name": "Grandview Wind Farm, LLC"
+ },
+ "GRAN_SLR_RN": {
+  "eia_id": 68244,
+  "eia_name": "Gransolar Texas One, LLC"
+ },
+ "GREASWOD_ALL": {
+  "eia_id": 62804,
+  "eia_name": "Greasewood Solar"
+ },
+ "GRIF_TRL_RN": {
+  "eia_id": 62411,
+  "eia_name": "Griffin Trail Wind"
+ },
+ "GRIM_SLR_RN": {
+  "eia_id": 67046,
+  "eia_name": "Grimes County Solar"
+ },
+ "GRSES_UNIT1": {
+  "eia_id": 3490,
+  "eia_name": "Graham"
+ },
+ "GRSES_UNIT2": {
+  "eia_id": 3490,
+  "eia_name": "Graham"
+ },
+ "GUADG_CCU1": {
+  "eia_id": 55153,
+  "eia_name": "Guadalupe Generating Station"
+ },
+ "GUADG_CCU2": {
+  "eia_id": 55153,
+  "eia_name": "Guadalupe Generating Station"
+ },
+ "HART_WND_RN": {
+  "eia_id": 67763,
+  "eia_name": "Hart Wind"
+ },
+ "HAYSEN1_2": {
+  "eia_id": 55144,
+  "eia_name": "Hays Energy Project"
+ },
+ "HAYSEN3_4": {
+  "eia_id": 55144,
+  "eia_name": "Hays Energy Project"
+ },
+ "HELIOS_RN": {
+  "eia_id": 64239,
+  "eia_name": "7V Solar Ranch"
+ },
+ "HHOLLW2_WND1": {
+  "eia_id": 56291,
+  "eia_name": "Horse Hollow Wind Energy Center"
+ },
+ "HHOLLW3_WND1": {
+  "eia_id": 56291,
+  "eia_name": "Horse Hollow Wind Energy Center"
+ },
+ "HHOLLW4_WND1": {
+  "eia_id": 56291,
+  "eia_name": "Horse Hollow Wind Energy Center"
+ },
+ "HI_LONE_ALL": {
+  "eia_id": 62562,
+  "eia_name": "High Lonesome Wind Power, LLC Hybrid"
+ },
+ "HKSN_SLR_ALL": {
+  "eia_id": 66903,
+  "eia_name": "BT Hickerson Solar, LLC"
+ },
+ "HLSES_UNIT3": {
+  "eia_id": 3491,
+  "eia_name": "Handley"
+ },
+ "HLSES_UNIT4": {
+  "eia_id": 3491,
+  "eia_name": "Handley"
+ },
+ "HLSES_UNIT5": {
+  "eia_id": 3491,
+  "eia_name": "Handley"
+ },
+ "HOLSTEIN_ALL": {
+  "eia_id": 61962,
+  "eia_name": "Holstein 1 Solar Farm"
+ },
+ "HOPKNSLR_ALL": {
+  "eia_id": 67424,
+  "eia_name": "Hopkins Energy LLC"
+ },
+ "HORSCR_RN": {
+  "eia_id": 63233,
+  "eia_name": "Emerald Grove"
+ },
+ "HORSECRK_RN": {
+  "eia_id": 60339,
+  "eia_name": "Horse Creek Wind Farm"
+ },
+ "HRFDWIND_ALL": {
+  "eia_id": 58773,
+  "eia_name": "TX Hereford Wind"
+ },
+ "HRNT_SLR_RN": {
+  "eia_id": 65463,
+  "eia_name": "Hornet Solar (TX)"
+ },
+ "HRZN_SLR_UN1": {
+  "eia_id": 65308,
+  "eia_name": "Horizon Solar"
+ },
+ "HWF_HWFG1": {
+  "eia_id": 56823,
+  "eia_name": "Hackberry Wind Farm"
+ },
+ "H_HOLLO_WND1": {
+  "eia_id": 56291,
+  "eia_name": "Horse Hollow Wind Energy Center"
+ },
+ "IMP_RN1": {
+  "eia_id": 63222,
+  "eia_name": "Impact Solar 1"
+ },
+ "INDNNWP_RN": {
+  "eia_id": 55747,
+  "eia_name": "NWP Indian Mesa Wind Farm"
+ },
+ "IND_INADALE1": {
+  "eia_id": 56984,
+  "eia_name": "Inadale Wind Farm LLC Hybrid"
+ },
+ "INKS_INKS_G1": {
+  "eia_id": 3598,
+  "eia_name": "Inks"
+ },
+ "INRT_W_ALL": {
+  "eia_id": 65546,
+  "eia_name": "Inertia Wind Project"
+ },
+ "JACKCNTY_CT1": {
+  "eia_id": 55230,
+  "eia_name": "Jack County"
+ },
+ "JACKCNTY_CT2": {
+  "eia_id": 55230,
+  "eia_name": "Jack County"
+ },
+ "JACKCNTY_STG": {
+  "eia_id": 55230,
+  "eia_name": "Jack County"
+ },
+ "JADE_SLR_ALL": {
+  "eia_id": 66604,
+  "eia_name": "Remy Jade Power Station"
+ },
+ "JAD_RN": {
+  "eia_id": 66604,
+  "eia_name": "Remy Jade Power Station"
+ },
+ "JAY_RN_1": {
+  "eia_id": 62945,
+  "eia_name": "Fighting Jays Solar Project"
+ },
+ "JCKCNTY2_CT3": {
+  "eia_id": 55230,
+  "eia_name": "Jack County"
+ },
+ "JCKCNTY2_CT4": {
+  "eia_id": 55230,
+  "eia_name": "Jack County"
+ },
+ "JCKCNTY2_ST2": {
+  "eia_id": 55230,
+  "eia_name": "Jack County"
+ },
+ "JUNG_SLR_RN": {
+  "eia_id": 68246,
+  "eia_name": "BT Jungmann"
+ },
+ "JUNO_ALL": {
+  "eia_id": 63328,
+  "eia_name": "Juno Solar Project"
+ },
+ "KEECHI_U1": {
+  "eia_id": 58838,
+  "eia_name": "Keechi Wind"
+ },
+ "KELAMSL_U1": {
+  "eia_id": 62774,
+  "eia_name": "Kellam Solar"
+ },
+ "KEO_KEO_SM1": {
+  "eia_id": 57415,
+  "eia_name": "Sherbino II"
+ },
+ "LACASAWD_RN": {
+  "eia_id": 66919,
+  "eia_name": "La Casa Wind"
+ },
+ "LACY_CRK_ALL": {
+  "eia_id": 65162,
+  "eia_name": "Lacy Creek Wind Energy Center"
+ },
+ "LAMESASLR_G": {
+  "eia_id": 60372,
+  "eia_name": "Lamesa Solar"
+ },
+ "LAPETUS_U1": {
+  "eia_id": 62448,
+  "eia_name": "Lapetus"
+ },
+ "LARDVFTN_G4": {
+  "eia_id": 3439,
+  "eia_name": "Laredo"
+ },
+ "LARDVFTN_G5": {
+  "eia_id": 3439,
+  "eia_name": "Laredo"
+ },
+ "LEG_LEG_G1": {
+  "eia_id": 298,
+  "eia_name": "Limestone"
+ },
+ "LEG_LEG_G2": {
+  "eia_id": 298,
+  "eia_name": "Limestone"
+ },
+ "LEONLCPCT1_2": {
+  "eia_id": 3609,
+  "eia_name": "Leon Creek"
+ },
+ "LEONLCPCT3_4": {
+  "eia_id": 3609,
+  "eia_name": "Leon Creek"
+ },
+ "LGDRAW_S_ALL": {
+  "eia_id": 62845,
+  "eia_name": "ENGIE Long Draw Solar LLC"
+ },
+ "LGD_LANGFORD": {
+  "eia_id": 57153,
+  "eia_name": "Langford Wind Power"
+ },
+ "LGW_UNIT_ALL": {
+  "eia_id": 59442,
+  "eia_name": "Logans Gap Wind LLC"
+ },
+ "LHORN_N_U1_2": {
+  "eia_id": 58772,
+  "eia_name": "Longhorn Wind"
+ },
+ "LHSES_UNIT1": {
+  "eia_id": 3452,
+  "eia_name": "Lake Hubbard"
+ },
+ "LHSES_UNIT2": {
+  "eia_id": 3452,
+  "eia_name": "Lake Hubbard"
+ },
+ "LIG_RN": {
+  "eia_id": 62548,
+  "eia_name": "SJRR (LIG)"
+ },
+ "LILY_RN": {
+  "eia_id": 63892,
+  "eia_name": "Lily Solar Hybrid"
+ },
+ "LNCRK_ALL": {
+  "eia_id": 56483,
+  "eia_name": "Post Oak Wind LLC"
+ },
+ "LONEWOLF_ALL": {
+  "eia_id": 57303,
+  "eia_name": "Loraine Windpark Project LLC"
+ },
+ "LOS_LOSTPGT1": {
+  "eia_id": 55154,
+  "eia_name": "Lost Pines 1 Power Project"
+ },
+ "LOS_LOSTPGT2": {
+  "eia_id": 55154,
+  "eia_name": "Lost Pines 1 Power Project"
+ },
+ "LOS_LOSTPST1": {
+  "eia_id": 55154,
+  "eia_name": "Lost Pines 1 Power Project"
+ },
+ "LPCCS_CT11": {
+  "eia_id": 55097,
+  "eia_name": "Lamar Power Project"
+ },
+ "LPCCS_CT12": {
+  "eia_id": 55097,
+  "eia_name": "Lamar Power Project"
+ },
+ "LPCCS_CT21": {
+  "eia_id": 55097,
+  "eia_name": "Lamar Power Project"
+ },
+ "LPCCS_CT22": {
+  "eia_id": 55097,
+  "eia_name": "Lamar Power Project"
+ },
+ "LPCCS_UNIT1": {
+  "eia_id": 55097,
+  "eia_name": "Lamar Power Project"
+ },
+ "LPCCS_UNIT2": {
+  "eia_id": 55097,
+  "eia_name": "Lamar Power Project"
+ },
+ "LV1A_LV1B": {
+  "eia_id": 59320,
+  "eia_name": "Los Vientos Windpower III"
+ },
+ "LV3_RN": {
+  "eia_id": 57751,
+  "eia_name": "Los Vientos Wind 1A"
+ },
+ "LV4_UNIT_1": {
+  "eia_id": 59320,
+  "eia_name": "Los Vientos Windpower III"
+ },
+ "LV5_UNIT1": {
+  "eia_id": 60059,
+  "eia_name": "Los Vientos V Wind Power"
+ },
+ "MARBFA": {
+  "eia_id": 3599,
+  "eia_name": "Marble Falls"
+ },
+ "MARIAH_ALL": {
+  "eia_id": 59005,
+  "eia_name": "Mariah del Norte"
+ },
+ "MAR_MARSFOG1": {
+  "eia_id": 3600,
+  "eia_name": "Marshall Ford"
+ },
+ "MAR_MARSFOG2": {
+  "eia_id": 3600,
+  "eia_name": "Marshall Ford"
+ },
+ "MAR_MARSFOG3": {
+  "eia_id": 3600,
+  "eia_name": "Marshall Ford"
+ },
+ "MAVCRK_W_ALL": {
+  "eia_id": 62853,
+  "eia_name": "Maverick Creek Wind"
+ },
+ "MCDLD_FCSBW1": {
+  "eia_id": 56394,
+  "eia_name": "Forest Creek Wind Farm LLC"
+ },
+ "MCSES_UNIT6": {
+  "eia_id": 3453,
+  "eia_name": "Mountain Creek"
+ },
+ "MCSES_UNIT7": {
+  "eia_id": 3453,
+  "eia_name": "Mountain Creek"
+ },
+ "MCSES_UNIT8": {
+  "eia_id": 3453,
+  "eia_name": "Mountain Creek"
+ },
+ "MDANP_CT1_2": {
+  "eia_id": 55091,
+  "eia_name": "Midlothian Energy Facility"
+ },
+ "MDANP_CT3_4": {
+  "eia_id": 55091,
+  "eia_name": "Midlothian Energy Facility"
+ },
+ "MDANP_CT5_6": {
+  "eia_id": 55091,
+  "eia_name": "Midlothian Energy Facility"
+ },
+ "MESQCRK_ALL": {
+  "eia_id": 59332,
+  "eia_name": "Mesquite Creek Wind"
+ },
+ "MESTENO_RN": {
+  "eia_id": 62258,
+  "eia_name": "Mesteno"
+ },
+ "MGSES_CT123": {
+  "eia_id": 3492,
+  "eia_name": "Morgan Creek"
+ },
+ "MGSES_CT456": {
+  "eia_id": 3492,
+  "eia_name": "Morgan Creek"
+ },
+ "MIAM1_G1_G2": {
+  "eia_id": 58765,
+  "eia_name": "Miami Wind Energy Center"
+ },
+ "MIDP_SLR_RN": {
+  "eia_id": 66897,
+  "eia_name": "Midpoint Solar, LLC"
+ },
+ "MIL_MILG1_2": {
+  "eia_id": 3628,
+  "eia_name": "R W Miller"
+ },
+ "MIL_MILG345": {
+  "eia_id": 3628,
+  "eia_name": "R W Miller"
+ },
+ "MIRAGE_G1": {
+  "eia_id": 60910,
+  "eia_name": "NET Power La Porte Station"
+ },
+ "MIRASOLE_GEN": {
+  "eia_id": 57752,
+  "eia_name": "Los Vientos Wind 1B"
+ },
+ "MISAE_GEN_RN": {
+  "eia_id": 62249,
+  "eia_name": "Misae Solar"
+ },
+ "MLB_SLR_RN": {
+  "eia_id": 69101,
+  "eia_name": "Millers Branch Solar"
+ },
+ "MLSES_UNIT1": {
+  "eia_id": 6146,
+  "eia_name": "Martin Lake"
+ },
+ "MLSES_UNIT2": {
+  "eia_id": 6146,
+  "eia_name": "Martin Lake"
+ },
+ "MLSES_UNIT3": {
+  "eia_id": 6146,
+  "eia_name": "Martin Lake"
+ },
+ "MONTECR1_RN": {
+  "eia_id": 67875,
+  "eia_name": "Monte Cristo 1"
+ },
+ "MONT_WND_RN": {
+  "eia_id": 67095,
+  "eia_name": "Montgomery Ranch Wind Farm, LLC"
+ },
+ "MOZART_WIND1": {
+  "eia_id": 58048,
+  "eia_name": "Mozart Wind Farm"
+ },
+ "MRKM_SLR_RN": {
+  "eia_id": 67580,
+  "eia_name": "Markum Solar Farm"
+ },
+ "MROW_SLR_RN": {
+  "eia_id": 66775,
+  "eia_name": "Morrow Lake Solar"
+ },
+ "MUSTNGCK_ALL": {
+  "eia_id": 60339,
+  "eia_name": "Horse Creek Wind Farm"
+ },
+ "MWEC_G1": {
+  "eia_id": 56773,
+  "eia_name": "McAdoo Wind Energy LLC"
+ },
+ "MYR_ALL": {
+  "eia_id": 66910,
+  "eia_name": "Myrtle Solar, LLC"
+ },
+ "NACPW_UNIT1": {
+  "eia_id": 58321,
+  "eia_name": "Goldthwaite Wind Energy Facility"
+ },
+ "NEBULA_RN": {
+  "eia_id": 65661,
+  "eia_name": "Nebula Solar"
+ },
+ "NED_NEDIN_G1": {
+  "eia_id": 69253,
+  "eia_name": "North Edinburg BESS 1"
+ },
+ "NED_NEDIN_G2": {
+  "eia_id": 69253,
+  "eia_name": "North Edinburg BESS 1"
+ },
+ "NED_NEDIN_G3": {
+  "eia_id": 69253,
+  "eia_name": "North Edinburg BESS 1"
+ },
+ "NOBLESLR_ALL": {
+  "eia_id": 65271,
+  "eia_name": "Noble Solar"
+ },
+ "NOVA1SLR_ALL": {
+  "eia_id": 65654,
+  "eia_name": "Texas Solar Nova 1"
+ },
+ "NOVA2S_UNIT1": {
+  "eia_id": 65660,
+  "eia_name": "Texas Solar Nova 2"
+ },
+ "NRTN_SLR_RN": {
+  "eia_id": 61967,
+  "eia_name": "Norton Solar Farm"
+ },
+ "NUE_NUECESG7": {
+  "eia_id": 3441,
+  "eia_name": "Nueces Bay"
+ },
+ "NUE_NUECESG8": {
+  "eia_id": 3441,
+  "eia_name": "Nueces Bay"
+ },
+ "NUE_NUECESG9": {
+  "eia_id": 3441,
+  "eia_name": "Nueces Bay"
+ },
+ "NWF_NWF1": {
+  "eia_id": 62356,
+  "eia_name": "Lockett Windfarm"
+ },
+ "OBERON_U1": {
+  "eia_id": 62933,
+  "eia_name": "Oberon IA"
+ },
+ "OGSES_1": {
+  "eia_id": 6180,
+  "eia_name": "Oak Grove (TX)"
+ },
+ "OGSES_2": {
+  "eia_id": 6180,
+  "eia_name": "Oak Grove (TX)"
+ },
+ "OGS_SLR_RN": {
+  "eia_id": 65891,
+  "eia_name": "Orange Grove"
+ },
+ "OLIN_OLING_1": {
+  "eia_id": 3576,
+  "eia_name": "Ray Olinger"
+ },
+ "OLIN_OLING_2": {
+  "eia_id": 3576,
+  "eia_name": "Ray Olinger"
+ },
+ "OLIN_OLING_3": {
+  "eia_id": 3576,
+  "eia_name": "Ray Olinger"
+ },
+ "OLIN_OLING_4": {
+  "eia_id": 3576,
+  "eia_name": "Ray Olinger"
+ },
+ "OLNEYTN_AGR1": {
+  "eia_id": 65832,
+  "eia_name": "Olney"
+ },
+ "ORIANA_RN": {
+  "eia_id": 65849,
+  "eia_name": "Oriana Solar LLC"
+ },
+ "OUTP_SLR_RN": {
+  "eia_id": 68838,
+  "eia_name": "Hecate Energy Outpost Solar LLC"
+ },
+ "OWF_OWF": {
+  "eia_id": 56959,
+  "eia_name": "Ocotillo Windpower"
+ },
+ "P2_DGR1_RN": {
+  "eia_id": 57520,
+  "eia_name": "Trinity Hills"
+ },
+ "P2_DGR2_RN": {
+  "eia_id": 57520,
+  "eia_name": "Trinity Hills"
+ },
+ "PALMWI_UNIT1": {
+  "eia_id": 61773,
+  "eia_name": "Palmas Wind, LLC"
+ },
+ "PANDA_S_CT1": {
+  "eia_id": 58005,
+  "eia_name": "Rayburn Energy Station LLC"
+ },
+ "PANDA_S_CT2": {
+  "eia_id": 58005,
+  "eia_name": "Rayburn Energy Station LLC"
+ },
+ "PANDA_S_ST1": {
+  "eia_id": 58005,
+  "eia_name": "Rayburn Energy Station LLC"
+ },
+ "PANDA_T1_CT1": {
+  "eia_id": 58001,
+  "eia_name": "Temple Power Station"
+ },
+ "PANDA_T1_CT2": {
+  "eia_id": 58001,
+  "eia_name": "Temple Power Station"
+ },
+ "PANDA_T1_ST1": {
+  "eia_id": 58001,
+  "eia_name": "Temple Power Station"
+ },
+ "PANDA_T2_CT1": {
+  "eia_id": 58001,
+  "eia_name": "Temple Power Station"
+ },
+ "PANDA_T2_CT2": {
+  "eia_id": 58001,
+  "eia_name": "Temple Power Station"
+ },
+ "PANDA_T2_ST1": {
+  "eia_id": 58001,
+  "eia_name": "Temple Power Station"
+ },
+ "PAP1_PAP1": {
+  "eia_id": 56983,
+  "eia_name": "Papalote Creek I LLC"
+ },
+ "PAR_RN": {
+  "eia_id": 69320,
+  "eia_name": "Parliament Solar"
+ },
+ "PB2SES_CT1": {
+  "eia_id": 3494,
+  "eia_name": "Permian Basin"
+ },
+ "PB2SES_CT2": {
+  "eia_id": 3494,
+  "eia_name": "Permian Basin"
+ },
+ "PB2SES_CT3": {
+  "eia_id": 3494,
+  "eia_name": "Permian Basin"
+ },
+ "PB2SES_CT4": {
+  "eia_id": 3494,
+  "eia_name": "Permian Basin"
+ },
+ "PB2SES_CT5": {
+  "eia_id": 3494,
+  "eia_name": "Permian Basin"
+ },
+ "PCT_RN": {
+  "eia_id": 67700,
+  "eia_name": "Peyton Creek Wind Farm II"
+ },
+ "PC_NORTH_1": {
+  "eia_id": 56920,
+  "eia_name": "Panther Creek Wind Farm I"
+ },
+ "PC_SOUTH_ALL": {
+  "eia_id": 56920,
+  "eia_name": "Panther Creek Wind Farm I"
+ },
+ "PEARSA_1_24": {
+  "eia_id": 3630,
+  "eia_name": "Pearsall"
+ },
+ "PENA_ALL": {
+  "eia_id": 56795,
+  "eia_name": "Penascal Wind Power LLC"
+ },
+ "PERE_SLR_RN": {
+  "eia_id": 65979,
+  "eia_name": "Peregrine Solar"
+ },
+ "PEY_RN": {
+  "eia_id": 62417,
+  "eia_name": "Peyton Creek Wind Farm LLC"
+ },
+ "PH1_UNIT1_2": {
+  "eia_id": 58242,
+  "eia_name": "Pattern Panhandle Wind LLC"
+ },
+ "PH2_U1_U2": {
+  "eia_id": 58720,
+  "eia_name": "Pattern Panhandle Wind 2 LLC"
+ },
+ "PHILLWND_ALL": {
+  "eia_id": 63100,
+  "eia_name": "Prairie Hill Wind Project"
+ },
+ "PHOEBE_ALL": {
+  "eia_id": 61906,
+  "eia_name": "Phoebe Solar"
+ },
+ "PINEFRST_RN": {
+  "eia_id": 64131,
+  "eia_name": "Forest Grove - Dodd"
+ },
+ "PISG_RN_ALL": {
+  "eia_id": 65631,
+  "eia_name": "Pisgah Ridge Solar, LLC"
+ },
+ "PITSDD_UNIT1": {
+  "eia_id": 67024,
+  "eia_name": "Pitts Dudik Solar"
+ },
+ "PORTSL_UNIT1": {
+  "eia_id": 65937,
+  "eia_name": "Porter Solar, LLC (TX)"
+ },
+ "POTSVIL_RN": {
+  "eia_id": 66410,
+  "eia_name": "Grizzly Ridge Solar"
+ },
+ "PRID_RN": {
+  "eia_id": 64165,
+  "eia_name": "Priddy Wind Project"
+ },
+ "PROSPERO_ALL": {
+  "eia_id": 62755,
+  "eia_name": "Prospero Solar"
+ },
+ "PRSPERO2_ALL": {
+  "eia_id": 64325,
+  "eia_name": "Prospero Solar II"
+ },
+ "PYR_PYRON1": {
+  "eia_id": 56981,
+  "eia_name": "Pyron Wind Farm LLC Hybrid"
+ },
+ "Q1_DGR1_RN": {
+  "eia_id": 64915,
+  "eia_name": "Flower Valley I"
+ },
+ "QALSW_ALL": {
+  "eia_id": 56349,
+  "eia_name": "Quail Run Energy Center"
+ },
+ "RADN_SLR_ALL": {
+  "eia_id": 64859,
+  "eia_name": "IP Radian, LLC"
+ },
+ "RAMBLER_UNIT": {
+  "eia_id": 62141,
+  "eia_name": "Rambler"
+ },
+ "RANCHERO_ALL": {
+  "eia_id": 62259,
+  "eia_name": "Ranchero Wind Farm LLC"
+ },
+ "RAYB_G78910": {
+  "eia_id": 3631,
+  "eia_name": "Sam Rayburn"
+ },
+ "RDCAN_RDCNY1": {
+  "eia_id": 60271,
+  "eia_name": "Canyon Wind Project, LLC"
+ },
+ "REDFISH_ALL": {
+  "eia_id": 57802,
+  "eia_name": "Magic Valley Wind Farm I LLC"
+ },
+ "RELOJ_ALL": {
+  "eia_id": 62207,
+  "eia_name": "Reloj del Sol Wind Farm"
+ },
+ "REROCK_ALL": {
+  "eia_id": 59994,
+  "eia_name": "RE Roserock"
+ },
+ "RIONOG_CT1": {
+  "eia_id": 55137,
+  "eia_name": "Rio Nogales Power Project"
+ },
+ "RIONOG_CT2": {
+  "eia_id": 55137,
+  "eia_name": "Rio Nogales Power Project"
+ },
+ "RIONOG_CT3": {
+  "eia_id": 55137,
+  "eia_name": "Rio Nogales Power Project"
+ },
+ "RIONOG_ST1": {
+  "eia_id": 55137,
+  "eia_name": "Rio Nogales Power Project"
+ },
+ "RN_DEC_AGR_A": {
+  "eia_id": 61643,
+  "eia_name": "Denton Energy Center"
+ },
+ "RN_DEC_AGR_B": {
+  "eia_id": 61643,
+  "eia_name": "Denton Energy Center"
+ },
+ "RN_DEC_AGR_C": {
+  "eia_id": 61643,
+  "eia_name": "Denton Energy Center"
+ },
+ "RN_DEC_AGR_D": {
+  "eia_id": 61643,
+  "eia_name": "Denton Energy Center"
+ },
+ "RN_ECEC_HOLT": {
+  "eia_id": 58471,
+  "eia_name": "Ector County Energy Center"
+ },
+ "RN_OCI_ALAMO": {
+  "eia_id": 58717,
+  "eia_name": "OCI Alamo 4, LLC"
+ },
+ "RN_SR_WIND1": {
+  "eia_id": 59712,
+  "eia_name": "San Roman Wind I, LLC"
+ },
+ "ROSELAND_ALL": {
+  "eia_id": 65028,
+  "eia_name": "Roseland Solar Project, LLC"
+ },
+ "ROUTE66_RN": {
+  "eia_id": 58681,
+  "eia_name": "Route 66 Wind Plant"
+ },
+ "RRC_WIND_ALL": {
+  "eia_id": 68460,
+  "eia_name": "Roadrunner Crossing Energy Storage LLC"
+ },
+ "SADLBCK_AGR1": {
+  "eia_id": 65834,
+  "eia_name": "Saddleback"
+ },
+ "SAMSON_ALL": {
+  "eia_id": 63211,
+  "eia_name": "Samson Solar Energy"
+ },
+ "SANDHSYD1_2": {
+  "eia_id": 7900,
+  "eia_name": "Sand Hill"
+ },
+ "SANDHSYD3_4": {
+  "eia_id": 7900,
+  "eia_name": "Sand Hill"
+ },
+ "SANDHSYD6_7": {
+  "eia_id": 7900,
+  "eia_name": "Sand Hill"
+ },
+ "SANDHSYD_5AC": {
+  "eia_id": 7900,
+  "eia_name": "Sand Hill"
+ },
+ "SANTACRU_ALL": {
+  "eia_id": 60987,
+  "eia_name": "Santa Rita Wind Energy"
+ },
+ "SAN_SANMIGG1": {
+  "eia_id": 6183,
+  "eia_name": "San Miguel"
+ },
+ "SC2SES_UNIT1": {
+  "eia_id": 3504,
+  "eia_name": "Stryker Creek"
+ },
+ "SCES_UNIT1": {
+  "eia_id": 56611,
+  "eia_name": "Sandy Creek Energy Station"
+ },
+ "SCSES_UNIT2": {
+  "eia_id": 3504,
+  "eia_name": "Stryker Creek"
+ },
+ "SENATEWD_1": {
+  "eia_id": 57981,
+  "eia_name": "Senate Wind LLC"
+ },
+ "SGM_SIGNALMT": {
+  "eia_id": 67849,
+  "eia_name": "BT Signal Ranch"
+ },
+ "SHAMROCK_RN": {
+  "eia_id": 66540,
+  "eia_name": "Shamrock Wind"
+ },
+ "SHANNONW_RN": {
+  "eia_id": 59034,
+  "eia_name": "Shannon Wind"
+ },
+ "SHEEPCRK_1": {
+  "eia_id": 69606,
+  "eia_name": "Monarch Creek Wind, LLC"
+ },
+ "SIG_SLR_RN": {
+  "eia_id": 67849,
+  "eia_name": "BT Signal Ranch"
+ },
+ "SIL_SILAS_10": {
+  "eia_id": 3559,
+  "eia_name": "Silas Ray"
+ },
+ "SIL_SILAS_6": {
+  "eia_id": 3559,
+  "eia_name": "Silas Ray"
+ },
+ "SIL_SILAS_9": {
+  "eia_id": 3559,
+  "eia_name": "Silas Ray"
+ },
+ "SIRIUS_UNIT1": {
+  "eia_id": 61032,
+  "eia_name": "Heart of Texas Wind Project"
+ },
+ "SJS_SJS_G1": {
+  "eia_id": 7325,
+  "eia_name": "San Jacinto Steam Electric Station"
+ },
+ "SJS_SJS_G2": {
+  "eia_id": 7325,
+  "eia_name": "San Jacinto Steam Electric Station"
+ },
+ "SKY1": {
+  "eia_id": 59938,
+  "eia_name": "Sky Global Power One"
+ },
+ "SLTFRK_UN1_2": {
+  "eia_id": 60657,
+  "eia_name": "Salt Fork Wind Project, LLC"
+ },
+ "SOLARA_UNIT1": {
+  "eia_id": 56921,
+  "eia_name": "Panther Creek Wind Farm II"
+ },
+ "SPARTA_ALL": {
+  "eia_id": 63840,
+  "eia_name": "Sparta Solar"
+ },
+ "SPLAIN1_RN": {
+  "eia_id": 59384,
+  "eia_name": "South Plains Wind Phase I"
+ },
+ "SPLAIN2_RN": {
+  "eia_id": 59384,
+  "eia_name": "South Plains Wind Phase I"
+ },
+ "SPNC_SPNCE_4": {
+  "eia_id": 4266,
+  "eia_name": "Spencer"
+ },
+ "SPNC_SPNCE_5": {
+  "eia_id": 4266,
+  "eia_name": "Spencer"
+ },
+ "SRWE1_UNIT1": {
+  "eia_id": 57983,
+  "eia_name": "Stephens Ranch Wind Energy LLC"
+ },
+ "SSPURT_WIND1": {
+  "eia_id": 58775,
+  "eia_name": "Spinning Spur Wind III"
+ },
+ "STAM_SLR_ALL": {
+  "eia_id": 67762,
+  "eia_name": "Stampede Solar Hybrid"
+ },
+ "STAR_SLR_RN": {
+  "eia_id": 65975,
+  "eia_name": "Starr Solar Ranch"
+ },
+ "STEAM_ENG123": {
+  "eia_id": 7325,
+  "eia_name": "San Jacinto Steam Electric Station"
+ },
+ "STEA_STEAM_1": {
+  "eia_id": 8063,
+  "eia_name": "DeCordova Steam Electric Station"
+ },
+ "STEA_STEAM_2": {
+  "eia_id": 7325,
+  "eia_name": "San Jacinto Steam Electric Station"
+ },
+ "STEA_STEAM_3": {
+  "eia_id": 7325,
+  "eia_name": "San Jacinto Steam Electric Station"
+ },
+ "STELLA_RN": {
+  "eia_id": 59063,
+  "eia_name": "Stella Wind Farm"
+ },
+ "STLHS_SL_RN": {
+  "eia_id": 65894,
+  "eia_name": "Stillhouse Solar"
+ },
+ "STRG_SLR_ALL": {
+  "eia_id": 69027,
+  "eia_name": "Stoneridge Solar, LLC"
+ },
+ "STWF_T1": {
+  "eia_id": 56649,
+  "eia_name": "South Trent Wind Farm"
+ },
+ "SWEC_G1": {
+  "eia_id": 56644,
+  "eia_name": "Stanton Wind Energy LLC"
+ },
+ "SWEETWN2_2_4": {
+  "eia_id": 56311,
+  "eia_name": "Sweetwater Wind 3 LLC"
+ },
+ "SWEETWN3_3": {
+  "eia_id": 56311,
+  "eia_name": "Sweetwater Wind 3 LLC"
+ },
+ "SWEETWND_1": {
+  "eia_id": 56211,
+  "eia_name": "Sweetwater Wind 1 LLC"
+ },
+ "SWTWN4_WND45": {
+  "eia_id": 56337,
+  "eia_name": "Sweetwater Wind 4 LLC"
+ },
+ "S_HILLS_RN": {
+  "eia_id": 62227,
+  "eia_name": "Seymour Hills Wind Project, LLC"
+ },
+ "TAHOKA_ALL": {
+  "eia_id": 62620,
+  "eia_name": "Sage Draw Wind"
+ },
+ "TAYGETE2_ALL": {
+  "eia_id": 64075,
+  "eia_name": "Taygete II Energy Project"
+ },
+ "TAYGETE_ALL": {
+  "eia_id": 62483,
+  "eia_name": "Taygete Energy Project LLC"
+ },
+ "TEN_CT1_STG": {
+  "eia_id": 56111,
+  "eia_name": "Brazos Wind Farm"
+ },
+ "TGCCS_ALL": {
+  "eia_id": 55132,
+  "eia_name": "Tenaska Gateway Generating Station"
+ },
+ "TGS_GT01": {
+  "eia_id": 50137,
+  "eia_name": "Texas Gulf Sulphur"
+ },
+ "TGW_T1_T2": {
+  "eia_id": 56661,
+  "eia_name": "Pattern Gulf Wind"
+ },
+ "THW_1_CCU": {
+  "eia_id": 3469,
+  "eia_name": "T H Wharton"
+ },
+ "THW_2_CCU": {
+  "eia_id": 3469,
+  "eia_name": "T H Wharton"
+ },
+ "THW_THWGT5X": {
+  "eia_id": 3469,
+  "eia_name": "T H Wharton"
+ },
+ "THW_THWGT_1": {
+  "eia_id": 3469,
+  "eia_name": "T H Wharton"
+ },
+ "TIMPP_RN1": {
+  "eia_id": 66335,
+  "eia_name": "Timmerman Power Plant"
+ },
+ "TIMPP_RN2": {
+  "eia_id": 66335,
+  "eia_name": "Timmerman Power Plant"
+ },
+ "TI_SOLAR_ALL": {
+  "eia_id": 63320,
+  "eia_name": "Titan Solar Project"
+ },
+ "TKWSW_CHAMP": {
+  "eia_id": 56592,
+  "eia_name": "Champion Wind Farm LLC"
+ },
+ "TKWSW_ROSCOE": {
+  "eia_id": 56593,
+  "eia_name": "Roscoe Wind Farm LLC"
+ },
+ "TNP_TNP_O_1": {
+  "eia_id": 62505,
+  "eia_name": "G.S.E. One LLC"
+ },
+ "TNP_TNP_O_2": {
+  "eia_id": 62505,
+  "eia_name": "G.S.E. One LLC"
+ },
+ "TNSKA_CCU": {
+  "eia_id": 50615,
+  "eia_name": "TXU Sweetwater Generating Plant"
+ },
+ "TNS_SLR_ALL": {
+  "eia_id": 65998,
+  "eia_name": "True North Solar, LLC"
+ },
+ "TOPAZ_ALL": {
+  "eia_id": 63688,
+  "eia_name": "Topaz Generating"
+ },
+ "TORR_ALL": {
+  "eia_id": 61969,
+  "eia_name": "Torrecillas Wind Energy, LLC"
+ },
+ "TRBT_SLR_RN": {
+  "eia_id": 68748,
+  "eia_name": "Tierra Seca"
+ },
+ "TREB_SOLAR1": {
+  "eia_id": 65947,
+  "eia_name": "Tres Bahias"
+ },
+ "TRENT_TRENT": {
+  "eia_id": 55968,
+  "eia_name": "Trent Wind Farm"
+ },
+ "TRINITY_ALL": {
+  "eia_id": 57520,
+  "eia_name": "Trinity Hills"
+ },
+ "TRSES_UNIT6": {
+  "eia_id": 3507,
+  "eia_name": "Trinidad (TX)"
+ },
+ "TRUSGILL_RN": {
+  "eia_id": 64639,
+  "eia_name": "TG East"
+ },
+ "TTRSW_RN": {
+  "eia_id": 63884,
+  "eia_name": "Delilah Solar Energy II LLC"
+ },
+ "TTWEC_G1": {
+  "eia_id": 56774,
+  "eia_name": "Turkey Track Wind Energy LLC"
+ },
+ "TXCTY_CTA": {
+  "eia_id": 52088,
+  "eia_name": "Texas City Power Plant"
+ },
+ "TXCTY_CTB": {
+  "eia_id": 52088,
+  "eia_name": "Texas City Power Plant"
+ },
+ "TXCTY_CTC": {
+  "eia_id": 52088,
+  "eia_name": "Texas City Power Plant"
+ },
+ "TXCTY_ST": {
+  "eia_id": 52088,
+  "eia_name": "Texas City Power Plant"
+ },
+ "TYLRWIND_RN": {
+  "eia_id": 60502,
+  "eia_name": "Tyler Bluff Wind Project, LLC"
+ },
+ "TYSN_SLR_RN": {
+  "eia_id": 68856,
+  "eia_name": "Tyson Nick"
+ },
+ "V4_DGR1_RN": {
+  "eia_id": 64591,
+  "eia_name": "El Algodon Alto Wind Farm, LLC"
+ },
+ "VANCOURT_RN": {
+  "eia_id": 65662,
+  "eia_name": "Vancourt Solar Interconnections"
+ },
+ "VICTPORT_RN": {
+  "eia_id": 61242,
+  "eia_name": "Tres Port Power, LLC"
+ },
+ "VIC_VICTORG5": {
+  "eia_id": 3443,
+  "eia_name": "Victoria"
+ },
+ "VIC_VICTORG6": {
+  "eia_id": 3443,
+  "eia_name": "Victoria"
+ },
+ "VLSES_UNIT3": {
+  "eia_id": 55501,
+  "eia_name": "Kiamichi Energy Facility"
+ },
+ "WAKEWE_ALL": {
+  "eia_id": 58766,
+  "eia_name": "Wake Wind Energy Center"
+ },
+ "WAP_WAPGT_1": {
+  "eia_id": 3470,
+  "eia_name": "W A Parish"
+ },
+ "WAP_WAP_G1": {
+  "eia_id": 3470,
+  "eia_name": "W A Parish"
+ },
+ "WAP_WAP_G2": {
+  "eia_id": 3470,
+  "eia_name": "W A Parish"
+ },
+ "WAP_WAP_G3": {
+  "eia_id": 3470,
+  "eia_name": "W A Parish"
+ },
+ "WAP_WAP_G4": {
+  "eia_id": 3470,
+  "eia_name": "W A Parish"
+ },
+ "WAP_WAP_G5": {
+  "eia_id": 3470,
+  "eia_name": "W A Parish"
+ },
+ "WAP_WAP_G6": {
+  "eia_id": 3470,
+  "eia_name": "W A Parish"
+ },
+ "WAP_WAP_G7": {
+  "eia_id": 3470,
+  "eia_name": "W A Parish"
+ },
+ "WAP_WAP_G8": {
+  "eia_id": 3470,
+  "eia_name": "W A Parish"
+ },
+ "WCPP_CT1": {
+  "eia_id": 55320,
+  "eia_name": "Wise County Power LLC"
+ },
+ "WCPP_CT2": {
+  "eia_id": 55320,
+  "eia_name": "Wise County Power LLC"
+ },
+ "WCPP_ST1": {
+  "eia_id": 55320,
+  "eia_name": "Wise County Power LLC"
+ },
+ "WEBBER_WS_T1": {
+  "eia_id": 57699,
+  "eia_name": "Webberville Solar Project"
+ },
+ "WEC_WECG1": {
+  "eia_id": 56673,
+  "eia_name": "Whirlwind Energy Center"
+ },
+ "WFCOGEN_13": {
+  "eia_id": 58378,
+  "eia_name": "Petra Nova Carbon Capture Cogen"
+ },
+ "WFCOGEN_24": {
+  "eia_id": 58378,
+  "eia_name": "Petra Nova Carbon Capture Cogen"
+ },
+ "WGU_RN": {
+  "eia_id": 63273,
+  "eia_name": "Wagyu"
+ },
+ "WHCCS_CT1_ST": {
+  "eia_id": 55139,
+  "eia_name": "Wolf Hollow I LP"
+ },
+ "WHCCS_CT2": {
+  "eia_id": 55139,
+  "eia_name": "Wolf Hollow I LP"
+ },
+ "WHMESA_U1": {
+  "eia_id": 64710,
+  "eia_name": "White Mesa Wind"
+ },
+ "WHTTAIL_WR1": {
+  "eia_id": 58080,
+  "eia_name": "Wolf Ridge Wind"
+ },
+ "WIPOPA_1_2": {
+  "eia_id": 56674,
+  "eia_name": "Winchester Power Park"
+ },
+ "WIPOPA_3_4": {
+  "eia_id": 56674,
+  "eia_name": "Winchester Power Park"
+ },
+ "WL_RANCH_RN": {
+  "eia_id": 64239,
+  "eia_name": "7V Solar Ranch"
+ },
+ "WNDTS2_UNIT1": {
+  "eia_id": 59238,
+  "eia_name": "Windthorst-2"
+ },
+ "WND_WHITNEY": {
+  "eia_id": 3595,
+  "eia_name": "Buchanan Dam (TX)"
+ },
+ "WOODWRD1_RN": {
+  "eia_id": 55796,
+  "eia_name": "Woodward Mountain I"
+ },
+ "WOODWRD2_RN": {
+  "eia_id": 55796,
+  "eia_name": "Woodward Mountain I"
+ },
+ "W_PECO_UNIT1": {
+  "eia_id": 62415,
+  "eia_name": "West of the Pecos Solar"
+ },
+ "YNG_WND_ALL": {
+  "eia_id": 65763,
+  "eia_name": "Young Wind"
+ },
+ "ZIER_SLR_ALL": {
+  "eia_id": 66137,
+  "eia_name": "Zier Solar"
+ },
+ "AJAXWIND_RN": {
+  "eia_id": 64149,
+  "eia_name": "Western Trail Wind, LLC"
+ },
+ "ANCHOR_ALL": {
+  "eia_id": 61343,
+  "eia_name": "Karankawa Wind LLC"
+ },
+ "BUZI_SLR_RN": {
+  "eia_id": 57212,
+  "eia_name": "Papalote Creek II LLC"
+ },
+ "CABEZON_ALL": {
+  "eia_id": 61865,
+  "eia_name": "Rio Bravo Windpower, LLC"
+ },
+ "ELZA_SLR_RN": {
+  "eia_id": 61368,
+  "eia_name": "Midway Solar - TX"
+ },
+ "GRYH_SLR_RN": {
+  "eia_id": 66420,
+  "eia_name": "Five Wells Solar Center - Hybrid"
+ },
+ "RN_RTS1": {
+  "eia_id": 55708,
+  "eia_name": "Nacogdoches Power"
+ },
+ "SHAFFER_ALL": {
+  "eia_id": 66123,
+  "eia_name": "Prairie Switch Wind LLC"
+ },
+ "VERAWIND_ALL": {
+  "eia_id": 66902,
+  "eia_name": "Roadrunner Wind Farm"
+ },
+ "WH_WIND_ALL": {
+  "eia_id": 64149,
+  "eia_name": "Western Trail Wind, LLC"
+ },
+ "WILDWIND_ALL": {
+  "eia_id": 64325,
+  "eia_name": "Prospero Solar II"
+ }
+}

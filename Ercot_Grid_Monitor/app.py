@@ -107,19 +107,66 @@ with tab_map:
     if go:
         prices, source = _snapshot(location_type, market, tuple(cf["location"]),
                                    str(start_d), str(end_d))
-        if prices.empty:
-            st.warning("No prices for that window. Try a more recent range "
-                       "(gridstatus only serves recent SPP).")
+        st.session_state["mapcache"] = {
+            "lt": location_type, "market": market, "start": str(start_d),
+            "end": str(end_d), "prices": prices, "source": source}
+
+    cache = st.session_state.get("mapcache")
+    if cache is None:
+        st.info("Pick a type, market and window, then **Load price map**.")
+    elif cache["prices"].empty:
+        st.warning("No prices for that window. Try a more recent range "
+                   "(gridstatus only serves recent SPP).")
+    else:
+        location_type = cache["lt"]
+        prices, source = cache["prices"], cache["source"]
+        cf = coords.coords_frame(location_type)
+        st.caption(f"📦 Source: **{source}** · {cache['market']} · {cache['start']} → {cache['end']}"
+                   + ("" if source == "data lake"
+                      else " — not in the suite data lake for this type/market/window."))
+        geo = cf.merge(prices, on="location", how="inner").dropna(subset=["avg_spp"])
+        geo["price_label"] = geo["avg_spp"].map(lambda v: f"${v:,.2f}")
+        geo["min_label"] = geo["min_spp"].map(lambda v: f"${v:,.2f}")
+        geo["max_label"] = geo["max_spp"].map(lambda v: f"${v:,.2f}")
+        if location_type == "Resource Node":
+            geo["name"] = geo["location"].map(
+                lambda loc: coords.NODE_COORDS.get(loc, (0, 0, loc))[2])
+            attrs = spmap.node_attrs()
+            geo["substation"] = geo["location"].map(
+                lambda loc: (attrs.get(loc) or {}).get("substation") or "—")
+            geo["zone"] = geo["location"].map(
+                lambda loc: (attrs.get(loc) or {}).get("load_zone") or "—")
+            geo["county"] = geo["location"].map(
+                lambda loc: (coords.NODE_META.get(loc) or {}).get("county") or "—")
+            geo["trust"] = geo["location"].map(
+                lambda loc: (coords.NODE_META.get(loc) or {}).get("trust") or "—")
+            geo["gen✓"] = geo["location"].map(
+                lambda loc: bool((coords.NODE_META.get(loc) or {}).get("gen_confirmed")))
+            geo["EIA"] = geo["location"].map(coords.eia_url)
+            geo["eia_label"] = geo["location"].map(
+                lambda loc: (f"EIA #{coords.NODE_EIA[loc]['eia_id']} · {coords.NODE_EIA[loc]['eia_name']}"
+                             if loc in coords.NODE_EIA else ""))
         else:
-            st.caption(f"📦 Source: **{source}**" + (
-                "" if source == "data lake"
-                else " — not in the suite data lake for this type/market/window."))
-            geo = cf.merge(prices, on="location", how="inner").dropna(subset=["avg_spp"])
-            # Default the colour scale to the actual spread of THIS data so the full
-            # blue→red ramp is used and cheap vs. expensive locations are easy to tell
-            # apart. (Anchoring at $0 flattens everything to one colour when prices
-            # are clustered, e.g. all hubs $23–$34.) Percentiles ignore a lone outlier;
-            # fall back to true min/max when the spread is tiny.
+            geo["name"] = geo["location"]
+
+        # Keyword filter (nodes): match name / code / substation / county / zone.
+        if location_type == "Resource Node":
+            q = st.text_input("🔎 Search nodes — plant, node code, substation, county, or zone",
+                              key="node_q", placeholder="e.g. Sweetwater, BUZI, Archer, LZ_WEST").strip()
+            if q:
+                hay = (geo["name"].astype(str) + " " + geo["location"].astype(str) + " "
+                       + geo["substation"].astype(str) + " " + geo["county"].astype(str) + " "
+                       + geo["zone"].astype(str)).str.lower()
+                geo = geo[hay.str.contains(q.lower(), regex=False, na=False)]
+                st.caption(f"Showing **{len(geo)}** matching node(s).")
+
+        unit = {"Trading Hub": "hubs", "Load Zone": "zones",
+                "Resource Node": "nodes"}[location_type]
+        if geo.empty:
+            st.warning("No locations match. Clear the search or widen the window.")
+        else:
+            # Colour scale defaults to the spread of the data so the blue→red ramp
+            # is fully used. Percentiles ignore a lone outlier.
             lo = float(geo["avg_spp"].quantile(0.05))
             hi = float(geo["avg_spp"].quantile(0.95))
             if hi - lo < 1.0:
@@ -130,27 +177,7 @@ with tab_map:
             vmax = cc2.number_input("Colour scale max ($/MWh)", value=round(max(hi, lo + 1), 1),
                                     help="Locations at or above this are fully red.")
             geo["_fill"] = geo["avg_spp"].map(lambda v: _price_color(v, vmin, vmax))
-            geo["price_label"] = geo["avg_spp"].map(lambda v: f"${v:,.2f}")
-            geo["min_label"] = geo["min_spp"].map(lambda v: f"${v:,.2f}")
-            geo["max_label"] = geo["max_spp"].map(lambda v: f"${v:,.2f}")
-            if location_type == "Resource Node":
-                geo["name"] = geo["location"].map(
-                    lambda loc: coords.NODE_COORDS.get(loc, (0, 0, loc))[2])
-                # Authoritative substation + load zone from NP4-160-SG.
-                attrs = spmap.node_attrs()
-                geo["substation"] = geo["location"].map(
-                    lambda loc: (attrs.get(loc) or {}).get("substation") or "—")
-                geo["zone"] = geo["location"].map(
-                    lambda loc: (attrs.get(loc) or {}).get("load_zone") or "—")
-                geo["trust"] = geo["location"].map(
-                    lambda loc: (coords.NODE_META.get(loc) or {}).get("trust") or "—")
-                geo["gen✓"] = geo["location"].map(
-                    lambda loc: bool((coords.NODE_META.get(loc) or {}).get("gen_confirmed")))
-            else:
-                geo["name"] = geo["location"]
 
-            unit = {"Trading Hub": "hubs", "Load Zone": "zones",
-                    "Resource Node": "nodes"}[location_type]
             cheap = geo.loc[geo["avg_spp"].idxmin()]
             pricey = geo.loc[geo["avg_spp"].idxmax()]
             m = st.columns(4)
@@ -172,6 +199,7 @@ with tab_map:
                 tooltip={"html": "<b>{name}</b><br/>"
                                  "<span style='opacity:0.7'>{location}</span><br/>"
                                  + ("{substation} · {zone}<br/>"
+                                    "<span style='opacity:0.7'>{eia_label}</span><br/>"
                                     if location_type == "Resource Node" else "")
                                  + "Avg {price_label} /MWh<br/>"
                                    "High {max_label} · Low {min_label}"})
@@ -192,7 +220,7 @@ with tab_map:
                          x_label=location_type, y_label="Avg $/MWh", horizontal=True)
 
             tbl_cols = (["name", "location", "substation", "zone", "trust", "gen✓",
-                         "avg_spp", "min_spp", "max_spp", "n"]
+                         "avg_spp", "min_spp", "max_spp", "n", "EIA"]
                         if location_type == "Resource Node"
                         else ["location", "avg_spp", "min_spp", "max_spp", "n"])
             show = (by[tbl_cols]
@@ -206,11 +234,10 @@ with tab_map:
                              "avg $/MWh": st.column_config.NumberColumn(format="$%.2f"),
                              "low $/MWh": st.column_config.NumberColumn(format="$%.2f"),
                              "high $/MWh": st.column_config.NumberColumn(format="$%.2f"),
+                             "EIA": st.column_config.LinkColumn("EIA", display_text="EIA ↗"),
                          })
             st.download_button("⬇ Download CSV", show.to_csv(index=False).encode(),
                                file_name=f"ercot_price_map_{location_type.replace(' ', '_')}.csv")
-    else:
-        st.info("Pick a type, market and window, then **Load price map**.")
 
     # Full ERCOT resource-node reference (NP4-160-SG) — all ~1,024 nodes with
     # their authoritative substation / load zone, whether or not we can plot them.
@@ -221,6 +248,7 @@ with tab_map:
         else:
             plotted = set(coords.NODES)
             ref = ref.assign(plant=ref["node"].map(coords.NODE_NAMES).fillna("—"),
+                             EIA=ref["node"].map(coords.eia_url),
                              mapped=ref["node"].isin(plotted))
             q = st.text_input("Filter (node / substation / zone)", key="np4_q").strip().upper()
             view = ref
@@ -234,9 +262,10 @@ with tab_map:
                        f"· published {ref['publish_date'].iloc[0]}")
             st.dataframe(
                 view[["node", "plant", "substation", "load_zone", "kv", "electrical_bus",
-                      "psse_bus", "mapped"]].sort_values("node"),
+                      "psse_bus", "mapped", "EIA"]].sort_values("node"),
                 hide_index=True, use_container_width=True,
-                column_config={"mapped": st.column_config.CheckboxColumn("on map")})
+                column_config={"mapped": st.column_config.CheckboxColumn("on map"),
+                               "EIA": st.column_config.LinkColumn("EIA", display_text="EIA ↗")})
             st.download_button("⬇ Download full node mapping (CSV)",
                                ref.to_csv(index=False).encode(),
                                file_name="ercot_resource_node_mapping_NP4-160.csv")
