@@ -144,6 +144,8 @@ with tab_map:
                     lambda loc: (attrs.get(loc) or {}).get("load_zone") or "—")
                 geo["trust"] = geo["location"].map(
                     lambda loc: (coords.NODE_META.get(loc) or {}).get("trust") or "—")
+                geo["gen✓"] = geo["location"].map(
+                    lambda loc: bool((coords.NODE_META.get(loc) or {}).get("gen_confirmed")))
             else:
                 geo["name"] = geo["location"]
 
@@ -189,7 +191,7 @@ with tab_map:
             st.bar_chart(by.set_index(chart_key)["avg_spp"],
                          x_label=location_type, y_label="Avg $/MWh", horizontal=True)
 
-            tbl_cols = (["name", "location", "substation", "zone", "trust",
+            tbl_cols = (["name", "location", "substation", "zone", "trust", "gen✓",
                          "avg_spp", "min_spp", "max_spp", "n"]
                         if location_type == "Resource Node"
                         else ["location", "avg_spp", "min_spp", "max_spp", "n"])
