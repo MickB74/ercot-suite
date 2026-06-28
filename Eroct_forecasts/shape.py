@@ -28,12 +28,18 @@ def _is_peak(idx: pd.DatetimeIndex) -> np.ndarray:
 
 
 def build_8760(curve: pd.DataFrame, rt15: pd.DataFrame, *,
-               bands=("p10", "p50", "p90")) -> pd.DataFrame:
+               bands=("p10", "p50", "p90"), renew: dict | None = None) -> pd.DataFrame:
     """Hourly shaped forecast over the curve's month span.
 
     ``curve`` is the monthly output of forecast.run (needs month, block, p50 +
     any requested band columns). Returns one row per hour with columns:
     ts (naive Central), month, is_peak, and one column per band.
+
+    ``renew`` (optional): a renewable-buildout config (see ``renewable_shape``)
+    that bends the historical intraday shape for expected solar/wind additions
+    — deeper midday troughs, a sharper evening ramp, softer overnights — scaled
+    by GW added per forecast year. The monthly *level* is unchanged; only the
+    within-day distribution (and thus capture prices) moves.
     """
     shape = pf_history.hourly_shape(rt15)          # month, hour, shape
     shp = shape.set_index(["month", "hour"])["shape"]
@@ -50,6 +56,12 @@ def build_8760(curve: pd.DataFrame, rt15: pd.DataFrame, *,
     df["is_peak"] = _is_peak(idx)
     df["block"] = np.where(df["is_peak"], "peak", "offpeak")
     df["shape"] = [shp.get((m, h), 1.0) for m, h in zip(df["moy"], df["hour"])]
+
+    # Optional renewable-buildout reshaping of the historical shape, applied
+    # before block renormalization so it only redistributes within the day.
+    if renew:
+        import renewable_shape  # noqa: PLC0415  (optional dependency, lazy)
+        df = renewable_shape.reshape_8760(df, renew)
 
     # renormalize shape to mean 1 within each (month_start, block)
     grp = df.groupby(["month_start", "block"])["shape"].transform("mean")

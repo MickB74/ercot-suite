@@ -61,6 +61,8 @@ nav = st.navigation({
         st.Page(f"{P}/16_Price_Forecast.py", title="Price Forecast", icon="📉"),
         st.Page(f"{P}/17_Plant_Value.py", title="Predicted Solar Settlement", icon="🔆"),
         st.Page(f"{P}/18_Wind_Capture.py", title="Predicted Wind Settlement", icon="💨"),
+        st.Page(f"{P}/23_Forecast_Methodology.py", title="Forecast Methodology",
+                icon="📖", url_path="forecast-methodology"),
     ],
     "Analyze": [
         st.Page(f"{P}/7_PPA_Settlement.py", title="PPA Settlement", icon="🧾"),

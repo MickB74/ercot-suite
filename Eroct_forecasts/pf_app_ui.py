@@ -920,6 +920,38 @@ def render() -> None:
             help="Also spread the monthly strip into an hourly (8,760/yr) curve using "
                  "the historical hour-of-day × month price shape — for VPPA / load "
                  "settlement modeling. Slower; off by default.")
+        renew_cfg = None
+        if do_shape:
+            renew_on = st.checkbox(
+                "Adjust shape for solar & wind buildout", value=False,
+                help="Bend the historical intraday shape for expected renewable "
+                     "additions: solar deepens the midday trough and sharpens the "
+                     "evening ramp (duck curve); wind softens overnights. Scales "
+                     "with GW added per forecast year. Monthly average is unchanged "
+                     "— only the within-day shape (and capture prices) move.")
+            if renew_on:
+                rc1, rc2 = st.columns(2)
+                solar_per_yr = rc1.slider(
+                    "Solar added / yr (GW)", 0.0, 25.0, 10.0, 0.5,
+                    help="Incremental ERCOT solar nameplate per year (queue-driven; "
+                         "recent pace is ~10 GW/yr).")
+                wind_per_yr = rc2.slider(
+                    "Wind added / yr (GW)", 0.0, 10.0, 2.0, 0.5,
+                    help="Incremental ERCOT wind nameplate per year.")
+                _y0 = pd.Timestamp(asof).year
+                _yrs = range(_y0, _y0 + 7)
+                import renewable_shape  # noqa: PLC0415
+                renew_cfg = {
+                    "solar_add_by_year": renewable_shape.add_by_year(_y0, solar_per_yr, _yrs),
+                    "wind_add_by_year": renewable_shape.add_by_year(_y0, wind_per_yr, _yrs),
+                }
+                trend = renewable_shape.observed_duck_trend(_rt(hubs[0] if hubs else "HB_NORTH"))
+                if trend and trend.get("drop_pct") is not None:
+                    st.caption(
+                        f"📉 Calibration check — ERCOT's own midday price share fell "
+                        f"**{trend['drop_pct']}%** in the last {trend['recent_window_months']} "
+                        "months vs the prior window (the duck deepening in realized data). "
+                        "The overlay extends that trend forward by GW added.")
         run = st.button("Run forecast", type="primary")
 
     gas_override, gas_label = _gas_curve_section(pd.Timestamp(asof), horizon)
@@ -949,7 +981,8 @@ def render() -> None:
         if do_shape:
             with st.spinner("Shaping 8760 hourly curves…"):
                 for hh in hubs:
-                    hourly_by_hub[hh] = shaping.build_8760(curve[curve.hub == hh], _rt(hh))
+                    hourly_by_hub[hh] = shaping.build_8760(
+                        curve[curve.hub == hh], _rt(hh), renew=renew_cfg)
 
         st.session_state["fc"] = {
             "curve": curve, "metas": metas, "hubs": hubs, "asof": str(asof),
