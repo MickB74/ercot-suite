@@ -33,8 +33,7 @@
     "dc_ac_ratio": 1.358,
     "uspvdb_id": 402404,
     "location_confidence": "medium",
-    "location_source": "USPVDB: Marlin Solar (7.6 km)",
-    "panel_tech": "c-si"
+    "location_source": "USPVDB: Marlin Solar (7.6 km)"
   },
   "Bynum Solar Project": {
     "resource_name": "BYNM_SLR_SOLAR1",
@@ -105,8 +104,7 @@
     "dc_ac_ratio": 1.209,
     "uspvdb_id": 403825,
     "location_confidence": "low",
-    "location_source": "USPVDB: Briar Creek Solar 1 (8.3 km)",
-    "panel_tech": "thin-film"
+    "location_source": "USPVDB: Briar Creek Solar 1 (8.3 km)"
   },
   "Greyhound Solar": {
     "resource_name": "GRYH_SLR_SOLAR8",
@@ -151,8 +149,7 @@
     "dc_ac_ratio": 1.4,
     "uspvdb_id": 406714,
     "location_confidence": "medium",
-    "location_source": "USPVDB: Old 300 Solar Center, LLC (6.2 km)",
-    "panel_tech": "c-si"
+    "location_source": "USPVDB: Old 300 Solar Center, LLC (6.2 km)"
   },
   "Midpoint Solar": {
     "resource_name": "MIDP_SLR_SOLAR1",
@@ -217,8 +214,7 @@
     "dc_ac_ratio": 1.346,
     "uspvdb_id": 406801,
     "location_confidence": "medium",
-    "location_source": "USPVDB: True North Solar, LLC (2.3 km)",
-    "panel_tech": "c-si"
+    "location_source": "USPVDB: True North Solar, LLC (2.3 km)"
   },
   "Trojan Solar Slf": {
     "resource_name": "TROJ_SLR_PV2",
@@ -233,8 +229,7 @@
     "dc_ac_ratio": 1.354515050167224,
     "uspvdb_id": "403189",
     "location_confidence": "medium",
-    "location_source": "USPVDB: Rippey Solar (4.1 km)",
-    "panel_tech": "c-si"
+    "location_source": "USPVDB: Rippey Solar (4.1 km)"
   },
   "Wildwind": {
     "resource_name": "WILDWIND_UNIT1",
@@ -296,8 +291,7 @@
     "uspvdb_id": "405590",
     "project_name": "Frye Solar",
     "location_confidence": "high",
-    "location_source": "USPVDB: Hecate Energy Frye Solar, LLC (0.7 km)",
-    "panel_tech": "c-si"
+    "location_source": "USPVDB: Hecate Energy Frye Solar, LLC (0.7 km)"
   },
   "Ajax Wind": {
     "resource_name": "AJAXWIND_UNIT1",
@@ -421,11 +415,11 @@
     "hub_height_m": 80.0,
     "turbine_model": "Vestas V100-2.0",
     "location_confidence": "high",
-    "location_source": "UNVERIFIED \u2014 see notes",
+    "location_source": "UNVERIFIED — see notes",
     "turbine_manuf": "Vestas",
     "rotor_diameter_m": 110.0,
     "eia_crosswalk_status": "disputed",
-    "notes": "FLAG (2026-06-19): the prior 'EIA 57617' mapping is WRONG \u2014 EIA 57617 (Hidalgo Wind Farm LLC) belongs to the MIRASOLE_GEN node (see 'Los Mirasoles Wind'), confirmed by generation reconciliation. HIDALGO_WIND1 is also not present in the ERCOT resource-node catalog. Treat this entry as unverified / likely conflated with Los Mirasoles until its own node + EIA id are confirmed."
+    "notes": "FLAG (2026-06-19): the prior 'EIA 57617' mapping is WRONG — EIA 57617 (Hidalgo Wind Farm LLC) belongs to the MIRASOLE_GEN node (see 'Los Mirasoles Wind'), confirmed by generation reconciliation. HIDALGO_WIND1 is also not present in the ERCOT resource-node catalog. Treat this entry as unverified / likely conflated with Los Mirasoles until its own node + EIA id are confirmed."
   },
   "Capricorn Ridge": {
     "resource_name": "CAPRIDGE_WIND_AGG",
@@ -755,8 +749,7 @@
     "queue_id": "25INR0164",
     "status": "planned",
     "cod": "2027-04-03",
-    "notes": "Pre-operational (COD ~2027-04-03); co-located w/ Star Dairy Storage 25INR0334 (205 MW BESS). No SCED/EIA-923 until COD.",
-    "panel_tech": "c-si"
+    "notes": "Pre-operational (COD ~2027-04-03); co-located w/ Star Dairy Storage 25INR0334 (205 MW BESS). No SCED/EIA-923 until COD."
   },
   "Rosebud": {
     "resource_name": "ROSEBUD_SOLAR",
@@ -787,8 +780,7 @@
     "tracking_type": "single_axis",
     "dc_ac_ratio": 1.22,
     "county": "Liberty",
-    "uspvdb_id": 406968,
-    "panel_tech": "c-si"
+    "uspvdb_id": 406968
   },
   "Stafford Solar": {
     "resource_name": "STAFFORD_SOLAR_AGG",
@@ -824,13 +816,13 @@
     "rotor_diameter_m": 110.0,
     "turbine_manuf": "Vestas",
     "location_confidence": "high",
-    "location_source": "EIA 57617 Hidalgo Wind Farm LLC + 62618 Hidalgo Wind Farm II (verified by SCED\u2194EIA-923 reconciliation, 0.2%)",
+    "location_source": "EIA 57617 Hidalgo Wind Farm LLC + 62618 Hidalgo Wind Farm II (verified by SCED↔EIA-923 reconciliation, 0.2%)",
     "resource_node": "MIRASOLE_GEN",
     "eia_plant_id": 57617,
     "eia_plant_id_secondary": 62618,
     "eia_prime_mover": "WT",
     "notes": "ERCOT node MIRASOLE_GEN (units MIRASOLE_MIR11/12/13/21) = EIA 'Hidalgo Wind Farm LLC' (57617, 250 MW) + 'Hidalgo Wind Farm II' (62618, 50 MW), ~300 MW. 'Los Mirasoles' is the ERCOT/commercial name; EIA files it under the LLC. Crosswalk confirmed 2026-06-19 by generation reconciliation: MIRASOLE_GEN SCED Q2-2024 = 248,590 MWh vs EIA-923 57617+62618 = 248,995 MWh (0.2%).",
-    "aka": "Los Mirasoles Wind Farm (commercial) \u00b7 Hidalgo Wind Farm LLC (EIA 57617)"
+    "aka": "Los Mirasoles Wind Farm (commercial) · Hidalgo Wind Farm LLC (EIA 57617)"
   },
   "Hornet Solar": {
     "resource_name": "HRNT_SLR_RN",

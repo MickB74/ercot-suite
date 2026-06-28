@@ -139,7 +139,11 @@ def _set_field(text: str, key: str, value) -> str:
     """
     lit = _pylit(value)
     val = r'"(?:[^"\\]|\\.)*"|[^,\n]+'
-    return re.sub(rf'("{re.escape(key)}":\s*)(?:{val})', rf"\g<1>{lit}", text, count=1)
+    # Use a callable replacement: ``lit`` may contain backslash escapes (e.g.
+    # json.dumps emits ``\uXXXX`` for non-ASCII like em-dashes / "Ørsted"),
+    # which re.sub would try to interpret in a template string ("bad escape \u").
+    return re.sub(rf'("{re.escape(key)}":\s*)(?:{val})',
+                  lambda m: m.group(1) + lit, text, count=1)
 
 
 def _add_asset_fields(text: str, fields: dict) -> str:
@@ -152,7 +156,10 @@ def _add_asset_fields(text: str, fields: dict) -> str:
     if not fields:
         return text
     block = "".join(f'    "{k}": {_pylit(v)},\n' for k, v in fields.items())
-    return re.sub(r"(ASSET\s*=\s*\{.*?\n)(\})", rf"\g<1>{block}\g<2>", text,
+    # Callable replacement (see _set_field): ``block`` can carry json \uXXXX
+    # escapes that a template replacement would choke on ("bad escape \u").
+    return re.sub(r"(ASSET\s*=\s*\{.*?\n)(\})",
+                  lambda m: m.group(1) + block + m.group(2), text,
                   count=1, flags=re.DOTALL)
 
 

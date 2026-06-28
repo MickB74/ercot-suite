@@ -1,0 +1,9 @@
+streamlit
+pandas
+pyarrow
+plotly
+openpyxl
+pyxlsb
+fpdf2>=2.8
+tabulate>=0.9
+pdfplumber
