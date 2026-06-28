@@ -1,261 +1,12 @@
 {
- "TROJ_SLR_RN": {
-  "lat": 33.582486,
-  "lon": -97.20553,
-  "name": "Trojan Solar",
-  "county": null,
-  "source": "registry (unverified)",
-  "trust": "single"
- },
- "HHOLLW4_WND1": {
-  "lat": 32.214024,
-  "lon": -100.05712,
-  "name": "Horse Hollow 4",
-  "county": "Taylor",
+ "RRC_WIND_ALL": {
+  "lat": 32.414193,
+  "lon": -99.107744,
+  "name": "Roadrunner Crossing Wind Farm",
+  "county": "Eastland",
   "source": "EIA corroborated",
   "trust": "high",
-  "gen_pct_vs_eia": -100.0
- },
- "PC_NORTH_1": {
-  "lat": 32.100823,
-  "lon": -101.451385,
-  "name": "Panther Creek North Substation",
-  "county": "Howard",
-  "source": "EIA corroborated",
-  "trust": "high"
- },
- "AMISTAD_ALL": {
-  "lat": 29.449827,
-  "lon": -101.06011,
-  "name": "Amistad Plant",
-  "county": "Val Verde",
-  "source": "EIA corroborated",
-  "trust": "high"
- },
- "SSPURT_WIND1": {
-  "lat": 35.295,
-  "lon": -102.721111,
-  "name": "Spinning Spur Wind Two",
-  "county": "Oldham",
-  "source": "EIA corroborated",
-  "trust": "high"
- },
- "CONIGLIO_RN": {
-  "lat": 33.404486,
-  "lon": -96.082472,
-  "name": "Coniglio Solar",
-  "county": "Fannin",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": -0.3,
-  "gen_confirmed": true
- },
- "BUFF_GAP_ALL": {
-  "lat": 32.318221,
-  "lon": -100.176986,
-  "name": "Buffalo Gap Wind Farm",
-  "county": "Nolan",
-  "source": "EIA corroborated",
-  "trust": "high"
- },
- "DECKER_GT": {
-  "lat": 30.3033,
-  "lon": -97.6128,
-  "name": "Decker Power Plant",
-  "county": "Travis",
-  "source": "EIA corroborated",
-  "trust": "high"
- },
- "GRYH_SLR_RN": {
-  "lat": 31.894175,
-  "lon": -102.579434,
-  "name": "Greyhound Solar",
-  "county": null,
-  "source": "registry (unverified)",
-  "trust": "single"
- },
- "TAYGETE_ALL": {
-  "lat": 31.165245,
-  "lon": -103.125868,
-  "name": "Taygete Solar",
-  "county": "Pecos",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": 2.5,
-  "gen_confirmed": true
- },
- "TRENT_TRENT": {
-  "lat": 32.4301,
-  "lon": -100.235652,
-  "name": "Trent Wind Farm",
-  "county": "Nolan",
-  "source": "EIA corroborated",
-  "trust": "high"
- },
- "TYLRWIND_RN": {
-  "lat": 33.703851,
-  "lon": -97.372009,
-  "name": "Tyler Bluff Wind",
-  "county": "Cooke",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": -0.1,
-  "gen_confirmed": true
- },
- "BR_VHB6CT5_6": {
-  "lat": 29.2567,
-  "lon": -98.3825,
-  "name": "Braunig",
-  "county": "Bexar",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": -70.7
- },
- "MARIAH_ALL": {
-  "lat": 34.6675,
-  "lon": -102.577778,
-  "name": "Mariah",
-  "county": "Parmer",
-  "source": "EIA corroborated",
-  "trust": "high"
- },
- "AZURE_RN": {
-  "lat": 33.1534,
-  "lon": -99.2847,
-  "name": "Azure Sky Solar And Bess",
-  "county": "Haskell",
-  "source": "portal/EIA-860",
-  "trust": "high",
-  "gen_pct_vs_eia": 1.7,
-  "gen_confirmed": true
- },
- "FAL_FALCONG1": {
-  "lat": 26.5575,
-  "lon": -99.1642,
-  "name": "Falcon Hydro",
-  "county": "Starr",
-  "source": "EIA corroborated",
-  "trust": "high"
- },
- "HRNT_SLR_RN": {
-  "lat": 34.485162,
-  "lon": -101.971401,
-  "name": "Hornet Solar",
-  "county": "Swisher",
-  "source": "portal/EIA-860",
-  "trust": "high",
-  "gen_pct_vs_eia": 0.4,
-  "gen_confirmed": true
- },
- "FTWIND_UNIT1": {
-  "lat": 31.684511,
-  "lon": -98.603358,
-  "name": "Flat Top Wind Substation",
-  "county": "Mills",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": -0.4,
-  "gen_confirmed": true
- },
- "TTRSW_RN": {
-  "lat": 33.481551,
-  "lon": -95.269247,
-  "name": "Delilah Solar 2",
-  "county": "Red River",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": 64.6
- },
- "INRT_W_ALL": {
-  "lat": 33.186882,
-  "lon": -99.595332,
-  "name": "Inertia Wind",
-  "county": "Haskell",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": -0.9,
-  "gen_confirmed": true
- },
- "CABEZON_ALL": {
-  "lat": 26.353,
-  "lon": -98.216,
-  "name": "Cabezon",
-  "county": null,
-  "source": "registry (unverified)",
-  "trust": "single"
- },
- "STLHS_SL_RN": {
-  "lat": 30.967591,
-  "lon": -97.165108,
-  "name": "Stillhouse Solar",
-  "county": "Bell",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": 1.2,
-  "gen_confirmed": true
- },
- "WH_WIND_ALL": {
-  "lat": 32.5501,
-  "lon": -100.569,
-  "name": "Whitehorse Wind",
-  "county": null,
-  "source": "portal/EIA-860",
-  "trust": "high"
- },
- "SPLAIN2_RN": {
-  "lat": 34.080556,
-  "lon": -101.323611,
-  "name": "South Plains Phase Ii Wind Project",
-  "county": "Floyd",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": 59.7
- },
- "LAPETUS_U1": {
-  "lat": 32.460054,
-  "lon": -102.672809,
-  "name": "Lapetus Solar",
-  "county": "Andrews",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": 0.1,
-  "gen_confirmed": true
- },
- "GALO_RN1": {
-  "lat": 31.435932,
-  "lon": -99.796613,
-  "name": "Galloway Solar Farm",
-  "county": "Concho",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": 48.8
- },
- "MISAE_GEN_RN": {
-  "lat": 34.380532,
-  "lon": -100.099625,
-  "name": "Misae Solar Park",
-  "county": "Childress",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": -0.2,
-  "gen_confirmed": true
- },
- "MIL_MILG1_2": {
-  "lat": 33.23132,
-  "lon": -99.59652,
-  "name": "Miller",
-  "county": "Palo Pinto",
-  "source": "portal/EIA-860",
-  "trust": "high"
- },
- "BR_ARROW_ALL": {
-  "lat": 33.22392,
-  "lon": -95.730767,
-  "name": "Bright Arrow Solar",
-  "county": "Hopkins",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": 3.3,
+  "gen_pct_vs_eia": -0.5,
   "gen_confirmed": true
  },
  "MLB_SLR_RN": {
@@ -264,224 +15,63 @@
   "name": "Millers Branch Solar",
   "county": "Haskell",
   "source": "portal/EIA-860",
-  "trust": "high"
+  "trust": "high",
+  "gen_pct_vs_eia": -12.8,
+  "gen_confirmed": false
  },
- "DORA_SLR_RN": {
-  "lat": 28.887982,
-  "lon": -96.00351,
-  "name": "Eldora Solar",
-  "county": null,
-  "source": "registry (unverified)",
-  "trust": "single"
+ "SHANNONW_RN": {
+  "lat": 33.509722,
+  "lon": -98.360833,
+  "name": "Shannon Wind Project",
+  "county": "Clay",
+  "source": "EIA gen-anchored (name+gen)",
+  "trust": "high",
+  "gen_pct_vs_eia": -1.0,
+  "gen_confirmed": true
  },
  "SHAFFER_ALL": {
-  "lat": 27.6021,
-  "lon": -97.6471,
+  "lat": 29.0919,
+  "lon": -96.09,
   "name": "Shaffer",
   "county": null,
   "source": "registry (unverified)",
   "trust": "single"
  },
- "RELOJ_ALL": {
-  "lat": 27.03028,
-  "lon": -99.388388,
-  "name": "Reloj Del Sol Wind Farm",
-  "county": "Zapata",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": 0.7,
-  "gen_confirmed": true
- },
- "CAPRIDG4_CR4": {
-  "lat": 31.951958,
-  "lon": -101.018936,
-  "name": "Capricorn Ridge 4",
-  "county": "Sterling",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": -68.4
- },
- "CAPRIDGE_ALL": {
-  "lat": 31.951958,
-  "lon": -101.018936,
-  "name": "Capricorn Ridge",
-  "county": "Sterling",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": -18.0
- },
- "CHIL_SLR": {
-  "lat": 31.006,
-  "lon": -97.262,
-  "name": "Chillingham Solar",
-  "county": "Bell",
+ "GID_GIDEONG3": {
+  "lat": 30.1456,
+  "lon": -97.2708,
+  "name": "Sim Gideon",
+  "county": "Bastrop",
   "source": "EIA corroborated",
   "trust": "high"
  },
- "MROW_SLR_RN": {
-  "lat": 28.947973,
-  "lon": -99.067186,
-  "name": "Morrow Lake Solar",
-  "county": "Frio",
+ "AMADEUS_ALL": {
+  "lat": 32.96736,
+  "lon": -100.56428,
+  "name": "Amadeus Wind 1",
+  "county": "Fisher",
   "source": "EIA corroborated",
   "trust": "high",
-  "gen_pct_vs_eia": 0.7,
-  "gen_confirmed": true
+  "gen_pct_vs_eia": -73.3,
+  "gen_confirmed": false
  },
- "CAMWIND_RN": {
-  "lat": 26.195278,
-  "lon": -97.466111,
-  "name": "Cameron Windfarm",
-  "county": "Cameron",
+ "AVIAT_ALL": {
+  "lat": 31.79261,
+  "lon": -100.69729,
+  "name": "Aviator Wind",
+  "county": "Coke",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": -39.5,
+  "gen_confirmed": false
+ },
+ "ROUTE66_RN": {
+  "lat": 35.205278,
+  "lon": -101.434167,
+  "name": "Route 66 Wind Power",
+  "county": "Carson",
   "source": "EIA corroborated",
   "trust": "high"
- },
- "WILDWIND_ALL": {
-  "lat": 33.54915,
-  "lon": -97.32958,
-  "name": "Wild Wind",
-  "county": null,
-  "source": "registry (unverified)",
-  "trust": "single"
- },
- "RN_LNP_SLR": {
-  "lat": 29.308,
-  "lon": -95.895,
-  "name": "Long Point Solar",
-  "county": null,
-  "source": "registry (unverified)",
-  "trust": "single"
- },
- "BLVN_RN": {
-  "lat": 31.211152,
-  "lon": -97.185078,
-  "name": "Blevins Solar And Storage",
-  "county": "Falls",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": 3.4,
-  "gen_confirmed": true
- },
- "ESTONIAN_ALL": {
-  "lat": 33.457143,
-  "lon": -95.667897,
-  "name": "Estonian Solar And Storage",
-  "county": "Delta",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": 2.1,
-  "gen_confirmed": true
- },
- "B_D_B_DAVIG1": {
-  "lat": 27.6064,
-  "lon": -97.3117,
-  "name": "Barney Davis",
-  "county": "Nueces",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": -100.0
- },
- "EXGNWTL_1": {
-  "lat": 27.488056,
-  "lon": -99.005278,
-  "name": "Whitetail Wind Energy",
-  "county": "Webb",
-  "source": "EIA corroborated",
-  "trust": "high"
- },
- "PROSPERO_ALL": {
-  "lat": 32.287873,
-  "lon": -102.840399,
-  "name": "Prospero Solar",
-  "county": "Andrews",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": 1.2,
-  "gen_confirmed": true
- },
- "PHOEBE_ALL": {
-  "lat": 31.843422,
-  "lon": -102.868295,
-  "name": "Phoebe Solar",
-  "county": "Winkler",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": 2.6,
-  "gen_confirmed": true
- },
- "FLUVANNA_1_2": {
-  "lat": 32.931944,
-  "lon": -101.143611,
-  "name": "Fluvanna Wind",
-  "county": "Scurry",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": 110.3
- },
- "COL_COLETOG1": {
-  "lat": 28.7128,
-  "lon": -97.214167,
-  "name": "Coleto Creek",
-  "county": "Goliad",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": -0.2,
-  "gen_confirmed": true
- },
- "TRINITY_ALL": {
-  "lat": 33.383611,
-  "lon": -98.711944,
-  "name": "Trinity Hills Wind Farm",
-  "county": "Young",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": -0.7,
-  "gen_confirmed": true
- },
- "POTSVIL_RN": {
-  "lat": 31.738177,
-  "lon": -98.213739,
-  "name": "Grizzly Ridge",
-  "county": "Hamilton",
-  "source": "EIA corroborated",
-  "trust": "high"
- },
- "FAL_FALCONG2": {
-  "lat": 26.5575,
-  "lon": -99.1642,
-  "name": "Falcon Hydro",
-  "county": "Starr",
-  "source": "EIA corroborated",
-  "trust": "high"
- },
- "SPLAIN1_RN": {
-  "lat": 34.080556,
-  "lon": -101.323611,
-  "name": "South Plains Phase I Wind Project",
-  "county": "Floyd",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": -0.5,
-  "gen_confirmed": true
- },
- "H_HOLLO_WND1": {
-  "lat": 32.214024,
-  "lon": -100.05712,
-  "name": "Horse Hollow 1",
-  "county": "Taylor",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": -100.0
- },
- "GRIF_TRL_RN": {
-  "lat": 33.609313,
-  "lon": -99.58229,
-  "name": "Griffin Trail Wind",
-  "county": "Knox",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": -1.8,
-  "gen_confirmed": true
  },
  "PISG_RN_ALL": {
   "lat": 31.896737,
@@ -493,271 +83,11 @@
   "gen_pct_vs_eia": 8.5,
   "gen_confirmed": true
  },
- "LGD_LANGFORD": {
-  "lat": 31.085435,
-  "lon": -100.67882,
-  "name": "Langford Wind Power Llc",
-  "county": "Tom Green",
-  "source": "EIA corroborated",
-  "trust": "high"
- },
- "ANACACHO_ANA": {
-  "lat": 29.234722,
-  "lon": -100.209167,
-  "name": "Anacacho",
-  "county": "Kinney",
-  "source": "EIA corroborated",
-  "trust": "high"
- },
- "CALLAHA_WND1": {
-  "lat": 32.303889,
-  "lon": -100.021667,
-  "name": "Callahan Windfarm Fpl",
-  "county": "Taylor",
-  "source": "EIA corroborated",
-  "trust": "high"
- },
- "ERSL_RN": {
-  "lat": 28.883196,
-  "lon": -99.178605,
-  "name": "Elara Solar",
-  "county": "Frio",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": 2.3,
-  "gen_confirmed": true
- },
- "VANCOURT_RN": {
-  "lat": 26.090103,
-  "lon": -97.798453,
-  "name": "Vancourt Solar",
-  "county": "Cameron",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": 0.5,
-  "gen_confirmed": true
- },
- "MIDP_SLR_RN": {
-  "lat": 32.116002,
-  "lon": -97.343521,
-  "name": "Midpoint Solar And Storage",
-  "county": "Hill",
-  "source": "EIA (single source)",
-  "trust": "single"
- },
- "BR_VHB6CT7_8": {
-  "lat": 29.2567,
-  "lon": -98.3825,
-  "name": "Braunig",
-  "county": "Bexar",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": -70.0
- },
- "TKWSW_ROSCOE": {
-  "lat": 32.4694,
-  "lon": -100.6664,
-  "name": "Roscoe Wind Farm",
-  "county": "Nolan",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": -0.1,
-  "gen_confirmed": true
- },
- "CRANELL_ALL": {
-  "lat": 28.197778,
-  "lon": -97.444953,
-  "name": "Cranell Wind",
-  "county": "Refugio",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": 0.3,
-  "gen_confirmed": true
- },
- "BRAUNIG_VHB3": {
-  "lat": 29.2567,
-  "lon": -98.3825,
-  "name": "Braunig",
-  "county": "Bexar",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": -54.9
- },
- "ASCK_SLR_RN": {
-  "lat": 31.900806,
-  "lon": -97.033734,
-  "name": "Ash Creek Solar",
-  "county": "Hill",
-  "source": "EIA (single source)",
-  "trust": "high",
-  "gen_pct_vs_eia": 0.2,
-  "gen_confirmed": true
- },
- "GOA_GOATWIND": {
-  "lat": 31.951944,
-  "lon": -100.791389,
-  "name": "Goat Wind",
-  "county": "Sterling",
-  "source": "EIA (single source)",
-  "trust": "single"
- },
- "WOODWRD1_RN": {
-  "lat": 30.9514,
-  "lon": -102.414067,
-  "name": "Woodward 1",
-  "county": "Pecos",
-  "source": "EIA corroborated",
-  "trust": "high"
- },
- "GID_GIDEONG1": {
-  "lat": 30.1456,
-  "lon": -97.2708,
-  "name": "Sim Gideon",
-  "county": "Bastrop",
-  "source": "EIA corroborated",
-  "trust": "high"
- },
- "GAIA_SLR_RN": {
-  "lat": 32.027952,
-  "lon": -96.498546,
-  "name": "Gaia Solar",
-  "county": null,
-  "source": "registry (unverified)",
-  "trust": "single"
- },
- "SPARTA_ALL": {
-  "lat": 28.655277,
-  "lon": -98.001388,
-  "name": "Sparta Solar",
-  "county": "Bee",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": 0.1,
-  "gen_confirmed": true
- },
- "TAYGETE2_ALL": {
-  "lat": 31.186,
-  "lon": -103.128,
-  "name": "Taygete 2 Solar",
-  "county": "Pecos",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": 2.5,
-  "gen_confirmed": true
- },
- "SHANNONW_RN": {
-  "lat": 33.509722,
-  "lon": -98.360833,
-  "name": "Shannon Wind Project",
-  "county": "Clay",
-  "source": "EIA (single source)",
-  "trust": "high",
-  "gen_pct_vs_eia": -1.0,
-  "gen_confirmed": true
- },
- "DANSBY_ALL": {
-  "lat": 30.7217,
-  "lon": -96.4608,
-  "name": "Bryn_dansby",
-  "county": "Brazos",
-  "source": "EIA corroborated",
-  "trust": "high"
- },
- "APPALOSA_ALL": {
-  "lat": 31.157269,
-  "lon": -101.831603,
-  "name": "Appaloosa Run Wind",
-  "county": "Upton",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": -0.3,
-  "gen_confirmed": true
- },
- "ALGOD_ALL_RN": {
-  "lat": 27.992706,
-  "lon": -97.743983,
-  "name": "El Algodon Alto Wind Farm",
-  "county": "San Patricio",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": 0.6,
-  "gen_confirmed": true
- },
- "RRC_WIND_ALL": {
-  "lat": 32.414193,
-  "lon": -99.107744,
-  "name": "Roadrunner Crossing Wind Farm",
-  "county": "Eastland",
-  "source": "EIA corroborated",
-  "trust": "high"
- },
- "ELZA_SLR_RN": {
-  "lat": 32.601641,
-  "lon": -96.337513,
-  "name": "Eliza Solar And Storage",
-  "county": null,
-  "source": "registry (unverified)",
-  "trust": "single"
- },
- "W_PECO_UNIT1": {
-  "lat": 31.4308,
-  "lon": -103.7289,
-  "name": "West Of The Pecos Solar Farm",
-  "county": "Reeves",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": 0.5,
-  "gen_confirmed": true
- },
- "7RNCHSLR_ALL": {
-  "lat": 29.806984,
-  "lon": -97.07408,
-  "name": "7v Solar Ranch",
-  "county": "Fayette",
-  "source": "EIA (single source)",
-  "trust": "high",
-  "gen_pct_vs_eia": 1.0,
-  "gen_confirmed": true
- },
- "MRKM_SLR_RN": {
-  "lat": 31.694792,
-  "lon": -97.374883,
-  "name": "Markum Solar",
-  "county": "Bosque",
-  "source": "portal/EIA-860",
-  "trust": "high",
-  "gen_pct_vs_eia": 1.1,
-  "gen_confirmed": true
- },
- "BYNM_SLR_RN": {
-  "lat": 31.368933,
-  "lon": -97.818408,
-  "name": "Bynum Solar",
-  "county": null,
-  "source": "registry (unverified)",
-  "trust": "single"
- },
- "CITYVICT_ALL": {
-  "lat": 28.7853,
-  "lon": -97.0093,
-  "name": "Tres City",
-  "county": "Victoria",
-  "source": "EIA (single source)",
-  "trust": "single"
- },
- "BCATWD_WD_1": {
-  "lat": 33.493056,
-  "lon": -98.581944,
-  "name": "Bobcat Bluff",
-  "county": "Archer",
-  "source": "EIA (single source)",
-  "trust": "single"
- },
- "GID_GIDEONG3": {
-  "lat": 30.1456,
-  "lon": -97.2708,
-  "name": "Sim Gideon",
-  "county": "Bastrop",
+ "MARIAH_ALL": {
+  "lat": 34.6675,
+  "lon": -102.577778,
+  "name": "Mariah",
+  "county": "Parmer",
   "source": "EIA corroborated",
   "trust": "high"
  },
@@ -771,42 +101,93 @@
   "gen_pct_vs_eia": 0.4,
   "gen_confirmed": true
  },
- "STELLA_RN": {
-  "lat": 26.941667,
-  "lon": -97.6425,
-  "name": "Stella Wind",
-  "county": "Kenedy",
+ "MROW_SLR_RN": {
+  "lat": 28.947973,
+  "lon": -99.067186,
+  "name": "Morrow Lake Solar",
+  "county": "Frio",
   "source": "EIA corroborated",
   "trust": "high",
-  "gen_pct_vs_eia": 1.0,
+  "gen_pct_vs_eia": 0.7,
   "gen_confirmed": true
  },
- "HRFDWIND_ALL": {
-  "lat": 34.748056,
-  "lon": -102.174444,
-  "name": "Hereford Wind",
-  "county": "Deaf Smith",
+ "CHIL_SLR": {
+  "lat": 31.006,
+  "lon": -97.262,
+  "name": "Chillingham Solar",
+  "county": "Bell",
   "source": "EIA corroborated",
   "trust": "high",
-  "gen_pct_vs_eia": 59.0
+  "gen_pct_vs_eia": -2694.4,
+  "gen_confirmed": false
  },
- "TYSN_SLR_RN": {
-  "lat": 33.644897,
-  "lon": -95.627041,
-  "name": "Tyson Nick Solar",
-  "county": "Lamar",
+ "HHOLLW2_WND1": {
+  "lat": 32.214024,
+  "lon": -100.05712,
+  "name": "Horse Hollow 2",
+  "county": "Taylor",
   "source": "EIA corroborated",
   "trust": "high",
-  "gen_pct_vs_eia": -0.1,
+  "gen_pct_vs_eia": -94.7,
+  "gen_confirmed": false
+ },
+ "ZIER_SLR_ALL": {
+  "lat": 29.350992,
+  "lon": -100.562028,
+  "name": "Zier Solar And Storage",
+  "county": "Kinney",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": 3.3,
   "gen_confirmed": true
  },
- "WOODWRD2_RN": {
-  "lat": 30.9514,
-  "lon": -102.414067,
-  "name": "Woodward 2",
-  "county": "Pecos",
+ "MRKM_SLR_RN": {
+  "lat": 31.694792,
+  "lon": -97.374883,
+  "name": "Markum Solar",
+  "county": "Bosque",
+  "source": "portal/EIA-860",
+  "trust": "high",
+  "gen_pct_vs_eia": 1.1,
+  "gen_confirmed": true
+ },
+ "HHOLLW4_WND1": {
+  "lat": 32.214024,
+  "lon": -100.05712,
+  "name": "Horse Hollow 4",
+  "county": "Taylor",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": -100.0,
+  "gen_confirmed": false
+ },
+ "KEECHI_U1": {
+  "lat": 33.143056,
+  "lon": -98.161111,
+  "name": "Keechi Wind",
+  "county": "Jack",
   "source": "EIA corroborated",
   "trust": "high"
+ },
+ "PHOEBE_ALL": {
+  "lat": 31.843422,
+  "lon": -102.868295,
+  "name": "Phoebe Solar",
+  "county": "Winkler",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": 2.6,
+  "gen_confirmed": true
+ },
+ "FTWIND_UNIT1": {
+  "lat": 31.684511,
+  "lon": -98.603358,
+  "name": "Flat Top Wind Substation",
+  "county": "Mills",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": -0.4,
+  "gen_confirmed": true
  },
  "MOZART_WIND1": {
   "lat": 32.969722,
@@ -816,80 +197,211 @@
   "source": "EIA corroborated",
   "trust": "high"
  },
- "STEA_STEAM_2": {
-  "lat": 29.694838,
-  "lon": -95.040622,
-  "name": "Steam",
-  "county": "Harris",
+ "HRFDWIND_ALL": {
+  "lat": 34.748056,
+  "lon": -102.174444,
+  "name": "Hereford Wind",
+  "county": "Deaf Smith",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": 59.0,
+  "gen_confirmed": false
+ },
+ "LGD_LANGFORD": {
+  "lat": 31.085435,
+  "lon": -100.67882,
+  "name": "Langford Wind Power Llc",
+  "county": "Tom Green",
   "source": "EIA corroborated",
   "trust": "high"
  },
- "RN_SR_WIND1": {
-  "lat": 26.125979,
-  "lon": -97.377599,
-  "name": "San Roman Wind I",
-  "county": "Cameron",
+ "AZSP_SLR_RN": {
+  "lat": 31.403914,
+  "lon": -94.871897,
+  "name": "Azalea Springs Solar",
+  "county": "Angelina",
   "source": "EIA corroborated",
   "trust": "high",
-  "gen_pct_vs_eia": 0.1,
+  "gen_pct_vs_eia": 1.1,
   "gen_confirmed": true
  },
- "HOLSTEIN_ALL": {
-  "lat": 32.104125,
-  "lon": -100.162375,
-  "name": "Holstein Solar Farm",
-  "county": "Nolan",
+ "DORA_SLR_RN": {
+  "lat": 28.887982,
+  "lon": -96.00351,
+  "name": "Eldora Solar",
+  "county": null,
+  "source": "registry (unverified)",
+  "trust": "single"
+ },
+ "ANSON1_ALL": {
+  "lat": 32.811041,
+  "lon": -99.91749,
+  "name": "Anson Solar 1",
+  "county": "Jones",
   "source": "EIA corroborated",
   "trust": "high",
   "gen_pct_vs_eia": 0.3,
   "gen_confirmed": true
  },
- "MIRASOLE_GEN": {
-  "lat": 26.465556,
-  "lon": -98.411111,
-  "name": "Los Mirasoles Wind",
-  "county": "Cameron",
-  "source": "portal/EIA-860",
+ "STLHS_SL_RN": {
+  "lat": 30.967591,
+  "lon": -97.165108,
+  "name": "Stillhouse Solar",
+  "county": "Bell",
+  "source": "EIA corroborated",
   "trust": "high",
-  "gen_pct_vs_eia": 266.8
+  "gen_pct_vs_eia": 1.2,
+  "gen_confirmed": true
  },
- "DIVR_SLR_RN": {
-  "lat": 31.25,
-  "lon": -96.39,
-  "name": "Diver Solar",
-  "county": "Limestone",
+ "BCATWD_WD_1": {
+  "lat": 33.493056,
+  "lon": -98.581944,
+  "name": "Bobcat Bluff",
+  "county": "Archer",
   "source": "EIA (single source)",
-  "trust": "high",
-  "gen_pct_vs_eia": -1.0,
-  "gen_confirmed": true
+  "trust": "single"
  },
- "RADN_SLR_ALL": {
-  "lat": 31.5481,
-  "lon": -99.1872,
-  "name": "Radian Solar",
-  "county": "Brown",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": 0.7,
-  "gen_confirmed": true
- },
- "NEBULA_RN": {
-  "lat": 26.090103,
-  "lon": -97.798453,
-  "name": "Nebula Solar",
-  "county": "Cameron",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": 0.6,
-  "gen_confirmed": true
- },
- "FAL_FALCONG3": {
+ "FAL_FALCONG1": {
   "lat": 26.5575,
   "lon": -99.1642,
   "name": "Falcon Hydro",
   "county": "Starr",
   "source": "EIA corroborated",
   "trust": "high"
+ },
+ "CAPRIDG4_CR4": {
+  "lat": 31.951958,
+  "lon": -101.018936,
+  "name": "Capricorn Ridge 4",
+  "county": "Sterling",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": -68.4,
+  "gen_confirmed": false
+ },
+ "SSPURT_WIND1": {
+  "lat": 35.295,
+  "lon": -102.721111,
+  "name": "Spinning Spur Wind Two",
+  "county": "Oldham",
+  "source": "EIA corroborated",
+  "trust": "high"
+ },
+ "BLVN_RN": {
+  "lat": 31.211152,
+  "lon": -97.185078,
+  "name": "Blevins Solar And Storage",
+  "county": "Falls",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": 3.4,
+  "gen_confirmed": true
+ },
+ "AZURE_RN": {
+  "lat": 33.1534,
+  "lon": -99.2847,
+  "name": "Azure Sky Solar And Bess",
+  "county": "Haskell",
+  "source": "portal/EIA-860",
+  "trust": "high",
+  "gen_pct_vs_eia": 1.7,
+  "gen_confirmed": true
+ },
+ "RAMBLER_UNIT": {
+  "lat": 31.517,
+  "lon": -100.6,
+  "name": "Rambler Solar",
+  "county": "Tom Green",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": -11.5,
+  "gen_confirmed": false
+ },
+ "TAYGETE_ALL": {
+  "lat": 31.165245,
+  "lon": -103.125868,
+  "name": "Taygete Solar",
+  "county": "Pecos",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": 2.5,
+  "gen_confirmed": true
+ },
+ "CALLAHA_WND1": {
+  "lat": 32.303889,
+  "lon": -100.021667,
+  "name": "Callahan Windfarm Fpl",
+  "county": "Taylor",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": -100.0,
+  "gen_confirmed": false
+ },
+ "GREASWOD_ALL": {
+  "lat": 31.030996,
+  "lon": -102.488209,
+  "name": "Greasewood Solar",
+  "county": "Pecos",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": 0.9,
+  "gen_confirmed": true
+ },
+ "MIL_MILG1_2": {
+  "lat": 33.23132,
+  "lon": -99.59652,
+  "name": "Miller",
+  "county": "Palo Pinto",
+  "source": "portal/EIA-860",
+  "trust": "high"
+ },
+ "FAL_FALCONG2": {
+  "lat": 26.5575,
+  "lon": -99.1642,
+  "name": "Falcon Hydro",
+  "county": "Starr",
+  "source": "EIA corroborated",
+  "trust": "high"
+ },
+ "PALMWI_UNIT1": {
+  "lat": 26.288889,
+  "lon": -97.496389,
+  "name": "Palmas Wind",
+  "county": "Cameron",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": 0.5,
+  "gen_confirmed": true
+ },
+ "SPLAIN1_RN": {
+  "lat": 34.080556,
+  "lon": -101.323611,
+  "name": "South Plains Phase I Wind Project",
+  "county": "Floyd",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": -0.5,
+  "gen_confirmed": true
+ },
+ "BRAUNIG_VHB3": {
+  "lat": 29.2567,
+  "lon": -98.3825,
+  "name": "Braunig",
+  "county": "Bexar",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": 4.4,
+  "gen_confirmed": true
+ },
+ "BR_VHB6CT7_8": {
+  "lat": 29.2567,
+  "lon": -98.3825,
+  "name": "Braunig",
+  "county": "Bexar",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": 4.4,
+  "gen_confirmed": true
  },
  "RANCHERO_ALL": {
   "lat": 30.594908,
@@ -901,51 +413,66 @@
   "gen_pct_vs_eia": 0.2,
   "gen_confirmed": true
  },
- "ROSELAND_ALL": {
-  "lat": 31.461242,
-  "lon": -96.824928,
-  "name": "Roseland Solar And Storage",
-  "county": "Falls",
-  "source": "EIA (single source)",
-  "trust": "high",
-  "gen_pct_vs_eia": 1.2,
-  "gen_confirmed": true
- },
- "NRTN_SLR_RN": {
-  "lat": 31.534768,
-  "lon": -100.113803,
-  "name": "Norton Solar",
-  "county": "Runnels",
+ "CAPRIDGE_ALL": {
+  "lat": 31.951958,
+  "lon": -101.018936,
+  "name": "Capricorn Ridge",
+  "county": "Sterling",
   "source": "EIA corroborated",
   "trust": "high",
-  "gen_pct_vs_eia": 1.0,
-  "gen_confirmed": true
+  "gen_pct_vs_eia": -18.0,
+  "gen_confirmed": false
  },
- "SWTWN4_WND45": {
-  "lat": 32.3122,
-  "lon": -100.5303,
-  "name": "Sweetwater Wind 4",
-  "county": "Nolan",
-  "source": "EIA (single source)",
-  "trust": "single",
-  "gen_pct_vs_eia": 115.9
- },
- "PC_SOUTH_ALL": {
-  "lat": 32.100823,
-  "lon": -101.451385,
-  "name": "Panther Creek 2",
-  "county": "Howard",
+ "STEA_STEAM_2": {
+  "lat": 29.694838,
+  "lon": -95.040622,
+  "name": "Steam",
+  "county": "Harris",
   "source": "EIA corroborated",
   "trust": "high"
  },
- "FRYE_SLR_ALL": {
-  "lat": 34.4067,
-  "lon": -101.59661,
-  "name": "Frye Solar",
-  "county": "Swisher",
-  "source": "EIA corroborated",
+ "ASCK_SLR_RN": {
+  "lat": 31.900806,
+  "lon": -97.033734,
+  "name": "Ash Creek Solar",
+  "county": "Hill",
+  "source": "EIA gen-anchored (name+gen)",
   "trust": "high",
-  "gen_pct_vs_eia": -0.4,
+  "gen_pct_vs_eia": 0.2,
+  "gen_confirmed": true
+ },
+ "BUZI_SLR_RN": {
+  "lat": 33.88,
+  "lon": -100.9,
+  "name": "Buzios Solar",
+  "county": null,
+  "source": "portal/EIA-860",
+  "trust": "high"
+ },
+ "GAIA_SLR_RN": {
+  "lat": 32.027952,
+  "lon": -96.498546,
+  "name": "Gaia Solar",
+  "county": null,
+  "source": "registry (unverified)",
+  "trust": "single"
+ },
+ "TRENT_TRENT": {
+  "lat": 32.4301,
+  "lon": -100.235652,
+  "name": "Trent Wind Farm",
+  "county": "Nolan",
+  "source": "EIA corroborated",
+  "trust": "high"
+ },
+ "DIVR_SLR_RN": {
+  "lat": 31.25,
+  "lon": -96.39,
+  "name": "Diver Solar",
+  "county": "Limestone",
+  "source": "EIA gen-anchored (name+gen)",
+  "trust": "high",
+  "gen_pct_vs_eia": -1.0,
   "gen_confirmed": true
  },
  "GID_GIDEONG2": {
@@ -956,34 +483,99 @@
   "source": "EIA corroborated",
   "trust": "high"
  },
- "IMP_RN1": {
-  "lat": 33.467803,
-  "lon": -95.370856,
-  "name": "Impact Solar",
+ "ERSL_RN": {
+  "lat": 28.883196,
+  "lon": -99.178605,
+  "name": "Elara Solar",
+  "county": "Frio",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": 2.3,
+  "gen_confirmed": true
+ },
+ "ROSELAND_ALL": {
+  "lat": 31.461242,
+  "lon": -96.824928,
+  "name": "Roseland Solar And Storage",
+  "county": "Falls",
+  "source": "EIA gen-anchored (name+gen)",
+  "trust": "high",
+  "gen_pct_vs_eia": 1.2,
+  "gen_confirmed": true
+ },
+ "TYSN_SLR_RN": {
+  "lat": 33.644897,
+  "lon": -95.627041,
+  "name": "Tyson Nick Solar",
   "county": "Lamar",
   "source": "EIA corroborated",
   "trust": "high",
-  "gen_pct_vs_eia": -0.8,
+  "gen_pct_vs_eia": -0.1,
   "gen_confirmed": true
  },
- "SHAMROCK_RN": {
-  "lat": 30.936,
-  "lon": -101.607,
-  "name": "Shamrock Wind",
-  "county": "Crockett",
+ "BIGSTAR_ALL": {
+  "lat": 29.894053,
+  "lon": -97.270537,
+  "name": "Big Star Solar",
+  "county": "Bastrop",
   "source": "EIA corroborated",
   "trust": "high",
-  "gen_pct_vs_eia": 2.5,
+  "gen_pct_vs_eia": -3.2,
   "gen_confirmed": true
  },
- "HHOLLW3_WND1": {
-  "lat": 32.214024,
-  "lon": -100.05712,
-  "name": "Horse Hollow 3",
-  "county": "Taylor",
+ "RN_RTS1": {
+  "lat": 31.2433,
+  "lon": -99.4076,
+  "name": "Rts2 Wind Project",
+  "county": null,
+  "source": "portal/EIA-860",
+  "trust": "high"
+ },
+ "CABEZON_ALL": {
+  "lat": 26.649,
+  "lon": -99.0387,
+  "name": "Cabezon",
+  "county": null,
+  "source": "registry (unverified)",
+  "trust": "single"
+ },
+ "MONTECR1_RN": {
+  "lat": 26.461461,
+  "lon": -98.285881,
+  "name": "Monte Cristo 1 Wind",
+  "county": "Hidalgo",
   "source": "EIA corroborated",
   "trust": "high",
-  "gen_pct_vs_eia": -100.0
+  "gen_pct_vs_eia": 0.1,
+  "gen_confirmed": true
+ },
+ "TRINITY_ALL": {
+  "lat": 33.383611,
+  "lon": -98.711944,
+  "name": "Trinity Hills Wind Farm",
+  "county": "Young",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": -0.7,
+  "gen_confirmed": true
+ },
+ "BYNM_SLR_RN": {
+  "lat": 31.368933,
+  "lon": -97.818408,
+  "name": "Bynum Solar",
+  "county": null,
+  "source": "registry (unverified)",
+  "trust": "single"
+ },
+ "SPLAIN2_RN": {
+  "lat": 34.080556,
+  "lon": -101.323611,
+  "name": "South Plains Phase Ii Wind Project",
+  "county": "Floyd",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": 59.7,
+  "gen_confirmed": false
  },
  "BRIGHTSD_U1": {
   "lat": 28.430988,
@@ -993,87 +585,6 @@
   "source": "EIA corroborated",
   "trust": "high",
   "gen_pct_vs_eia": 0.4,
-  "gen_confirmed": true
- },
- "ANCHOR_ALL": {
-  "lat": 32.297859,
-  "lon": -98.86309,
-  "name": "Anchor Wind And Bess",
-  "county": null,
-  "source": "registry (unverified)",
-  "trust": "single"
- },
- "AJAXWIND_RN": {
-  "lat": 33.8525,
-  "lon": -99.0651,
-  "name": "Ajax Wind",
-  "county": null,
-  "source": "registry (unverified)",
-  "trust": "single"
- },
- "FILESSLR_PV1": {
-  "lat": 32.18398,
-  "lon": -97.07141,
-  "name": "Files Solar",
-  "county": "Hill",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": -0.7,
-  "gen_confirmed": true
- },
- "BAFFIN_ALL": {
-  "lat": 27.184652,
-  "lon": -97.59818,
-  "name": "Baffin Wind Project",
-  "county": "Kenedy",
-  "source": "EIA corroborated",
-  "trust": "high"
- },
- "SRWE1_UNIT1": {
-  "lat": 32.926389,
-  "lon": -101.647778,
-  "name": "Stephens Ranch Wind Energy Project Phase 1",
-  "county": "Borden",
-  "source": "EIA (single source)",
-  "trust": "high",
-  "gen_pct_vs_eia": -1.2,
-  "gen_confirmed": true
- },
- "HRZN_SLR_UN1": {
-  "lat": 28.9377,
-  "lon": -99.10765,
-  "name": "Horizon Solar",
-  "county": "Frio",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": 0.9,
-  "gen_confirmed": true
- },
- "KEECHI_U1": {
-  "lat": 33.143056,
-  "lon": -98.161111,
-  "name": "Keechi Wind",
-  "county": "Jack",
-  "source": "EIA corroborated",
-  "trust": "high"
- },
- "HHOLLW2_WND1": {
-  "lat": 32.214024,
-  "lon": -100.05712,
-  "name": "Horse Hollow 2",
-  "county": "Taylor",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": -94.7
- },
- "AMADEUS_ALL": {
-  "lat": 32.96736,
-  "lon": -100.56428,
-  "name": "Amadeus Wind 1",
-  "county": "Fisher",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": 2.6,
   "gen_confirmed": true
  },
  "FENCESLR_ALL": {
@@ -1086,35 +597,89 @@
   "gen_pct_vs_eia": 0.8,
   "gen_confirmed": true
  },
- "HKSN_SLR_ALL": {
-  "lat": 31.819958,
-  "lon": -97.517494,
-  "name": "Hickerson Solar",
-  "county": "Bosque",
+ "NRTN_SLR_RN": {
+  "lat": 31.534768,
+  "lon": -100.113803,
+  "name": "Norton Solar",
+  "county": "Runnels",
   "source": "EIA corroborated",
   "trust": "high",
-  "gen_pct_vs_eia": -0.1,
+  "gen_pct_vs_eia": 1.0,
   "gen_confirmed": true
  },
- "MONTECR1_RN": {
-  "lat": 26.461461,
-  "lon": -98.285881,
-  "name": "Monte Cristo 1 Wind",
-  "county": "Hidalgo",
+ "SHAMROCK_RN": {
+  "lat": 30.936,
+  "lon": -101.607,
+  "name": "Shamrock Wind",
+  "county": "Crockett",
   "source": "EIA corroborated",
   "trust": "high",
-  "gen_pct_vs_eia": 0.1,
+  "gen_pct_vs_eia": 2.5,
   "gen_confirmed": true
  },
- "PALMWI_UNIT1": {
-  "lat": 26.288889,
-  "lon": -97.496389,
-  "name": "Palmas Wind",
-  "county": "Cameron",
+ "INKS_INKS_G1": {
+  "lat": 30.731599,
+  "lon": -98.385422,
+  "name": "Inks Dam",
+  "county": "Burnet",
+  "source": "EIA corroborated",
+  "trust": "high"
+ },
+ "SWTWN4_WND45": {
+  "lat": 32.3122,
+  "lon": -100.5303,
+  "name": "Sweetwater Wind 4",
+  "county": "Nolan",
+  "source": "EIA gen-anchored (name+gen)",
+  "trust": "high",
+  "gen_pct_vs_eia": -7.0,
+  "gen_confirmed": true
+ },
+ "DRCK_SLR_RN": {
+  "lat": 32.212257,
+  "lon": -94.736315,
+  "name": "Dry Creek Solar",
+  "county": "Rusk",
+  "source": "EIA (single source)",
+  "trust": "single"
+ },
+ "ALGOD_ALL_RN": {
+  "lat": 27.992706,
+  "lon": -97.743983,
+  "name": "El Algodon Alto Wind Farm",
+  "county": "San Patricio",
   "source": "EIA corroborated",
   "trust": "high",
-  "gen_pct_vs_eia": 0.5,
+  "gen_pct_vs_eia": 0.6,
   "gen_confirmed": true
+ },
+ "BR_VHB6CT5_6": {
+  "lat": 29.2567,
+  "lon": -98.3825,
+  "name": "Braunig",
+  "county": "Bexar",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": 4.4,
+  "gen_confirmed": true
+ },
+ "7RNCHSLR_ALL": {
+  "lat": 29.806984,
+  "lon": -97.07408,
+  "name": "7v Solar Ranch",
+  "county": "Fayette",
+  "source": "EIA (single source)",
+  "trust": "single"
+ },
+ "POTSVIL_RN": {
+  "lat": 31.738177,
+  "lon": -98.213739,
+  "name": "Grizzly Ridge",
+  "county": "Hamilton",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": Infinity,
+  "gen_confirmed": false
  },
  "TORR_ALL": {
   "lat": 27.614411,
@@ -1126,50 +691,110 @@
   "gen_pct_vs_eia": -1.4,
   "gen_confirmed": true
  },
- "AZSP_SLR_RN": {
-  "lat": 31.403914,
-  "lon": -94.871897,
-  "name": "Azalea Springs Solar",
-  "county": "Angelina",
-  "source": "EIA corroborated",
+ "HRNT_SLR_RN": {
+  "lat": 34.485162,
+  "lon": -101.971401,
+  "name": "Hornet Solar",
+  "county": "Swisher",
+  "source": "portal/EIA-860",
   "trust": "high",
-  "gen_pct_vs_eia": 1.1,
+  "gen_pct_vs_eia": 0.4,
   "gen_confirmed": true
  },
- "AVIAT_ALL": {
-  "lat": 31.79261,
-  "lon": -100.69729,
-  "name": "Aviator Wind",
-  "county": "Coke",
+ "GID_GIDEONG1": {
+  "lat": 30.1456,
+  "lon": -97.2708,
+  "name": "Sim Gideon",
+  "county": "Bastrop",
+  "source": "EIA corroborated",
+  "trust": "high"
+ },
+ "SIL_SILAS_10": {
+  "lat": 25.9131,
+  "lon": -97.5214,
+  "name": "Silas Ray Power Plant",
+  "county": "Cameron",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": -97.4,
+  "gen_confirmed": false
+ },
+ "DANSBY_ALL": {
+  "lat": 30.7217,
+  "lon": -96.4608,
+  "name": "Bryn_dansby",
+  "county": "Brazos",
+  "source": "EIA corroborated",
+  "trust": "high"
+ },
+ "BAKE_RN_ALL": {
+  "lat": 32.23256,
+  "lon": -96.706121,
+  "name": "Baker Branch Solar",
+  "county": "Ellis",
+  "source": "EIA gen-anchored (name+gen)",
+  "trust": "single",
+  "gen_pct_vs_eia": 372.8,
+  "gen_confirmed": false
+ },
+ "OUTP_SLR_RN": {
+  "lat": 27.85923,
+  "lon": -99.16174,
+  "name": "Outpost Solar",
+  "county": "Webb",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": 0.3,
+  "gen_confirmed": true
+ },
+ "MIRASOLE_GEN": {
+  "lat": 26.465556,
+  "lon": -98.411111,
+  "name": "Los Mirasoles Wind",
+  "county": "Cameron",
+  "source": "portal/EIA-860",
+  "trust": "high",
+  "gen_pct_vs_eia": 112.0,
+  "gen_confirmed": false
+ },
+ "CAMWIND_RN": {
+  "lat": 26.195278,
+  "lon": -97.466111,
+  "name": "Cameron Windfarm",
+  "county": "Cameron",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": -21.6,
+  "gen_confirmed": false
+ },
+ "ESTONIAN_ALL": {
+  "lat": 33.457143,
+  "lon": -95.667897,
+  "name": "Estonian Solar And Storage",
+  "county": "Delta",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": 2.1,
+  "gen_confirmed": true
+ },
+ "INRT_W_ALL": {
+  "lat": 33.186882,
+  "lon": -99.595332,
+  "name": "Inertia Wind",
+  "county": "Haskell",
   "source": "EIA corroborated",
   "trust": "high",
   "gen_pct_vs_eia": -0.9,
   "gen_confirmed": true
  },
- "VERAWIND_ALL": {
-  "lat": 33.6,
-  "lon": -99.4,
-  "name": "Vera Wind",
-  "county": null,
-  "source": "registry (unverified)",
-  "trust": "single"
- },
- "STEA_STEAM_3": {
-  "lat": 29.694838,
-  "lon": -95.040622,
-  "name": "Steam",
-  "county": "Harris",
-  "source": "EIA corroborated",
-  "trust": "high"
- },
- "HART_WND_RN": {
-  "lat": 34.378546,
-  "lon": -102.053717,
-  "name": "Hart Wind",
-  "county": "Castro",
+ "LAPETUS_U1": {
+  "lat": 32.460054,
+  "lon": -102.672809,
+  "name": "Lapetus Solar",
+  "county": "Andrews",
   "source": "EIA corroborated",
   "trust": "high",
-  "gen_pct_vs_eia": -0.2,
+  "gen_pct_vs_eia": 0.1,
   "gen_confirmed": true
  },
  "TOPAZ_ALL": {
@@ -1192,41 +817,198 @@
   "gen_pct_vs_eia": 0.5,
   "gen_confirmed": true
  },
- "ZIER_SLR_ALL": {
-  "lat": 29.350992,
-  "lon": -100.562028,
-  "name": "Zier Solar And Storage",
-  "county": "Kinney",
+ "BUFF_GAP_ALL": {
+  "lat": 32.318221,
+  "lon": -100.176986,
+  "name": "Buffalo Gap Wind Farm",
+  "county": "Nolan",
   "source": "EIA corroborated",
   "trust": "high",
-  "gen_pct_vs_eia": 3.3,
-  "gen_confirmed": true
+  "gen_pct_vs_eia": Infinity,
+  "gen_confirmed": false
  },
- "GPASTURE_ALL": {
-  "lat": 33.628222,
-  "lon": -99.411169,
-  "name": "Green Pastures Wind",
-  "county": "Baylor",
+ "AMISTAD_ALL": {
+  "lat": 29.449827,
+  "lon": -101.06011,
+  "name": "Amistad Plant",
+  "county": "Val Verde",
   "source": "EIA corroborated",
   "trust": "high"
  },
- "ANSON1_ALL": {
-  "lat": 32.811041,
-  "lon": -99.91749,
-  "name": "Anson Solar 1",
-  "county": "Jones",
+ "SRWE1_UNIT1": {
+  "lat": 32.926389,
+  "lon": -101.647778,
+  "name": "Stephens Ranch Wind Energy Project Phase 1",
+  "county": "Borden",
+  "source": "EIA gen-anchored (name+gen)",
+  "trust": "high",
+  "gen_pct_vs_eia": -1.2,
+  "gen_confirmed": true
+ },
+ "DECKER_GT": {
+  "lat": 30.3033,
+  "lon": -97.6128,
+  "name": "Decker Power Plant",
+  "county": "Travis",
+  "source": "EIA corroborated",
+  "trust": "high"
+ },
+ "RELOJ_ALL": {
+  "lat": 27.03028,
+  "lon": -99.388388,
+  "name": "Reloj Del Sol Wind Farm",
+  "county": "Zapata",
   "source": "EIA corroborated",
   "trust": "high",
-  "gen_pct_vs_eia": 119.8
+  "gen_pct_vs_eia": 0.7,
+  "gen_confirmed": true
  },
- "GREASWOD_ALL": {
-  "lat": 31.030996,
-  "lon": -102.488209,
-  "name": "Greasewood Solar",
+ "TYLRWIND_RN": {
+  "lat": 33.703851,
+  "lon": -97.372009,
+  "name": "Tyler Bluff Wind",
+  "county": "Cooke",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": -0.1,
+  "gen_confirmed": true
+ },
+ "CONIGLIO_RN": {
+  "lat": 33.404486,
+  "lon": -96.082472,
+  "name": "Coniglio Solar",
+  "county": "Fannin",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": -0.3,
+  "gen_confirmed": true
+ },
+ "RN_LNP_SLR": {
+  "lat": 29.308,
+  "lon": -95.895,
+  "name": "Long Point Solar",
+  "county": null,
+  "source": "registry (unverified)",
+  "trust": "single"
+ },
+ "GOA_GOATWIND": {
+  "lat": 31.951944,
+  "lon": -100.791389,
+  "name": "Goat Wind",
+  "county": "Sterling",
+  "source": "EIA (single source)",
+  "trust": "single"
+ },
+ "WOODWRD1_RN": {
+  "lat": 30.9514,
+  "lon": -102.414067,
+  "name": "Woodward 1",
+  "county": "Pecos",
+  "source": "EIA corroborated",
+  "trust": "high"
+ },
+ "CRANELL_ALL": {
+  "lat": 28.197778,
+  "lon": -97.444953,
+  "name": "Cranell Wind",
+  "county": "Refugio",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": 0.3,
+  "gen_confirmed": true
+ },
+ "GRIF_TRL_RN": {
+  "lat": 33.609313,
+  "lon": -99.58229,
+  "name": "Griffin Trail Wind",
+  "county": "Knox",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": -1.8,
+  "gen_confirmed": true
+ },
+ "PROSPERO_ALL": {
+  "lat": 32.287873,
+  "lon": -102.840399,
+  "name": "Prospero Solar",
+  "county": "Andrews",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": 1.2,
+  "gen_confirmed": true
+ },
+ "APPALOSA_ALL": {
+  "lat": 31.157269,
+  "lon": -101.831603,
+  "name": "Appaloosa Run Wind",
+  "county": "Upton",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": -0.3,
+  "gen_confirmed": true
+ },
+ "HKSN_SLR_ALL": {
+  "lat": 31.819958,
+  "lon": -97.517494,
+  "name": "Hickerson Solar",
+  "county": "Bosque",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": -0.1,
+  "gen_confirmed": true
+ },
+ "ELZA_SLR_RN": {
+  "lat": 30.995503,
+  "lon": -102.223537,
+  "name": "Eliza Solar And Storage",
+  "county": null,
+  "source": "registry (unverified)",
+  "trust": "single"
+ },
+ "TAYGETE2_ALL": {
+  "lat": 31.186,
+  "lon": -103.128,
+  "name": "Taygete 2 Solar",
   "county": "Pecos",
   "source": "EIA corroborated",
   "trust": "high",
-  "gen_pct_vs_eia": 0.9,
+  "gen_pct_vs_eia": 2.5,
+  "gen_confirmed": true
+ },
+ "AJAXWIND_RN": {
+  "lat": 33.85245,
+  "lon": -99.06509,
+  "name": "Ajax Wind",
+  "county": null,
+  "source": "registry (unverified)",
+  "trust": "single"
+ },
+ "STELLA_RN": {
+  "lat": 26.941667,
+  "lon": -97.6425,
+  "name": "Stella Wind",
+  "county": "Kenedy",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": 1.0,
+  "gen_confirmed": true
+ },
+ "WH_WIND_ALL": {
+  "lat": 32.5501,
+  "lon": -100.569,
+  "name": "Whitehorse Wind",
+  "county": null,
+  "source": "portal/EIA-860",
+  "trust": "high"
+ },
+ "COL_COLETOG1": {
+  "lat": 28.7128,
+  "lon": -97.214167,
+  "name": "Coleto Creek",
+  "county": "Goliad",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": -0.2,
   "gen_confirmed": true
  },
  "CHALUP_ALL": {
@@ -1239,49 +1021,65 @@
   "gen_pct_vs_eia": 0.6,
   "gen_confirmed": true
  },
- "BAKE_RN_ALL": {
-  "lat": 33.22132,
-  "lon": -99.58652,
-  "name": "Baker Branch Solar",
-  "county": "Haskell",
-  "source": "EIA (single source)",
-  "trust": "single"
- },
- "DRCK_SLR_RN": {
-  "lat": 32.212257,
-  "lon": -94.736315,
-  "name": "Dry Creek Solar",
-  "county": "Rusk",
-  "source": "EIA (single source)",
-  "trust": "single"
- },
- "OUTP_SLR_RN": {
-  "lat": 27.85923,
-  "lon": -99.16174,
-  "name": "Outpost Solar",
-  "county": "Webb",
+ "TTRSW_RN": {
+  "lat": 33.481551,
+  "lon": -95.269247,
+  "name": "Delilah Solar 2",
+  "county": "Red River",
   "source": "EIA corroborated",
   "trust": "high",
-  "gen_pct_vs_eia": 0.3,
+  "gen_pct_vs_eia": -0.2,
   "gen_confirmed": true
  },
- "BIGSTAR_ALL": {
-  "lat": 29.894053,
-  "lon": -97.270537,
-  "name": "Big Star Solar",
-  "county": "Bastrop",
+ "BR_ARROW_ALL": {
+  "lat": 33.22392,
+  "lon": -95.730767,
+  "name": "Bright Arrow Solar",
+  "county": "Hopkins",
   "source": "EIA corroborated",
   "trust": "high",
-  "gen_pct_vs_eia": -3.2,
+  "gen_pct_vs_eia": 3.3,
   "gen_confirmed": true
  },
- "BUZI_SLR_RN": {
-  "lat": 33.88,
-  "lon": -100.9,
-  "name": "Buzios Solar",
-  "county": null,
-  "source": "portal/EIA-860",
-  "trust": "high"
+ "HRZN_SLR_UN1": {
+  "lat": 28.9377,
+  "lon": -99.10765,
+  "name": "Horizon Solar",
+  "county": "Frio",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": 0.9,
+  "gen_confirmed": true
+ },
+ "RADN_SLR_ALL": {
+  "lat": 31.5481,
+  "lon": -99.1872,
+  "name": "Radian Solar",
+  "county": "Brown",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": 0.7,
+  "gen_confirmed": true
+ },
+ "W_PECO_UNIT1": {
+  "lat": 31.4308,
+  "lon": -103.7289,
+  "name": "West Of The Pecos Solar Farm",
+  "county": "Reeves",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": 0.5,
+  "gen_confirmed": true
+ },
+ "MISAE_GEN_RN": {
+  "lat": 34.380532,
+  "lon": -100.099625,
+  "name": "Misae Solar Park",
+  "county": "Childress",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": -0.2,
+  "gen_confirmed": true
  },
  "JKLP_SLR_RN": {
   "lat": 30.705329,
@@ -1291,48 +1089,14 @@
   "source": "registry (unverified)",
   "trust": "single"
  },
- "ROUTE66_RN": {
-  "lat": 35.205278,
-  "lon": -101.434167,
-  "name": "Route 66 Wind Power",
-  "county": "Carson",
-  "source": "EIA corroborated",
-  "trust": "high"
- },
- "NOBLESLR_ALL": {
-  "lat": 33.261505,
-  "lon": -97.238057,
-  "name": "Noble Solar And Storage",
-  "county": "Denton",
+ "TKWSW_ROSCOE": {
+  "lat": 32.4694,
+  "lon": -100.6664,
+  "name": "Roscoe Wind Farm",
+  "county": "Nolan",
   "source": "EIA corroborated",
   "trust": "high",
-  "gen_pct_vs_eia": -0.2,
-  "gen_confirmed": true
- },
- "INKS_INKS_G1": {
-  "lat": 30.731599,
-  "lon": -98.385422,
-  "name": "Inks Dam",
-  "county": "Burnet",
-  "source": "EIA corroborated",
-  "trust": "high"
- },
- "SIL_SILAS_10": {
-  "lat": 25.9131,
-  "lon": -97.5214,
-  "name": "Silas Ray Power Plant",
-  "county": "Cameron",
-  "source": "EIA corroborated",
-  "trust": "high"
- },
- "STAM_SLR_ALL": {
-  "lat": 33.201315,
-  "lon": -95.319229,
-  "name": "Stampede Solar And Bess",
-  "county": "Hopkins",
-  "source": "EIA corroborated",
-  "trust": "high",
-  "gen_pct_vs_eia": 0.8,
+  "gen_pct_vs_eia": -0.1,
   "gen_confirmed": true
  },
  "ORIANA_RN": {
@@ -1345,24 +1109,149 @@
   "gen_pct_vs_eia": 0.4,
   "gen_confirmed": true
  },
- "ARAGORN_RN": {
-  "lat": 31.719983,
-  "lon": -104.442292,
-  "name": "Aragorn Solar",
-  "county": "Culberson",
+ "IMP_RN1": {
+  "lat": 33.467803,
+  "lon": -95.370856,
+  "name": "Impact Solar",
+  "county": "Lamar",
   "source": "EIA corroborated",
   "trust": "high",
-  "gen_pct_vs_eia": 0.9,
+  "gen_pct_vs_eia": -0.8,
   "gen_confirmed": true
  },
- "RAMBLER_UNIT": {
-  "lat": 31.517,
-  "lon": -100.6,
-  "name": "Rambler Solar",
-  "county": "Tom Green",
+ "PC_NORTH_1": {
+  "lat": 32.100823,
+  "lon": -101.451385,
+  "name": "Panther Creek North Substation",
+  "county": "Howard",
   "source": "EIA corroborated",
   "trust": "high",
-  "gen_pct_vs_eia": -11.5
+  "gen_pct_vs_eia": 13.1,
+  "gen_confirmed": false
+ },
+ "FILESSLR_PV1": {
+  "lat": 32.18398,
+  "lon": -97.07141,
+  "name": "Files Solar",
+  "county": "Hill",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": -0.7,
+  "gen_confirmed": true
+ },
+ "FAL_FALCONG3": {
+  "lat": 26.5575,
+  "lon": -99.1642,
+  "name": "Falcon Hydro",
+  "county": "Starr",
+  "source": "EIA corroborated",
+  "trust": "high"
+ },
+ "HOLSTEIN_ALL": {
+  "lat": 32.104125,
+  "lon": -100.162375,
+  "name": "Holstein Solar Farm",
+  "county": "Nolan",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": 0.3,
+  "gen_confirmed": true
+ },
+ "CITYVICT_ALL": {
+  "lat": 28.68851,
+  "lon": -96.509833,
+  "name": "Tres City",
+  "county": "Calhoun",
+  "source": "EIA gen-anchored (name+gen)",
+  "trust": "single",
+  "gen_pct_vs_eia": -94.6,
+  "gen_confirmed": false
+ },
+ "GRYH_SLR_RN": {
+  "lat": 30.998647,
+  "lon": -97.259017,
+  "name": "Greyhound Solar",
+  "county": null,
+  "source": "registry (unverified)",
+  "trust": "single"
+ },
+ "WILDWIND_ALL": {
+  "lat": 32.275814,
+  "lon": -102.844806,
+  "name": "Wild Wind",
+  "county": null,
+  "source": "registry (unverified)",
+  "trust": "single"
+ },
+ "RN_SR_WIND1": {
+  "lat": 26.125979,
+  "lon": -97.377599,
+  "name": "San Roman Wind I",
+  "county": "Cameron",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": 0.1,
+  "gen_confirmed": true
+ },
+ "SPARTA_ALL": {
+  "lat": 28.655277,
+  "lon": -98.001388,
+  "name": "Sparta Solar",
+  "county": "Bee",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": 0.1,
+  "gen_confirmed": true
+ },
+ "TROJ_SLR_RN": {
+  "lat": 33.582486,
+  "lon": -97.20553,
+  "name": "Trojan Solar",
+  "county": null,
+  "source": "registry (unverified)",
+  "trust": "single"
+ },
+ "ANACACHO_ANA": {
+  "lat": 29.234722,
+  "lon": -100.209167,
+  "name": "Anacacho",
+  "county": "Kinney",
+  "source": "EIA corroborated",
+  "trust": "high"
+ },
+ "BAFFIN_ALL": {
+  "lat": 27.184652,
+  "lon": -97.59818,
+  "name": "Baffin Wind Project",
+  "county": "Kenedy",
+  "source": "EIA corroborated",
+  "trust": "high"
+ },
+ "STEA_STEAM_3": {
+  "lat": 29.694838,
+  "lon": -95.040622,
+  "name": "Steam",
+  "county": "Harris",
+  "source": "EIA corroborated",
+  "trust": "high"
+ },
+ "EXGNWTL_1": {
+  "lat": 27.488056,
+  "lon": -99.005278,
+  "name": "Whitetail Wind Energy",
+  "county": "Webb",
+  "source": "EIA corroborated",
+  "trust": "high"
+ },
+ "HART_WND_RN": {
+  "lat": 34.378546,
+  "lon": -102.053717,
+  "name": "Hart Wind",
+  "county": "Castro",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": -0.2,
+  "gen_confirmed": true
  },
  "BLACKJAK_RN": {
   "lat": 28.2078,
@@ -1374,12 +1263,164 @@
   "gen_pct_vs_eia": 0.6,
   "gen_confirmed": true
  },
- "RN_RTS1": {
-  "lat": 31.2433,
-  "lon": -99.4076,
-  "name": "Rts2 Wind Project",
-  "county": null,
-  "source": "portal/EIA-860",
+ "HHOLLW3_WND1": {
+  "lat": 32.214024,
+  "lon": -100.05712,
+  "name": "Horse Hollow 3",
+  "county": "Taylor",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": -100.0,
+  "gen_confirmed": false
+ },
+ "PC_SOUTH_ALL": {
+  "lat": 32.100823,
+  "lon": -101.451385,
+  "name": "Panther Creek 2",
+  "county": "Howard",
+  "source": "EIA corroborated",
   "trust": "high"
+ },
+ "MIDP_SLR_RN": {
+  "lat": 32.116002,
+  "lon": -97.343521,
+  "name": "Midpoint Solar And Storage",
+  "county": "Hill",
+  "source": "EIA (single source)",
+  "trust": "single"
+ },
+ "NOBLESLR_ALL": {
+  "lat": 33.261505,
+  "lon": -97.238057,
+  "name": "Noble Solar And Storage",
+  "county": "Denton",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": -0.2,
+  "gen_confirmed": true
+ },
+ "VERAWIND_ALL": {
+  "lat": 32.437418,
+  "lon": -99.108907,
+  "name": "Vera Wind",
+  "county": null,
+  "source": "registry (unverified)",
+  "trust": "single"
+ },
+ "FRYE_SLR_ALL": {
+  "lat": 34.4067,
+  "lon": -101.59661,
+  "name": "Frye Solar",
+  "county": "Swisher",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": -0.4,
+  "gen_confirmed": true
+ },
+ "WOODWRD2_RN": {
+  "lat": 30.9514,
+  "lon": -102.414067,
+  "name": "Woodward 2",
+  "county": "Pecos",
+  "source": "EIA corroborated",
+  "trust": "high"
+ },
+ "NEBULA_RN": {
+  "lat": 26.090103,
+  "lon": -97.798453,
+  "name": "Nebula Solar",
+  "county": "Cameron",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": 0.6,
+  "gen_confirmed": true
+ },
+ "B_D_B_DAVIG1": {
+  "lat": 27.6064,
+  "lon": -97.3117,
+  "name": "Barney Davis",
+  "county": "Nueces",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": -100.0,
+  "gen_confirmed": false
+ },
+ "ARAGORN_RN": {
+  "lat": 31.719983,
+  "lon": -104.442292,
+  "name": "Aragorn Solar",
+  "county": "Culberson",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": 0.9,
+  "gen_confirmed": true
+ },
+ "H_HOLLO_WND1": {
+  "lat": 32.214024,
+  "lon": -100.05712,
+  "name": "Horse Hollow 1",
+  "county": "Taylor",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": -100.0,
+  "gen_confirmed": false
+ },
+ "FLUVANNA_1_2": {
+  "lat": 32.931944,
+  "lon": -101.143611,
+  "name": "Fluvanna Wind",
+  "county": "Scurry",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": -0.6,
+  "gen_confirmed": true
+ },
+ "GPASTURE_ALL": {
+  "lat": 33.628222,
+  "lon": -99.411169,
+  "name": "Green Pastures Wind",
+  "county": "Baylor",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": -93.0,
+  "gen_confirmed": false
+ },
+ "GALO_RN1": {
+  "lat": 31.435932,
+  "lon": -99.796613,
+  "name": "Galloway Solar Farm",
+  "county": "Concho",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": 48.8,
+  "gen_confirmed": false
+ },
+ "VANCOURT_RN": {
+  "lat": 26.090103,
+  "lon": -97.798453,
+  "name": "Vancourt Solar",
+  "county": "Cameron",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": 0.5,
+  "gen_confirmed": true
+ },
+ "STAM_SLR_ALL": {
+  "lat": 33.201315,
+  "lon": -95.319229,
+  "name": "Stampede Solar And Bess",
+  "county": "Hopkins",
+  "source": "EIA corroborated",
+  "trust": "high",
+  "gen_pct_vs_eia": 0.8,
+  "gen_confirmed": true
+ },
+ "ANCHOR_ALL": {
+  "lat": 28.170179,
+  "lon": -97.817507,
+  "name": "Anchor Wind And Bess",
+  "county": null,
+  "source": "registry (unverified)",
+  "trust": "single"
  }
 }
