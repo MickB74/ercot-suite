@@ -3,6 +3,8 @@ Data Hub page 16. Call ``render()`` from inside a Streamlit script."""
 
 from __future__ import annotations
 
+import re
+
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
@@ -13,6 +15,7 @@ import forecast_store
 import gas_curve
 import pf_history
 import pf_paths
+import power_futures
 import public_forecasts
 import shape as shaping
 
@@ -585,6 +588,183 @@ def _ercot_fundamentals_section() -> tuple[bool, pd.DataFrame | None]:
     return scarcity, steo
 
 
+# ── Traded power-futures paste UI ────────────────────────────────────────────
+_BLOCKS = ["atc", "peak", "offpeak"]
+_MONTH_FORMATS = ("%Y-%m", "%Y-%m-%d", "%b-%y", "%b %Y", "%B %Y", "%b-%Y",
+                  "%m/%Y", "%Y/%m")
+
+
+def _parse_month(s) -> pd.Timestamp | None:
+    """Flexible month token → first-of-month Timestamp (e.g. 'Jul-26', '2026-07')."""
+    s = str(s).strip()
+    if not s:
+        return None
+    for fmt in _MONTH_FORMATS:
+        try:
+            return pd.to_datetime(s, format=fmt).to_period("M").to_timestamp()
+        except (ValueError, TypeError):
+            continue
+    try:
+        return pd.to_datetime(s).to_period("M").to_timestamp()
+    except (ValueError, TypeError):
+        return None
+
+
+def _norm_block(b: str) -> str:
+    b = str(b).strip().lower().replace("off-peak", "offpeak")
+    return b if b in _BLOCKS else "atc"
+
+
+def _parse_paste(text: str, default_hub: str, default_block: str) -> pd.DataFrame:
+    """Parse pasted rows (CSV / TSV / Excel) into a power-strip frame.
+
+    Accepts full ``month,hub,block,price`` rows or shorthand ``month,price``
+    (and ``month<tab>price`` straight from Excel), filling the selected
+    hub/block. Header rows, blank lines and ``#`` comments are skipped.
+    """
+    valid_hubs = set(pf_history.HUBS)
+    rows = []
+    for raw in str(text).splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        parts = [p.strip() for p in re.split(r"[\t,]|\s{2,}", line) if p.strip()]
+        if len(parts) < 2 or parts[0].lower() in ("month", "date"):
+            continue
+        month = _parse_month(parts[0])
+        if month is None:
+            continue
+        hub, block, price = default_hub, default_block, None
+        if len(parts) >= 4:
+            hub, block, price = parts[1], parts[2], parts[3]
+        elif len(parts) == 3:
+            mid = parts[1].strip().lower().replace("off-peak", "offpeak")
+            if mid in _BLOCKS:
+                block, price = mid, parts[2]
+            else:
+                hub, price = parts[1], parts[2]
+        else:
+            price = parts[1]
+        try:
+            price = float(str(price).replace("$", "").replace(",", ""))
+        except (ValueError, TypeError):
+            continue
+        hub = str(hub).strip().upper()
+        if hub not in valid_hubs:
+            hub = default_hub
+        rows.append({"month": month, "hub": hub,
+                     "block": _norm_block(block), "price": price})
+    return pd.DataFrame(rows, columns=["month", "hub", "block", "price"])
+
+
+def _save_power_strip(df: pd.DataFrame) -> None:
+    """Persist the strip to the user-override inputs CSV (header even if empty).
+
+    Also re-points ``pf_paths.POWER_STRIP_CSV`` at the written file so the change
+    is visible in the same Streamlit session — the constant is resolved once at
+    import, and when the Hub routes ``PF_DATA`` elsewhere the override dir won't
+    have existed yet, so without this the engine would keep reading the stale path.
+    """
+    pf_paths.ensure_dirs()
+    hdr = ("# Manual ERCOT power-futures strip ($/MWh) — edited in-app.\n"
+           "# Paste ICE / Nodal Exchange ERCOT hub settlements; blended into the\n"
+           "# near months and faded to the model over the blend-fade window.\n"
+           "# block must be one of: peak, offpeak, atc\n")
+    path = pf_paths.INPUTS_DIR / "ercot_power_strip.csv"
+    out = df.copy()
+    if out.empty:
+        path.write_text(hdr + "month,hub,block,price\n")
+        pf_paths.POWER_STRIP_CSV = path
+        return
+    out["month"] = pd.to_datetime(out["month"]).dt.strftime("%Y-%m")
+    out = (out[["month", "hub", "block", "price"]]
+           .drop_duplicates(subset=["month", "hub", "block"], keep="last")
+           .sort_values(["hub", "block", "month"]))
+    path.write_text(hdr + out.to_csv(index=False))
+    pf_paths.POWER_STRIP_CSV = path
+
+
+def _power_strip_section(hubs: list[str], asof) -> None:
+    """Slick in-app paste/edit for the traded ERCOT power-futures strip."""
+    with st.container(border=True):
+        st.subheader("📈 Traded power futures (optional calibration)")
+        st.caption("ERCOT power forwards aren't on a free feed, so paste ICE / Nodal "
+                   "settlements here to anchor the near months to the traded market — "
+                   "they blend into the near curve and fade to the gas × heat-rate "
+                   "model over the **blend-fade** window. Leave empty for model-only.")
+
+        default_hub = hubs[0] if hubs else "HB_NORTH"
+        hub_opts = hubs or list(pf_history.HUBS)
+        existing = power_futures.load_strip()
+        if existing is None or existing.empty:
+            existing = pd.DataFrame(columns=["month", "hub", "block", "price"])
+
+        tab_paste, tab_grid = st.tabs(["📋 Quick paste", "✏️ Edit grid"])
+
+        with tab_paste:
+            c1, c2 = st.columns(2)
+            ph = c1.selectbox("Tag shorthand rows to hub", hub_opts, key="ps_hub",
+                              help="When a pasted line is just month + price, it's "
+                                   "tagged to this hub.")
+            pb = c2.selectbox("…and block", _BLOCKS, key="ps_block")
+            txt = st.text_area(
+                "Paste rows", height=150, key="ps_text",
+                placeholder=("Paste from Excel / a broker run — any of:\n"
+                             "2026-07\t42.50\n"
+                             "Aug-26, 58.00\n"
+                             "2026-09, HB_NORTH, atc, 46.25"),
+                help="Tab, comma, or multi-space separated. Months like 2026-07, "
+                     "Jul-26 or Aug 2026 all parse; a header row is ignored.")
+            b1, b2 = st.columns(2)
+            if b1.button("➕ Add pasted rows", type="primary", key="ps_add"):
+                parsed = _parse_paste(txt, ph, pb)
+                if parsed.empty:
+                    st.warning("Couldn't read any rows — expected month + price per line.")
+                else:
+                    merged = pd.concat([existing, parsed], ignore_index=True)
+                    _save_power_strip(merged)
+                    st.success(f"Added {len(parsed)} row(s).")
+                    st.rerun()
+            if b2.button("🗑️ Clear strip", key="ps_clear"):
+                _save_power_strip(pd.DataFrame(columns=["month", "hub", "block", "price"]))
+                st.success("Cleared — pure model on next run.")
+                st.rerun()
+
+        with tab_grid:
+            st.caption("Copy a block from Excel → click a cell → paste, or type. "
+                       "Save an empty grid to clear the strip.")
+            disp = existing.copy()
+            if not disp.empty:
+                disp["month"] = pd.to_datetime(disp["month"]).dt.strftime("%Y-%m")
+            edited = st.data_editor(
+                disp, num_rows="dynamic", use_container_width=True, height=260,
+                key="ps_grid",
+                column_config={
+                    "month": st.column_config.TextColumn("month (YYYY-MM)"),
+                    "hub": st.column_config.SelectboxColumn("hub", options=list(pf_history.HUBS)),
+                    "block": st.column_config.SelectboxColumn("block", options=_BLOCKS),
+                    "price": st.column_config.NumberColumn("price ($/MWh)", format="%.2f"),
+                })
+            if st.button("💾 Save grid", key="ps_savegrid"):
+                g = edited.copy()
+                g["month"] = g["month"].apply(_parse_month)
+                g = g.dropna(subset=["month", "price"])
+                _save_power_strip(g)
+                st.success(f"Saved {len(g)} row(s).")
+                st.rerun()
+
+        strip_now = power_futures.load_strip(default_hub)
+        if strip_now is not None and not strip_now.empty:
+            first = pd.Timestamp(str(asof)).to_period("M")
+            in_horizon = sum((pd.Timestamp(m).to_period("M") - first).n >= 0
+                             for m in strip_now["month"])
+            st.success(f"✅ **{len(strip_now)}** month(s) loaded for **{default_hub}** "
+                       f"({in_horizon} at/after the as-of) — these will calibrate the "
+                       "near curve. The fan chart marks them as **Traded futures**.")
+        else:
+            st.caption(f"No strip for **{default_hub}** yet — running model-only.")
+
+
 @st.cache_data(ttl=3600, show_spinner=False)
 def _snapshot_data(hub_tuple: tuple) -> dict:
     """Last available Henry Hub spot + most-recent daily ATC price per hub."""
@@ -743,6 +923,7 @@ def render() -> None:
         run = st.button("Run forecast", type="primary")
 
     gas_override, gas_label = _gas_curve_section(pd.Timestamp(asof), horizon)
+    _power_strip_section(hubs, asof)
     scarcity, steo_power = _ercot_fundamentals_section()
 
     # Run only when the button is clicked; cache the result in session_state so
