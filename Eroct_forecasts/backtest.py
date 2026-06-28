@@ -89,10 +89,12 @@ def _metrics(df: pd.DataFrame) -> dict:
         return {}
     err = df["p50"] - df["realized"]
     denom = df["realized"].replace(0, np.nan).abs()
+    merr = (df["mean"] - df["realized"]) if "mean" in df.columns else err
     return {
         "n": len(df),
         "bias_$": float(err.mean()),
         "bias_%": float((err / denom).mean() * 100),
+        "meanbias_%": float((merr / denom).mean() * 100),
         "mae_$": float(err.abs().mean()),
         "mape_%": float((err.abs() / denom).mean() * 100),
         "rmse_$": float(np.sqrt((err ** 2).mean())),

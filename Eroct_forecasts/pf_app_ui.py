@@ -126,9 +126,14 @@ def _calibration_view(hub: str, horizon: int) -> None:
         return
     ov = s["overall"]
 
+    mb = ov.get("meanbias_%", ov["bias_%"])
     c = st.columns(4)
-    c[0].metric("P50 bias", f"{ov['bias_%']:+.1f}%",
-                help="Average forecast minus realized. Negative = we under-forecast.")
+    c[0].metric("Median (P50) bias", f"{ov['bias_%']:+.1f}%",
+                f"mean forecast: {mb:+.1f}%", delta_color="off",
+                help="Median forecast minus realized (negative = under-forecast). The "
+                     "second line is the *mean* forecast's bias — power prices are "
+                     "right-skewed, so the median is expected to sit below the mean. "
+                     "If the mean is ~unbiased, most of the median gap is skew, not error.")
     c[1].metric("MAPE", f"{ov['mape_%']:.0f}%", help="Typical absolute monthly error.")
     c[2].metric("P10–P90 coverage", f"{ov['coverage80']:.0%}",
                 f"{(ov['coverage80']-0.80)*100:+.0f} pts vs 80%",
@@ -140,10 +145,25 @@ def _calibration_view(hub: str, horizon: int) -> None:
 
     # plain-language verdict
     notes = []
-    if abs(ov["bias_%"]) > 5:
-        notes.append(f"**P50 is biased {('low' if ov['bias_%']<0 else 'high')} "
-                     f"by {abs(ov['bias_%']):.0f}%** — realized prices came in "
-                     f"{'above' if ov['bias_%']<0 else 'below'} the central forecast.")
+    med = ov["bias_%"]
+    if abs(med) > 5:
+        side = "low" if med < 0 else "high"
+        beat = "above" if med < 0 else "below"
+        if abs(mb) < 3:
+            notes.append(
+                f"**The median (P50) sits {abs(med):.0f}% {side}, but the *mean* "
+                f"forecast is nearly unbiased ({mb:+.1f}%)** — so almost all of that gap "
+                "is price *skew* (the median is supposed to sit below the mean for "
+                "right-skewed power prices), **not model error**. Don't bias-correct on this alone.")
+        elif (mb < 0) == (med < 0):
+            notes.append(
+                f"**Genuine {side} bias**: even the *mean* forecast is off by {mb:+.1f}% "
+                f"(median {med:+.1f}%) — realized consistently came in {beat} the forecast, "
+                "beyond what skew explains. A regime-aware correction is worth considering.")
+        else:
+            notes.append(
+                f"**P50 biased {side} by {abs(med):.0f}%** (mean bias {mb:+.1f}%) — "
+                f"realized came in {beat} the median.")
     if ov["coverage80"] < 0.75:
         notes.append(f"**Bands are too narrow** ({ov['coverage80']:.0%} coverage vs 80% "
                      "target) — widen scenario dispersion.")
@@ -155,8 +175,11 @@ def _calibration_view(hub: str, horizon: int) -> None:
         st.success("Well calibrated: low bias and ~80% coverage.")
 
     st.markdown("##### By forecast horizon")
-    st.dataframe(s["by_horizon"][["n", "bias_%", "mape_%", "coverage80", "pit_below50"]].round(1),
-                 use_container_width=True)
+    st.caption("`bias_%` = median (P50) vs realized · `meanbias_%` = mean forecast vs "
+               "realized. A small `meanbias_%` with a larger negative `bias_%` is skew, not error.")
+    _bh_cols = [c for c in ["n", "bias_%", "meanbias_%", "mape_%", "coverage80", "pit_below50"]
+                if c in s["by_horizon"].columns]
+    st.dataframe(s["by_horizon"][_bh_cols].round(1), use_container_width=True)
     st.markdown("##### By block")
     st.dataframe(s["by_block"][["n", "bias_%", "mape_%", "coverage80"]].round(1),
                  use_container_width=True)
