@@ -35,8 +35,10 @@ ASSET = {
     "sced_units": ["RTS_U1"],
     "capacity_mw": 180.0,
     "tech": "Wind",
+    "turbine_manuf": "GE Wind",            # USWTDB (dominant: 60× GE2.82-127)
     "turbine_model": "GE Mixed Fleet (GE2.82-127 / GE2.72-116 / GE2.5-127)",
     "hub_height_m": 89.0,
+    "rotor_diameter_m": 127.0,             # USWTDB (dominant GE2.82-127)
     "cut_in_ms": 3.0,
     "rated_ms": 12.5,
     "cut_out_ms": 25.0,

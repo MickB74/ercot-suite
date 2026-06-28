@@ -40,6 +40,7 @@ with st.container(border=True):
     with q1:
         st.page_link("screens/7_PPA_Settlement.py", label="Settle a PPA", icon="🧾")
         st.page_link("screens/2_Hub_Prices.py", label="Explore hub prices", icon="💵")
+        st.page_link("screens/22_Price_Coverage.py", label="Check price coverage", icon="📊")
     with q2:
         st.page_link("screens/8_Reconciliation.py", label="Reconcile a plant", icon="🔁")
         st.page_link("screens/5_Node_Explorer.py", label="Explore a node", icon="📈")
@@ -172,6 +173,9 @@ _PORTALS = [
     {"name": "Heart of Texas Wind",   "tech": "Wind",     "mw": 180,  "hub": "HB_WEST",  "icon": "🌬️",
      "offtaker": "AdventHealth",                       "developer": "Scout Clean Energy",       "strike": 35.15,
      "dir": "ERCOT_Heart_of_Texas",    "port": 8509},
+    {"name": "Aguayo Wind",            "tech": "Wind",     "mw": 197,  "hub": "HB_WEST",  "icon": "🌬️",
+     "offtaker": "TBD",                                "developer": "Swift Current Energy",     "strike": 35.00,
+     "dir": "ERCOT_Aguayo_Wind",       "port": 8511},
 ]
 
 
@@ -197,25 +201,67 @@ def _launch_portal(portal: dict) -> None:
 
 st.divider()
 st.subheader("Settlement Portals")
-st.caption("Customer-facing VPPA/CfD settlement apps — one per asset. "
-           "Each runs as a separate Streamlit app on its own port.")
 
-_pcols = st.columns(len(_PORTALS))
-for _col, _p in zip(_pcols, _PORTALS):
-    with _col:
+_live_count = sum(_port_open(_p["port"]) for _p in _PORTALS)
+st.caption(
+    f"Customer-facing VPPA/CfD settlement apps — one per asset, each on its own "
+    f"port.  **{_live_count} of {len(_PORTALS)} live.**"
+)
+
+# Optional filter so the grid stays scannable as the fleet grows.
+_techs = sorted({_p["tech"] for _p in _PORTALS})
+_fcol, _scol = st.columns([2, 3])
+with _fcol:
+    _tech_filter = st.multiselect(
+        "Filter by technology", _techs, default=_techs,
+        label_visibility="collapsed", placeholder="Filter by technology",
+    )
+with _scol:
+    _query = st.text_input(
+        "Search", placeholder="Search name, offtaker, developer, hub…",
+        label_visibility="collapsed",
+    ).strip().lower()
+
+
+def _matches(p: dict) -> bool:
+    if p["tech"] not in _tech_filter:
+        return False
+    if _query:
+        hay = " ".join(str(p[k]) for k in
+                       ("name", "offtaker", "developer", "hub", "tech")).lower()
+        if _query not in hay:
+            return False
+    return True
+
+
+_shown = [p for p in _PORTALS if _matches(p)]
+if not _shown:
+    st.info("No portals match the current filter.")
+
+# Fixed cards-per-row → uniform width, no mid-word wrapping. Pad the final
+# row with empty slots so every card keeps the same column width.
+_PER_ROW = 4
+for _i in range(0, len(_shown), _PER_ROW):
+    _row = _shown[_i:_i + _PER_ROW]
+    _cols = st.columns(_PER_ROW)
+    for _col, _p in zip(_cols, _row):
         _running = _port_open(_p["port"])
-        st.markdown(
-            f"### {_p['icon']} {_p['name']}\n"
-            f"**{_p['mw']:,} MW {_p['tech']}** · {_p['hub']}\n\n"
-            f"**Strike:** ${_p['strike']:.2f}/MWh\n\n"
-            f"**Offtaker:** {_p['offtaker']}\n\n"
-            f"**Developer:** {_p['developer']}"
-        )
-        if _running:
-            st.link_button("Open portal ↗", f"http://localhost:{_p['port']}",
-                           use_container_width=True, type="primary")
-        else:
-            if st.button("Launch", key=f"launch_{_p['port']}", use_container_width=True):
+        with _col, st.container(border=True):
+            _badge = "🟢 Live" if _running else "⚪ Stopped"
+            st.markdown(
+                f"{_p['icon']} **{_p['name']}**  \n"
+                f"<span style='color:rgba(128,128,128,0.9);font-size:0.85em'>"
+                f"{_badge} · {_p['mw']:,} MW {_p['tech']} · {_p['hub']}</span>",
+                unsafe_allow_html=True,
+            )
+            st.markdown(f"**Strike** ${_p['strike']:.2f}/MWh")
+            st.caption(f"**Offtaker:** {_p['offtaker']}")
+            st.caption(f"**Developer:** {_p['developer']}")
+            if _running:
+                st.link_button("Open portal ↗", f"http://localhost:{_p['port']}",
+                               use_container_width=True, type="primary")
+            elif st.button("Launch", key=f"launch_{_p['port']}",
+                           use_container_width=True):
                 _launch_portal(_p)
                 st.toast(f"Launching {_p['name']} on port {_p['port']}…")
                 st.rerun()

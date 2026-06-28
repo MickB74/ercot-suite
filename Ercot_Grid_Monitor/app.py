@@ -39,16 +39,19 @@ def _price_color(v, vmin, vmax):
 
 @st.cache_data(show_spinner="Loading prices…", ttl=600)
 def _snapshot(location_type, market, locs, start, end):
-    """(avg-price-per-location df, source label). Reads the ercot-suite data lake
-    first; falls back to a live gridstatus pull for anything it doesn't cover."""
+    """(avg-price-per-location df, raw 15-min interval df, source label). Reads the
+    ercot-suite data lake first; falls back to a live gridstatus pull for anything
+    it doesn't cover. The raw frame (location, interval_start, spp) backs the
+    interval-level CSV export."""
     df, source = ercot.get_prices(list(locs), location_type, market, start, end)
     if df.empty:
-        return df, source
+        return df, df, source
     agg = df.groupby("location", as_index=False).agg(avg_spp=("spp", "mean"),
                                                       min_spp=("spp", "min"),
                                                       max_spp=("spp", "max"),
                                                       n=("spp", "size"))
-    return agg, source
+    raw = df.sort_values(["interval_start", "location"]).reset_index(drop=True)
+    return agg, raw, source
 
 
 st.title("⚡ ERCOT Grid Monitor")
@@ -105,11 +108,11 @@ with tab_map:
                    f"(representative regional centroids).")
 
     if go:
-        prices, source = _snapshot(location_type, market, tuple(cf["location"]),
-                                   str(start_d), str(end_d))
+        prices, raw, source = _snapshot(location_type, market, tuple(cf["location"]),
+                                        str(start_d), str(end_d))
         st.session_state["mapcache"] = {
             "lt": location_type, "market": market, "start": str(start_d),
-            "end": str(end_d), "prices": prices, "source": source}
+            "end": str(end_d), "prices": prices, "raw": raw, "source": source}
 
     cache = st.session_state.get("mapcache")
     if cache is None:
@@ -120,6 +123,7 @@ with tab_map:
     else:
         location_type = cache["lt"]
         prices, source = cache["prices"], cache["source"]
+        raw = cache.get("raw")
         cf = coords.coords_frame(location_type)
         st.caption(f"📦 Source: **{source}** · {cache['market']} · {cache['start']} → {cache['end']}"
                    + ("" if source == "data lake"
@@ -236,8 +240,38 @@ with tab_map:
                              "high $/MWh": st.column_config.NumberColumn(format="$%.2f"),
                              "EIA": st.column_config.LinkColumn("EIA", display_text="EIA ↗"),
                          })
-            st.download_button("⬇ Download CSV", show.to_csv(index=False).encode(),
-                               file_name=f"ercot_price_map_{location_type.replace(' ', '_')}.csv")
+            _win = f"{cache['start']}_{cache['end']}"
+            _lt_slug = location_type.replace(" ", "_")
+            d1, d2 = st.columns(2)
+            d1.download_button(
+                "⬇ Summary CSV", show.to_csv(index=False).encode(),
+                file_name=f"ercot_price_summary_{_lt_slug}_{_win}.csv",
+                use_container_width=True,
+                help="One row per location: avg / low / high / interval count.")
+
+            # Interval-level export: the raw 15-min (RT15) or hourly (DAM) SPP for
+            # every interval in the chosen window — what backs the averages above.
+            if raw is not None and not raw.empty:
+                if location_type == "Resource Node":
+                    # ~1,024 nodes → keep it tidy/long so it isn't 1,000 columns.
+                    intervals = (raw.rename(columns={"interval_start": "interval_start_central",
+                                                     "location": "resource_node",
+                                                     "spp": "$/MWh"})
+                                    .sort_values(["interval_start_central", "resource_node"]))
+                else:
+                    # Hubs / zones → wide: one row per interval, one column per location.
+                    intervals = (raw.pivot_table(index="interval_start", columns="location",
+                                                 values="spp", aggfunc="mean")
+                                    .sort_index().round(2).reset_index()
+                                    .rename(columns={"interval_start": "interval_start_central"}))
+                    intervals.columns.name = None
+                d2.download_button(
+                    f"⬇ Interval data CSV ({len(raw):,} rows)",
+                    intervals.to_csv(index=False).encode(),
+                    file_name=f"ercot_price_intervals_{cache['market']}_{_lt_slug}_{_win}.csv",
+                    use_container_width=True, type="primary",
+                    help=f"Every {cache['market']} interval ({cache['start']} → {cache['end']}) "
+                         "behind the summary — interval timestamp + price per location.")
 
     # Full ERCOT resource-node reference (NP4-160-SG) — all ~1,024 nodes with
     # their authoritative substation / load zone, whether or not we can plot them.

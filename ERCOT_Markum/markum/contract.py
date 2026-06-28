@@ -26,6 +26,7 @@ ASSET = {
     "lat": 31.694792,                      # EIA-860 authoritative (COD 2024-11-01)
     "lon": -97.374883,
     "dc_ac_ratio": 1.45,
+    "panel_tech": "thin-film",             # USPVDB (Markum Solar Farm)
     # EIA-923 plant identifier for the independent generation cross-check. There
     # is no public ERCOT→EIA crosswalk, so this is supplied by hand once (the
     # plant's EIA ORIS code). Markum Solar Farm = 67580 (matched on EIA-860 name

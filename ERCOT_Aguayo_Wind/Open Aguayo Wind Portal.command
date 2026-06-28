@@ -3,7 +3,7 @@
 # Pinned to port 8502 so the Control Tower "Open portal" link always matches,
 # and so repeat double-clicks can't spawn stray instances on auto-picked ports.
 cd "$(dirname "$0")" || exit 1
-PORT=8502
+PORT=8511
 if [ ! -d ".venv" ]; then
   echo "Creating virtual environment…"
   python3 -m venv .venv
