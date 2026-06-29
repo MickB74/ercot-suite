@@ -58,6 +58,13 @@ def _jobs() -> dict[str, Job]:
             "system_gen_by_fuel", "update_generation.py", [],
             note="Re-downloads the current-year Fuel Mix Report and merges with provenance.",
         ),
+        "node_catalog": Job(
+            "node_catalog", "Resource-node catalog (unit ↔ settlement node)",
+            "system_gen_by_fuel", "resource_catalog.py", ["--build"],
+            note="Rebuilds resource_node_catalog.parquet from ERCOT's resource-node "
+                 "mapping. Required by the project portals' node refresh; not produced "
+                 "by system_gen, so build it after a fresh checkout.",
+        ),
         "hub_prices": Job(
             "hub_prices", "Hub settlement-point prices (RTM 15-min)",
             "hub_prices", "ercot_api.py", ["update"],
@@ -99,9 +106,16 @@ def _jobs() -> dict[str, Job]:
 JOBS = _jobs()
 
 
-def stream_job(key: str, extra_args: list[str] | None = None):
-    """Run a job, yielding output lines as they arrive. Final yield is a dict
-    {'returncode': int} sentinel via the generator's return value."""
+# Transient macOS errors: a background daemon (cloud sync / Spotlight /
+# fileproviderd) momentarily invalidates a file handle the job holds open,
+# surfacing as ESTALE ("Stale NFS file handle", errno 70). The operation always
+# succeeds on a fresh attempt, so we retry the whole job rather than crash it.
+_ESTALE_MARKERS = ("Stale NFS file handle", "[Errno 70]", "errno 70")
+_ESTALE_MAX_ATTEMPTS = 3
+
+
+def _stream_job_once(key: str, extra_args: list[str] | None = None):
+    """Run a job once, yielding output lines. Returns the exit code."""
     job = JOBS[key]
     env = _subprocess_env()
     proc = subprocess.Popen(
@@ -113,6 +127,32 @@ def stream_job(key: str, extra_args: list[str] | None = None):
         yield line.rstrip("\n")
     proc.wait()
     return proc.returncode
+
+
+def stream_job(key: str, extra_args: list[str] | None = None):
+    """Run a job, yielding output lines as they arrive; returns the exit code.
+
+    A failure caused solely by a transient ESTALE (see :data:`_ESTALE_MARKERS`)
+    is retried from scratch up to :data:`_ESTALE_MAX_ATTEMPTS` times. Any other
+    non-zero exit is returned immediately.
+    """
+    rc = 0
+    for attempt in range(1, _ESTALE_MAX_ATTEMPTS + 1):
+        saw_estale = False
+        gen = _stream_job_once(key, extra_args)
+        try:
+            while True:
+                line = next(gen)
+                if any(m in line for m in _ESTALE_MARKERS):
+                    saw_estale = True
+                yield line
+        except StopIteration as stop:
+            rc = stop.value or 0
+        if rc == 0 or not saw_estale or attempt == _ESTALE_MAX_ATTEMPTS:
+            return rc
+        yield (f"  ↻ transient filesystem error (ESTALE); retrying "
+               f"(attempt {attempt + 1}/{_ESTALE_MAX_ATTEMPTS})…")
+    return rc
 
 
 def run_job(key: str, extra_args: list[str] | None = None, echo: bool = True) -> int:
