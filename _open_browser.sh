@@ -10,11 +10,29 @@
 
 _OBP_PORT="${1:-8501}"
 _OBP_URL="http://localhost:${_OBP_PORT}"
+
+# True if some browser is already running. We deliberately do NOT cold-start a
+# browser from here: launching one fresh (e.g. Chrome) with `open` can trip its
+# own startup crash (EXC_BREAKPOINT in ChromeMain). If none is running we just
+# print the URL and let the user open it in their already-recovered browser.
+_obp_browser_running() {
+  local b
+  for b in "Google Chrome" "Safari" "Arc" "firefox" "Microsoft Edge" \
+           "Brave Browser" "Google Chrome Beta" "Chromium"; do
+    pgrep -x "$b" >/dev/null 2>&1 && return 0
+  done
+  return 1
+}
+
 (
-  # Poll for up to ~30s for the server to answer, then open the tab once.
+  # Poll for up to ~30s for the server to answer.
   for _ in $(seq 1 60); do
     if curl -s -o /dev/null "$_OBP_URL"; then
-      open "$_OBP_URL"
+      if _obp_browser_running; then
+        open "$_OBP_URL"
+      else
+        printf '\n  ▶ App is ready — open this in your browser:\n     %s\n\n' "$_OBP_URL"
+      fi
       break
     fi
     sleep 0.5
