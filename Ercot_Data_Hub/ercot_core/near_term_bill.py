@@ -343,7 +343,8 @@ def render_near_term_tab(
                 if pd.isna(_price):
                     continue
                 _net = float(_mwh) * (_price - strike)
-                prior_rows.append({"date": _d, "mwh": float(_mwh), "net": _net, "kind": "retrocast"})
+                prior_rows.append({"date": _d, "mwh": float(_mwh), "net": _net,
+                                   "price": _price, "kind": "retrocast"})
             prior_net = sum(r["net"] for r in prior_rows)
             prior_mwh = sum(r["mwh"] for r in prior_rows)
             has_prior = len(prior_rows) > 0
@@ -377,7 +378,7 @@ def render_near_term_tab(
         for _, row in da.iterrows():
             actual_rows.append({
                 "date": row["date"], "mwh": row["mwh"],
-                "net": row["net"], "kind": "actual",
+                "net": row["net"], "price": row["price"], "kind": "actual",
             })
 
     settled_dates = {r["date"] for r in actual_rows}
@@ -428,7 +429,8 @@ def render_near_term_tab(
                         continue
                     mtd_est_rows.append({
                         "date": _d, "mwh": float(_mwh),
-                        "net": float(_mwh) * (_price - strike), "kind": "mtd_est",
+                        "net": float(_mwh) * (_price - strike),
+                        "price": _price, "kind": "mtd_est",
                     })
         settled_dates = settled_dates | {r["date"] for r in mtd_est_rows}
 
@@ -454,7 +456,8 @@ def render_near_term_tab(
             kind = "forecast_next"
         else:
             kind = "forecast_third"
-        forecast_rows.append({"date": d_date, "mwh": float(mwh), "net": net, "kind": kind})
+        forecast_rows.append({"date": d_date, "mwh": float(mwh), "net": net,
+                              "price": fwd_price, "kind": kind})
 
     # Build prior-year daily MWh lookup for the climatological tail
     py_daily: dict[dt.date, float] = {}
@@ -485,7 +488,8 @@ def render_near_term_tab(
             else:
                 mwh = gf.hist_mwh_for_date(d, hist_mwh)
                 row_kind = f"hist_{month_tag}"
-            forecast_rows.append({"date": d, "mwh": mwh, "net": mwh * (fwd_price - strike), "kind": row_kind})
+            forecast_rows.append({"date": d, "mwh": mwh, "net": mwh * (fwd_price - strike),
+                                  "price": fwd_price, "kind": row_kind})
         d += dt.timedelta(days=1)
 
     all_rows = prior_rows + actual_rows + mtd_est_rows + forecast_rows
@@ -601,6 +605,54 @@ def render_near_term_tab(
         f"{fwd_price:,.2f}−{strike:,.2f}={fwd_price - strike:,.2f} \\$/MWh) "
         f"= **{branding.signed_money(proj_cur)}** ({proj_mwh:,.0f} MWh)."
     )
+
+    # ── price capture: generation-weighted vs simple mean grid price ──────────
+    # Capture price = Σ(MWh × price) ÷ Σ MWh, backed out of the net column
+    #   (net = MWh × (price − strike)) so it includes intraday weighting on
+    #   metered days. Mean grid price = simple average of the daily settlement
+    #   price. The two only diverge where prices actually vary — the realized /
+    #   MTD window — since every forecast day carries one flat forward price,
+    #   so the capture section is scoped to the realized + month-to-date rows.
+    real_mask = all_df["kind"].isin(["retrocast", "actual", "mtd_est"])
+    _real = all_df.loc[real_mask & all_df["mwh"].gt(0) & all_df["price"].notna()]
+    if not _real.empty:
+        _loc_lbl = "hub" if _settle_is_hub else "node"
+        cap_price = float(_real["net"].sum() / _real["mwh"].sum()) + strike
+        mean_price = float(_real["price"].mean())
+        cap_ratio = 100.0 * cap_price / mean_price if mean_price else float("nan")
+        st.markdown(
+            f"**Price capture** · {_settle_loc} ({_loc_lbl}) · "
+            f"{_real['date'].min()} → {_real['date'].max()} "
+            f"({len(_real)} days)"
+        )
+        _pc = st.columns(3)
+        _pc[0].metric(
+            f"Capture price ({tech})",
+            f"${cap_price:,.2f}/MWh",
+            delta="generation-weighted",
+            delta_color="off",
+            help="Σ(MWh × price) ÷ Σ MWh — the settlement price the plant "
+                 "actually earns, weighting each interval by how much it "
+                 f"generated. Realized + month-to-date days only ({tech} "
+                 "forecast days carry a flat forward price and are excluded).",
+        )
+        _pc[1].metric(
+            "Mean grid price",
+            f"${mean_price:,.2f}/MWh",
+            delta=f"simple {_loc_lbl} average",
+            delta_color="off",
+            help=f"Time-weighted average {_loc_lbl} settlement price at "
+                 f"{_settle_loc} over the same days, ignoring generation.",
+        )
+        _pc[2].metric(
+            "Capture ratio",
+            f"{cap_ratio:,.0f}%" if pd.notna(cap_ratio) else "—",
+            delta="capture ÷ mean grid",
+            delta_color="off",
+            help="Capture price as a percent of the mean grid price. Below "
+                 f"100% means {tech} output skews toward lower-priced hours; "
+                 "above 100% means it correlates with higher prices.",
+        )
 
     # ── chart ─────────────────────────────────────────────────────────────────
     SOLID_POS = branding.GOOD
