@@ -105,7 +105,7 @@ def _capture_ratios(hub_name, win_start_iso, win_end_iso, monthly_key):
     cal_months = md["cal_month"].astype(int)
     d = price_forecast.capture_to_hub_monthly(md, h, price_col=price_col,
                                                cal_months=cal_months,
-                                               node=a["resource_node"], spring_trend_pct=8.0, fleet_fallback=price_forecast.fleet_capture_ratios(hub_name))
+                                               fleet_fallback=price_forecast.fleet_capture_ratios(hub_name))
     return tuple(sorted(d.items()))
 
 

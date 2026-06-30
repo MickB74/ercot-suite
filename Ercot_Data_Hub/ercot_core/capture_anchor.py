@@ -124,15 +124,19 @@ def _ratio_pcts(df: pd.DataFrame, gcol="g", pcol="p") -> dict:
 
 
 def build(node: str, *, settle_point: str, units: list[str], hub: str,
-          label: str = "", log=print) -> dict:
+          price_node: str | None = None, label: str = "", log=print) -> dict:
     """Compute and cache the capture anchor for an asset.
 
-    ``settle_point`` is the contract reference (hub code like ``HB_NORTH`` or the
-    node itself); ``hub`` is the trading hub used for the basis comparison.
+    ``node`` is the cache key / portal lookup key (the asset's resource_node).
+    ``price_node`` is the node whose RT15 price drives the basis — defaults to
+    ``node`` but differs for aggregate resources (e.g. Azure Sky's resource_node
+    is ``AZURE_SKY_WIND_AGG`` but it's priced at ``AZURE_RN``).
+    ``settle_point`` is the contract reference (hub code or the node); ``hub`` is
+    the trading hub used for the basis comparison.
     """
     gen = gen_hourly(units)
     hubp = hub_price_hourly(hub)
-    nodep = node_price_hourly(node)
+    nodep = node_price_hourly(price_node or node)
     if gen.empty or hubp.empty:
         raise RuntimeError(f"missing gen or hub price for {node}")
 

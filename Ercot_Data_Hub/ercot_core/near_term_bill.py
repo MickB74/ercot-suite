@@ -715,6 +715,10 @@ def render_near_term_tab(
         if _b.get("basis_genweighted") is not None and _b.get("node_capture") is not None:
             _bv = float(_b["basis_genweighted"])
             _side = "below" if _bv < 0 else "above"
+            _nmo = int((_ca or {}).get("n_months") or 0)
+            # Honest about sample size: <12 months is a preliminary read.
+            _hist = (f"{_nmo}-mo history" if _nmo else "SCED history")
+            _prelim = " · ⚠ preliminary, limited history" if 0 < _nmo < 12 else ""
             _bearer = ("The CfD settles at the hub, so this basis is borne by the "
                        "generator, not the offtaker."
                        if _settle_is_hub else
@@ -723,12 +727,14 @@ def render_near_term_tab(
             st.caption(
                 f"↪ **Node basis** — this plant's own node "
                 f"(`{a.get('resource_node')}`) captures "
-                f"**${float(_b['node_capture']):,.2f}/MWh**, "
-                f"**${abs(_bv):,.2f}/MWh {_side}** the hub "
-                f"(generation-weighted, full SCED history). {_bearer}"
+                f"**{float(_b['node_capture']):,.2f} \\$/MWh**, "
+                f"**{abs(_bv):,.2f} \\$/MWh {_side}** the hub "
+                f"(generation-weighted, {_hist}{_prelim}). {_bearer}"
             )
 
     # ── chart ─────────────────────────────────────────────────────────────────
+    from plotly.subplots import make_subplots as _make_subplots
+
     SOLID_POS = branding.GOOD
     SOLID_NEG = branding.BAD
     FCAST_CUR_POS = "rgba(136,169,24,0.55)"
@@ -739,8 +745,6 @@ def render_near_term_tab(
     FCAST_THIRD_NEG = "rgba(178,58,72,0.35)"
     FCAST_FOURTH_POS = "rgba(180,140,60,0.55)"
     FCAST_FOURTH_NEG = "rgba(178,58,72,0.30)"
-    HIST_POS = "rgba(84,164,218,0.40)"
-    HIST_NEG = "rgba(178,58,72,0.30)"
     RETRO_POS = "rgba(155,155,155,0.70)"
     RETRO_NEG = "rgba(178,58,72,0.55)"
 
@@ -762,28 +766,63 @@ def render_near_term_tab(
     bar_colors = [_bar_color(r) for _, r in all_df.iterrows()]
     x_labels = [str(r["date"]) for _, r in all_df.iterrows()]
 
-    fig = go.Figure()
+    # Check if we have real market prices to show in a price subplot
+    real_price_kinds = {"retrocast", "actual", "mtd_est"}
+    real_prices = [
+        float(row["price"]) if row["kind"] in real_price_kinds and pd.notna(row["price"]) else None
+        for _, row in all_df.iterrows()
+    ]
+    has_real_prices = any(p is not None for p in real_prices)
 
-    # ── settlement bars (primary y-axis) ─────────────────────────────────────
+    # Build prior-year generation lookup for the chart
+    py_x, py_y = [], []
+    _prior_year_label = ""
+    if py_daily:
+        for d_date in sorted(all_df["date"]):
+            try:
+                prior_date = d_date.replace(year=d_date.year - 1)
+            except ValueError:
+                continue
+            if prior_date in py_daily:
+                py_x.append(str(d_date))
+                py_y.append(py_daily[prior_date])
+                _prior_year_label = str(d_date.year - 1)
+
+    # Two-row layout: main chart (settlement + gen) on top, price below
+    if has_real_prices:
+        fig = _make_subplots(
+            rows=2, cols=1,
+            shared_xaxes=True,
+            row_heights=[0.75, 0.25],
+            vertical_spacing=0.04,
+            specs=[[{"secondary_y": True}], [{"secondary_y": False}]],
+        )
+    else:
+        fig = _make_subplots(
+            rows=1, cols=1,
+            specs=[[{"secondary_y": True}]],
+        )
+
+    # ── settlement bars (row 1, primary y) ──────────────────────────────────
     if has_prior:
         fig.add_bar(x=[], y=[], name=f"ERA5 × actual – {prev_month_str}",
-                    marker_color=RETRO_POS, showlegend=True)
-    fig.add_bar(x=[], y=[], name="Settled", marker_color=SOLID_POS, showlegend=True)
-    fig.add_bar(x=[], y=[], name=f"Forecast – {cur_month_str}", marker_color=FCAST_CUR_POS, showlegend=True)
-    fig.add_bar(x=[], y=[], name=f"Forecast – {next_month_str}", marker_color=FCAST_NEXT_POS, showlegend=True)
-    fig.add_bar(x=[], y=[], name=f"Forecast – {third_month_str}", marker_color=FCAST_THIRD_POS, showlegend=True)
-    fig.add_bar(x=[], y=[], name=f"Forecast – {fourth_month_str}", marker_color=FCAST_FOURTH_POS, showlegend=True)
+                    marker_color=RETRO_POS, showlegend=True, row=1, col=1)
+    fig.add_bar(x=[], y=[], name="Settled", marker_color=SOLID_POS, showlegend=True, row=1, col=1)
+    fig.add_bar(x=[], y=[], name=f"Forecast – {cur_month_str}", marker_color=FCAST_CUR_POS, showlegend=True, row=1, col=1)
+    fig.add_bar(x=[], y=[], name=f"Forecast – {next_month_str}", marker_color=FCAST_NEXT_POS, showlegend=True, row=1, col=1)
+    fig.add_bar(x=[], y=[], name=f"Forecast – {third_month_str}", marker_color=FCAST_THIRD_POS, showlegend=True, row=1, col=1)
+    fig.add_bar(x=[], y=[], name=f"Forecast – {fourth_month_str}", marker_color=FCAST_FOURTH_POS, showlegend=True, row=1, col=1)
 
     fig.add_bar(
         x=x_labels,
         y=all_df["net"].tolist(),
         marker_color=bar_colors,
         showlegend=False,
-        yaxis="y1",
         hovertemplate="%{x}<br>Net: $%{y:,.0f}<extra></extra>",
+        row=1, col=1,
     )
 
-    # ── generation line (secondary y-axis) ───────────────────────────────────
+    # ── generation lines (row 1, secondary y) ───────────────────────────────
     settled_mwh = [v if k == "actual" else None for v, k in zip(all_df["mwh"], all_df["kind"])]
     fcast_mwh   = [v if k != "actual" else None for v, k in zip(all_df["mwh"], all_df["kind"])]
 
@@ -793,9 +832,9 @@ def render_near_term_tab(
         line=dict(color="rgba(0,105,179,0.85)", width=2),
         marker=dict(size=4),
         name="Generation (settled)",
-        yaxis="y2",
         connectgaps=False,
         hovertemplate="%{x}<br>Gen: %{y:,.0f} MWh<extra></extra>",
+        row=1, col=1, secondary_y=True,
     )
     fig.add_scatter(
         x=x_labels, y=fcast_mwh,
@@ -803,75 +842,81 @@ def render_near_term_tab(
         line=dict(color="rgba(0,105,179,0.45)", width=2, dash="dot"),
         marker=dict(size=3),
         name="Generation (forecast)",
-        yaxis="y2",
         connectgaps=False,
         hovertemplate="%{x}<br>Gen: %{y:,.0f} MWh<extra></extra>",
+        row=1, col=1, secondary_y=True,
     )
 
-    # ── prior-year generation (secondary y-axis, faint reference line) ───────
-    if py_daily:
-        py_x, py_y = [], []
-        for d_date in sorted(all_df["date"]):
-            try:
-                prior_date = d_date.replace(year=d_date.year - 1) if not isinstance(d_date, dt.date) else d_date.replace(year=d_date.year - 1)
-            except ValueError:
-                continue
-            if prior_date in py_daily:
-                py_x.append(str(d_date))
-                py_y.append(py_daily[prior_date])
-        if py_x:
-            fig.add_scatter(
-                x=py_x, y=py_y,
-                mode="lines",
-                line=dict(color="rgba(0,105,179,0.25)", width=1.5, dash="dash"),
-                name=f"Generation ({d_date.year - 1})",
-                yaxis="y2",
-                connectgaps=True,
-                hovertemplate="%{x}<br>Prior yr: %{y:,.0f} MWh<extra></extra>",
-            )
-
-    # ── capture price line (secondary y-axis on right) ───────────────────────
-    price_vals = all_df["price"].tolist()
-    has_varied_prices = len(set(p for p in price_vals if pd.notna(p))) > 1
-    if has_varied_prices:
+    # ── prior-year generation (row 1, secondary y, distinct orange-grey) ────
+    if py_x:
         fig.add_scatter(
-            x=x_labels, y=price_vals,
+            x=py_x, y=py_y,
             mode="lines",
-            line=dict(color="rgba(218,165,32,0.7)", width=1.5),
-            name="Capture price ($/MWh)",
-            yaxis="y3",
+            line=dict(color="rgba(180,160,120,0.45)", width=1.5, dash="dashdot"),
+            name=f"Generation ({_prior_year_label})",
             connectgaps=True,
-            hovertemplate="%{x}<br>Price: $%{y:,.2f}/MWh<extra></extra>",
+            hovertemplate="%{x}<br>Prior yr: %{y:,.0f} MWh<extra></extra>",
+            row=1, col=1, secondary_y=True,
         )
 
-    # Shaded month backgrounds + labels above the plot area
+    # ── capture price subplot (row 2) ────────────────────────────────────────
+    if has_real_prices:
+        fig.add_scatter(
+            x=x_labels, y=real_prices,
+            mode="lines+markers",
+            line=dict(color="rgba(218,165,32,0.85)", width=2),
+            marker=dict(size=3, color="rgba(218,165,32,0.85)"),
+            name="Market price ($/MWh)",
+            connectgaps=True,
+            hovertemplate="%{x}<br>Price: $%{y:,.2f}/MWh<extra></extra>",
+            row=2, col=1,
+        )
+        # Strike reference line
+        _real_x = [x for x, p in zip(x_labels, real_prices) if p is not None]
+        if _real_x:
+            fig.add_scatter(
+                x=[_real_x[0], _real_x[-1]], y=[strike, strike],
+                mode="lines",
+                line=dict(color="rgba(178,58,72,0.5)", width=1, dash="dash"),
+                name=f"Strike (${strike:,.2f})",
+                showlegend=True,
+                hoverinfo="skip",
+                row=2, col=1,
+            )
+
+    # ── shaded month backgrounds + labels ────────────────────────────────────
     bdy_str = next_month_start.strftime("%Y-%m-%d")
     bdy2_str = third_month_start.strftime("%Y-%m-%d")
     bdy3_str = fourth_month_start.strftime("%Y-%m-%d")
     cur_start_str = str(cur_month_start_date)
     fourth_end_str = str(fourth_month_end_date + dt.timedelta(days=1))
-    if has_prior:
-        prev_start_str = str(prev_month_start_date)
-        fig.add_vrect(x0=prev_start_str, x1=cur_start_str,
-                      fillcolor="rgba(155,155,155,0.07)", line_width=0)
-        fig.add_vline(x=cur_start_str, line_dash="dot", line_color="#848484", line_width=1.5)
-    fig.add_vrect(x0=cur_start_str, x1=bdy_str,
-                  fillcolor="rgba(136,169,24,0.06)", line_width=0)
-    fig.add_vrect(x0=bdy_str, x1=bdy2_str,
-                  fillcolor="rgba(84,164,218,0.06)", line_width=0)
-    fig.add_vrect(x0=bdy2_str, x1=bdy3_str,
-                  fillcolor="rgba(124,99,196,0.06)", line_width=0)
-    fig.add_vrect(x0=bdy3_str, x1=fourth_end_str,
-                  fillcolor="rgba(180,140,60,0.06)", line_width=0)
-    fig.add_vline(x=bdy_str, line_dash="dot", line_color="#848484", line_width=1.5)
-    fig.add_vline(x=bdy2_str, line_dash="dot", line_color="#848484", line_width=1.5)
-    fig.add_vline(x=bdy3_str, line_dash="dot", line_color="#848484", line_width=1.5)
-    # Month summary labels centred above each region
+
+    _n_rows = 2 if has_real_prices else 1
+    for _ri in range(1, _n_rows + 1):
+        _yref = f"y{'' if _ri == 1 else _ri * 2 - 1}"
+        if has_prior:
+            prev_start_str = str(prev_month_start_date)
+            fig.add_vrect(x0=prev_start_str, x1=cur_start_str,
+                          fillcolor="rgba(155,155,155,0.07)", line_width=0, row=_ri, col=1)
+            fig.add_vline(x=cur_start_str, line_dash="dot", line_color="#848484", line_width=1.5, row=_ri, col=1)
+        fig.add_vrect(x0=cur_start_str, x1=bdy_str,
+                      fillcolor="rgba(136,169,24,0.06)", line_width=0, row=_ri, col=1)
+        fig.add_vrect(x0=bdy_str, x1=bdy2_str,
+                      fillcolor="rgba(84,164,218,0.06)", line_width=0, row=_ri, col=1)
+        fig.add_vrect(x0=bdy2_str, x1=bdy3_str,
+                      fillcolor="rgba(124,99,196,0.06)", line_width=0, row=_ri, col=1)
+        fig.add_vrect(x0=bdy3_str, x1=fourth_end_str,
+                      fillcolor="rgba(180,140,60,0.06)", line_width=0, row=_ri, col=1)
+        fig.add_vline(x=bdy_str, line_dash="dot", line_color="#848484", line_width=1.5, row=_ri, col=1)
+        fig.add_vline(x=bdy2_str, line_dash="dot", line_color="#848484", line_width=1.5, row=_ri, col=1)
+        fig.add_vline(x=bdy3_str, line_dash="dot", line_color="#848484", line_width=1.5, row=_ri, col=1)
+
+    # Month summary labels (on row 1 only)
     cur_mid  = str(cur_month_start_date + dt.timedelta(days=15))
     next_mid = str(next_month_start.date() + dt.timedelta(days=15))
     third_mid = str(third_month_start.date() + dt.timedelta(days=15))
     fourth_mid = str(fourth_month_start.date() + dt.timedelta(days=15))
-    _lbl = dict(showarrow=False, yref="paper", y=1.07,
+    _lbl = dict(showarrow=False, yref="y domain", y=1.07,
                 font=dict(size=11), xanchor="center",
                 bgcolor="rgba(255,255,255,0.88)",
                 bordercolor="#bbb", borderwidth=1, borderpad=4)
@@ -898,43 +943,24 @@ def render_near_term_tab(
                             f"<br>{fourth_mwh:,.0f} MWh",
                        **_lbl)
 
-    _y3_layout = {}
-    if has_varied_prices:
-        _y3_layout = dict(
-            yaxis3=dict(
-                title="Price ($/MWh)",
-                overlaying="y",
-                side="right",
-                showgrid=False,
-                anchor="free",
-                position=0.97,
-                tickfont=dict(color="rgba(218,165,32,0.8)", size=10),
-                title_font=dict(color="rgba(218,165,32,0.8)"),
-            ),
-        )
-
     fig.update_layout(
-        height=440,
+        height=520 if has_real_prices else 420,
         hovermode="x unified",
-        margin=dict(t=30, b=10, r=80 if has_varied_prices else 40),
-        yaxis=dict(
-            title="Daily net settlement ($)",
-            zeroline=True, zerolinecolor="#ddd",
-            side="left",
-        ),
-        yaxis2=dict(
-            title="Daily generation (MWh)",
-            overlaying="y",
-            side="right",
-            showgrid=False,
-            rangemode="tozero",
-            tickfont=dict(color="rgba(0,105,179,0.8)"),
-            title_font=dict(color="rgba(0,105,179,0.8)"),
-        ),
-        **_y3_layout,
-        legend=dict(orientation="h", y=1.18),
+        margin=dict(t=30, b=10),
+        legend=dict(orientation="h", y=1.14),
         bargap=0.15,
     )
+    fig.update_yaxes(title_text="Daily net settlement ($)", zeroline=True, zerolinecolor="#ddd",
+                     row=1, col=1, secondary_y=False)
+    fig.update_yaxes(title_text="Daily generation (MWh)", showgrid=False, rangemode="tozero",
+                     tickfont=dict(color="rgba(0,105,179,0.8)"),
+                     title_font=dict(color="rgba(0,105,179,0.8)"),
+                     row=1, col=1, secondary_y=True)
+    if has_real_prices:
+        fig.update_yaxes(title_text="Price ($/MWh)", showgrid=True, gridcolor="#f0f0f0",
+                         tickfont=dict(color="rgba(218,165,32,0.8)"),
+                         title_font=dict(color="rgba(218,165,32,0.8)"),
+                         row=2, col=1)
     st.plotly_chart(fig, use_container_width=True)
 
     # ── detail table ──────────────────────────────────────────────────────────
