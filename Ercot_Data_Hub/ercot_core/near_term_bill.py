@@ -702,6 +702,32 @@ def render_near_term_tab(
                  "above 100% means it correlates with higher prices.",
         )
 
+        # ── node-vs-hub basis — the asset's true economics at its own node ──
+        # From the realized capture anchor (full SCED history). Surfaces what the
+        # plant earns at its node vs the hub it's measured against; for a hub-
+        # settled CfD the generator bears this basis, not the offtaker.
+        try:
+            from ercot_core import capture_anchor
+            _ca = capture_anchor.load(a.get("resource_node") or "")
+        except Exception:  # noqa: BLE001 — basis is informational, never block the page
+            _ca = None
+        _b = (_ca or {}).get("basis") or {}
+        if _b.get("basis_genweighted") is not None and _b.get("node_capture") is not None:
+            _bv = float(_b["basis_genweighted"])
+            _side = "below" if _bv < 0 else "above"
+            _bearer = ("The CfD settles at the hub, so this basis is borne by the "
+                       "generator, not the offtaker."
+                       if _settle_is_hub else
+                       "This contract settles at the node, so the basis flows "
+                       "through to settlement.")
+            st.caption(
+                f"↪ **Node basis** — this plant's own node "
+                f"(`{a.get('resource_node')}`) captures "
+                f"**${float(_b['node_capture']):,.2f}/MWh**, "
+                f"**${abs(_bv):,.2f}/MWh {_side}** the hub "
+                f"(generation-weighted, full SCED history). {_bearer}"
+            )
+
     # ── chart ─────────────────────────────────────────────────────────────────
     SOLID_POS = branding.GOOD
     SOLID_NEG = branding.BAD
