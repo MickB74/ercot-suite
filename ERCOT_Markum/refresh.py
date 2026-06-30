@@ -86,7 +86,13 @@ def main() -> int:
 
     node = contract.ASSET["resource_node"]
     latest = sced.latest_available_date()
-    print(f"Markum ({node}) — latest available SCED date: {latest}\n")
+    # Generation (SCED) genuinely lags ~60 days; node PRICE (RT15) does not — it's
+    # available through ERCOT's live window. Don't cap price at the SCED date:
+    # if the price is there, load it. Price runs to yesterday (today's intervals
+    # aren't fully settled yet).
+    price_latest = dt.date.today() - dt.timedelta(days=1)
+    print(f"Markum ({node}) — latest available SCED date: {latest} · "
+          f"price through {price_latest}\n")
 
     do_gen = not args.price_only
     do_price = not args.gen_only
@@ -110,12 +116,12 @@ def main() -> int:
     if do_price:
         pmax = _cached_max(hub.node_prices, node)
         pstart = _start_for(pmax, forced, args.full)
-        print(f"[node price] cached through {pmax or '—'} · pulling {pstart} → {latest} "
+        print(f"[node price] cached through {pmax or '—'} · pulling {pstart} → {price_latest} "
               "(archive for older months — can take a few minutes) …")
-        if pstart > latest:
+        if pstart > price_latest:
             print("  already current.\n")
         else:
-            p = spp_archive.fetch_rtm_spp([node], pstart, latest,
+            p = spp_archive.fetch_rtm_spp([node], pstart, price_latest,
                                           location_type="Resource Node",
                                           log=lambda m: print("   " + m))
             print(f"  fetched {len(p):,} rows")

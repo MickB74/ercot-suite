@@ -74,7 +74,11 @@ def main() -> int:
     a = contract.ASSET
     units = a["units"]
     latest = sced.latest_available_date()
-    print(f"Azure Sky ({a['resource_node']}) — latest available SCED date: {latest}\n")
+    # Node PRICE (RT15) has no 60-day SCED lag — load it through the live window,
+    # not capped at the SCED date. If the price is there, load it.
+    price_latest = dt.date.today() - dt.timedelta(days=1)
+    print(f"Azure Sky ({a['resource_node']}) — latest available SCED date: {latest} · "
+          f"price through {price_latest}\n")
 
     # ── generation (the four VORTEX units) ───────────────────────────────────
     gw_start, gw_end = hub._gen_span(tuple(units))
@@ -96,17 +100,17 @@ def main() -> int:
     if price_node:
         spp_archive, pull_nodes = hub.node_price_pullers()
         existing = hub.node_prices(price_node, pd.Timestamp(BACKFILL_START),
-                                   pd.Timestamp(latest) + pd.Timedelta(days=1))
+                                   pd.Timestamp(price_latest) + pd.Timedelta(days=1))
         pmax = (pd.to_datetime(existing["interval_start"]).max().date()
                 if existing is not None and not existing.empty else None)
         pstart = _start_for(pmax, forced, args.full)
         print(f"[node price] {price_node} RT15 · cached through {pmax or '—'} · "
-              f"pulling {pstart} → {latest} (archive — can take a few minutes) …")
-        if pstart > latest:
+              f"pulling {pstart} → {price_latest} (archive — can take a few minutes) …")
+        if pstart > price_latest:
             print("  already current.\n")
         else:
             p = spp_archive.fetch_rtm_spp([price_node], pd.Timestamp(pstart),
-                                          pd.Timestamp(latest),
+                                          pd.Timestamp(price_latest),
                                           location_type="Resource Node",
                                           log=lambda m: print("   " + m))
             print(f"  fetched {len(p):,} rows")
