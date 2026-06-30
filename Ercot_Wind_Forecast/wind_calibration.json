@@ -1737,5 +1737,31 @@
       "method": "blend_40pct_2024_azuresky_60pct_neutral",
       "note": "Best available approximation; original used 17 resources (not available in sandbox)"
     }
+  },
+  "eia_calibration": {
+    "MIRASOLE_GEN": {
+      "project": "Hidalgo Mirasole Wind",
+      "overall_energy_factor": 2.5284,
+      "ws_speed_correction": 1.3445,
+      "residual_after_ws_correction": 1.0,
+      "monthly_factors": {
+        "1": 2.3515,
+        "2": 2.1908,
+        "3": 1.9683,
+        "4": 2.016,
+        "5": 2.2087,
+        "6": 2.7621,
+        "7": 3.2381,
+        "8": 3.2735,
+        "9": 4.0373,
+        "10": 2.8243,
+        "11": 3.0715,
+        "12": 2.4697
+      },
+      "source": "EIA-923 monthly 2016-12+ (plants 57617+62618), ERA5+V110-2.0 physics",
+      "span": "2016-12 \u2192 2026-03",
+      "validated_vs_sced_pct": 99.84,
+      "note": "Raw ERA5+physics under-resolves the Rio Grande Valley low-level jet (mean hub wind reads ~6.7 m/s vs ~8.5 needed). Prefer the ws_speed_correction over the flat energy factor; apply on top of raw physics only, not the app's already-primed output."
+    }
   }
 }

@@ -200,7 +200,17 @@ def render_near_term_tab(
 
     win_end_date = win_end if isinstance(win_end, dt.date) else pd.Timestamp(win_end).date()
     win_start_date = win_start if isinstance(win_start, dt.date) else pd.Timestamp(win_start).date()
-    cal_start_date = max(win_start_date, win_end_date - dt.timedelta(days=60))
+    # Calibration window: normally the last 60 days (recency captures availability
+    # drift). But for nodes with an EIA-923 long-history anchor, a 60-day window is
+    # unreliable — at sites where ERA5 under-resolves the wind (e.g. the Rio Grande
+    # Valley low-level jet) the recent window over-corrects and the factor clamps.
+    # Widen those to the full available SCED record (still gen_forecast's own
+    # physics, so baseline-consistent) so the factor converges to the EIA-validated
+    # long-run level. Opt-in per site — unanchored nodes keep the 60-day window.
+    from ercot_core import eia_anchor as _eia
+    _has_anchor = bool(_eia.load(a.get("resource_node") or a.get("resource_name") or ""))
+    _cal_lookback = 730 if _has_anchor else 60
+    cal_start_date = max(win_start_date, win_end_date - dt.timedelta(days=_cal_lookback))
 
     @st.cache_data(show_spinner="Loading calibration weather (ERA5 archive)…", ttl=86400)
     def _archive(lat, lon, tech_key, start_str, end_str):

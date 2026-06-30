@@ -245,6 +245,29 @@ def _load_or_run_solar(asset: dict, cfg, year: str,
     cp = _solar_cache_path(asset, cfg, year)
     if use_cache and cp.exists():
         return pd.read_parquet(cp)
+
+    # EIA-anchored path (opt-in per node, keyless): when this solar node has an
+    # EIA-923 anchor, build the typical year from ERA5 + PVWatts and anchor each
+    # month's CF to the EIA P50. No NREL/NSRDB key needed, and the seasonal shape
+    # + any small irradiance bias are pinned to the plant's realized history.
+    from ercot_core import eia_anchor
+    _node = asset.get("resource_node") or asset.get("resource_name")
+    _targets = eia_anchor.monthly_cf_targets(_node, "p50") if _node else None
+    if _targets:
+        s_str, e_str, _ = _wind_year_range(year)
+        wx = sf.fetch_weather_era5(float(asset["lat"]), float(asset["lon"]), s_str, e_str)
+        raw = sf.run_pvwatts(wx, cfg)
+        ac_nameplate_mw = cfg.capacity_kw_dc / 1000.0 / cfg.dc_ac_ratio
+        cf = (raw["ac_kw"] / 1000.0 / ac_nameplate_mw).clip(lower=0.0) if ac_nameplate_mw else raw["ac_kw"] * 0.0
+        cf = _anchor_to_monthly_cf(cf, _targets, {}, clamp=(0.5, 2.0))
+        gen = pd.DataFrame({"ac_kw": cf.to_numpy() * ac_nameplate_mw * 1000.0}, index=raw.index)
+        try:
+            paths.PLANT_VALUE_DIR.mkdir(parents=True, exist_ok=True)
+            gen.to_parquet(cp)
+        except Exception:  # noqa: BLE001 — caching is best-effort
+            pass
+        return gen
+
     if not api_key or not email:
         raise RuntimeError(
             "NREL api_key + email required to fetch solar weather "
@@ -369,6 +392,32 @@ def _calendar_anchor(modeled_cf: pd.Series, actual_cf: pd.Series,
     return out.clip(lower=0.0, upper=1.0)
 
 
+def _anchor_to_monthly_cf(modeled_cf: pd.Series, targets: dict, meta: dict,
+                          clamp=(0.3, 5.0)) -> pd.Series:
+    """Anchor a typical-year CF profile to a per-calendar-month CF target dict.
+
+    Like :func:`_calendar_anchor` but driven by an external monthly CF target
+    (e.g. the EIA-923 long-history P50) rather than an hourly metered series.
+    Each modelled month is scaled so its mean CF matches the target for that
+    calendar month; months without a target use the overall ratio.
+    """
+    m = pd.to_numeric(modeled_cf, errors="coerce").dropna()
+    if m.empty or not targets:
+        return modeled_cf
+    lo, hi = clamp
+    clip = lambda v: max(lo, min(hi, float(v)))
+    m_mon = m.groupby(m.index.month).mean()
+    overall_t = sum(targets.values()) / len(targets)
+    overall = clip(overall_t / m.mean()) if m.mean() > 0 else 1.0
+    factors = {mo: (clip(targets[mo] / m_mon[mo])
+                    if mo in targets and m_mon.get(mo, 0) > 0 else overall)
+               for mo in range(1, 13)}
+    out = modeled_cf.astype(float) * modeled_cf.index.month.map(factors)
+    meta["eia_anchor"] = {"source": "EIA-923 P50", "overall_factor": round(overall, 4),
+                          "monthly_factors": {k: round(v, 3) for k, v in factors.items()}}
+    return out.clip(lower=0.0, upper=1.0)
+
+
 def _load_or_run_wind(asset: dict, year: str, use_cache: bool) -> tuple[pd.DataFrame, dict]:
     """Hourly wind generation (``ac_kw`` indexed by local time) + fleet metadata.
 
@@ -402,6 +451,43 @@ def _load_or_run_wind(asset: dict, year: str, use_cache: bool) -> tuple[pd.DataF
                                   hub_name=asset.get("hub"))
     cf = (net / fcap).clip(lower=0.0) if fcap else net * 0.0
     nameplate_mw = float(asset["capacity_mw"])
+
+    # Prefer the EIA-923 long-history anchor when one exists for this node: it is
+    # a clean ~9-yr monthly CF distribution, immune to the partial-unit / recent-
+    # window problems of the SCED record (e.g. Mirasole's per-unit SCED files only
+    # go back to 2024-25 and under-count the plant). Opt-in per site — nodes with
+    # no anchor file fall through to the SCED anchor below, unchanged.
+    from ercot_core import eia_anchor
+    _node = asset.get("resource_node") or asset.get("resource_name")
+    _anchor = eia_anchor.load(_node) if _node else None
+    _eia_targets = eia_anchor.monthly_cf_targets(_node, "p50") if _node else None
+    if _anchor and _eia_targets and nameplate_mw > 0:
+        # Physical-first: lift the raw ERA5 winds by the site's fitted hub-wind
+        # bias (×ws_speed_correction) and re-run the power curve, so the bulk
+        # under-prediction is corrected through the (nonlinear) curve rather than
+        # by an extreme post-hoc scalar. The residual monthly anchor to the EIA
+        # P50 is then small. Falls back to a raw scale if no ws correction.
+        ws_k = float(_anchor.get("ws_speed_correction") or 1.0)
+        if ws_k and ws_k != 1.0:
+            wx2 = wx.data.copy()
+            wx2["ws10"] *= ws_k
+            wx2["ws100"] *= ws_k
+            corr = wp.WeatherResult(data=wx2, metadata=wx.metadata, label=wx.label,
+                                    latitude=wx.latitude, longitude=wx.longitude,
+                                    sources=wx.sources)
+            net_c = cal.apply_region_priors(wp.run_wind(corr, fc)["net_mw"],
+                                            capacity_mw=fcap, lat=float(asset["lat"]),
+                                            lon=float(asset["lon"]), hub_name=asset.get("hub"))
+            cf = (net_c / fcap).clip(lower=0.0) if fcap else cf
+        meta["eia_ws_correction"] = ws_k
+        cf = _anchor_to_monthly_cf(cf, _eia_targets, meta, clamp=(0.5, 2.5))
+        gen = pd.DataFrame({"ac_kw": cf.to_numpy() * nameplate_mw * 1000.0}, index=raw.index)
+        try:
+            paths.PLANT_VALUE_DIR.mkdir(parents=True, exist_ok=True)
+            gen.to_parquet(cp)
+        except Exception:  # noqa: BLE001 — caching is best-effort
+            pass
+        return gen, meta
 
     # Anchor to metered SCED — but only when the metered record is sane. The
     # registry has a few mislabelled/partial wind entries whose SCED reads an

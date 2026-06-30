@@ -1,0 +1,146 @@
+{
+  "asset": "Hidalgo Mirasole Wind (Los Mirasoles)",
+  "node": "MIRASOLE_GEN",
+  "eia_plant_ids": [
+    57617,
+    62618
+  ],
+  "units": [
+    "MIRASOLE_MIR11",
+    "MIRASOLE_MIR12",
+    "MIRASOLE_MIR13",
+    "MIRASOLE_MIR21"
+  ],
+  "lat": 26.465556,
+  "lon": -98.411111,
+  "capacity_phase_i_mw": 250.0,
+  "capacity_phase_ii_mw": 50.4,
+  "phase_ii_online": "2020-02-01",
+  "generated_at": "2026-06-29T21:58:11",
+  "method": "ERA5(Open-Meteo) + Vestas V110-2.0 physics vs EIA-923 monthly, CF-space",
+  "calibration": {
+    "overall_factor": 2.5284,
+    "monthly_factors": {
+      "1": 2.3515,
+      "2": 2.1908,
+      "3": 1.9683,
+      "4": 2.016,
+      "5": 2.2087,
+      "6": 2.7621,
+      "7": 3.2381,
+      "8": 3.2735,
+      "9": 4.0373,
+      "10": 2.8243,
+      "11": 3.0715,
+      "12": 2.4697
+    },
+    "correlation_monthly": 0.5356,
+    "mape_after_calib_pct": 29.56,
+    "n_months": 112,
+    "span": "2016-12 \u2192 2026-03",
+    "mean_actual_cf": 0.3541,
+    "mean_model_cf": 0.1402,
+    "by_year": [
+      {
+        "year": 2016,
+        "act_mwh": 59161.0,
+        "mod_mwh": 24559.6178,
+        "act_cf": 0.3181,
+        "mod_cf": 0.132,
+        "n_months": 1.0
+      },
+      {
+        "year": 2017,
+        "act_mwh": 884390.0,
+        "mod_mwh": 346167.7483,
+        "act_cf": 0.4039,
+        "mod_cf": 0.158,
+        "n_months": 12.0
+      },
+      {
+        "year": 2018,
+        "act_mwh": 882896.0,
+        "mod_mwh": 349330.5818,
+        "act_cf": 0.4032,
+        "mod_cf": 0.1599,
+        "n_months": 12.0
+      },
+      {
+        "year": 2019,
+        "act_mwh": 844668.0,
+        "mod_mwh": 349732.9808,
+        "act_cf": 0.3848,
+        "mod_cf": 0.1592,
+        "n_months": 12.0
+      },
+      {
+        "year": 2020,
+        "act_mwh": 793800.0,
+        "mod_mwh": 371444.1163,
+        "act_cf": 0.3061,
+        "mod_cf": 0.1431,
+        "n_months": 12.0
+      },
+      {
+        "year": 2021,
+        "act_mwh": 792510.0,
+        "mod_mwh": 369602.3007,
+        "act_cf": 0.3012,
+        "mod_cf": 0.1404,
+        "n_months": 12.0
+      },
+      {
+        "year": 2022,
+        "act_mwh": 846096.0,
+        "mod_mwh": 429043.655,
+        "act_cf": 0.3206,
+        "mod_cf": 0.163,
+        "n_months": 12.0
+      },
+      {
+        "year": 2023,
+        "act_mwh": 959291.0,
+        "mod_mwh": 353993.3359,
+        "act_cf": 0.365,
+        "mod_cf": 0.1349,
+        "n_months": 12.0
+      },
+      {
+        "year": 2024,
+        "act_mwh": 837501.0,
+        "mod_mwh": 322288.7482,
+        "act_cf": 0.3179,
+        "mod_cf": 0.1228,
+        "n_months": 12.0
+      },
+      {
+        "year": 2025,
+        "act_mwh": 968034.0,
+        "mod_mwh": 237605.6306,
+        "act_cf": 0.3683,
+        "mod_cf": 0.0903,
+        "n_months": 12.0
+      },
+      {
+        "year": 2026,
+        "act_mwh": 278615.0,
+        "mod_mwh": 68453.2605,
+        "act_cf": 0.4287,
+        "mod_cf": 0.1051,
+        "n_months": 3.0
+      }
+    ],
+    "ws_speed_correction": 1.3445,
+    "residual_factor_after_ws_correction": 1.0
+  },
+  "sced_out_of_sample": {
+    "sced_derived_factor_overlap": 4.0805,
+    "eia_derived_factor_overlap": 4.0741,
+    "factor_agreement_pct": 99.84,
+    "sced_vs_eia_energy_ratio": 1.0016,
+    "full_period_eia_factor": 2.5284,
+    "factor_drift_recent_vs_full": 1.5457,
+    "overlap_months": 12,
+    "overlap_span": "2025-01 \u2192 2025-12"
+  }
+}
