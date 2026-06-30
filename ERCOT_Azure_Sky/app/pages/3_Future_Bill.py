@@ -256,7 +256,9 @@ with tab_long:
         rows.append({
             "Month": month_key,
             "Expected MWh": e_mwh,
+            "P10 price ($/MWh)": p10,
             "P50 price ($/MWh)": p50,
+            "P90 price ($/MWh)": p90,
             "Hist. capture ($/MWh)": hist_p,
             "Net @ low": e_mwh * (p10 - strike),
             "Net (expected)": e_mwh * (p50 - strike),
@@ -323,8 +325,9 @@ with tab_long:
     with st.expander("Projection detail"):
         show = proj.copy()
         show["Expected MWh"] = show["Expected MWh"].map(lambda v: f"{v:,.0f}")
-        show["P50 price ($/MWh)"] = show["P50 price ($/MWh)"].map(lambda v: f"${v:,.2f}")
-        show["Hist. capture ($/MWh)"] = show["Hist. capture ($/MWh)"].map(lambda v: f"${v:,.2f}")
+        for _pc in ("P10 price ($/MWh)", "P50 price ($/MWh)", "P90 price ($/MWh)",
+                    "Hist. capture ($/MWh)"):
+            show[_pc] = show[_pc].map(lambda v: f"${v:,.2f}")
         for c in ("Net @ low", "Net (expected)", "Net @ high"):
             show[c] = show[c].map(branding.signed_money_raw)
         st.dataframe(show, hide_index=True, use_container_width=True)

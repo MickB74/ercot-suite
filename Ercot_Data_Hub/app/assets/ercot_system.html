@@ -1,0 +1,153 @@
+<style>
+  :root{
+    --ground:#ffffff;--card:#ffffff;--ink:#0069B3;--ink-2:#63666F;--ink-3:#848484;
+    --line:#D7E2F2;--line-2:#c4d6ef;--wind:#0069B3;--solar:#88A918;--other:#9fb3cc;
+    --hot:#001F5F;--spine:#0069B3;--green:#88A918;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    --sans:"Calibri","Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px 0;font-family:var(--sans);color:var(--ink-2);background:var(--ground);line-height:1.55;font-size:15px}
+  h1,h2,h3{font-weight:700;margin:0;text-wrap:balance;letter-spacing:-.01em;color:var(--ink)}
+  .eyebrow{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--green)}
+  .srfoot{margin-top:40px;background:var(--spine);color:#fff;font-size:11px;padding:9px 18px;border-radius:6px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .srfoot .conf{opacity:.85}
+  .num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+  .hero{padding:40px 0 26px;border-bottom:2px solid var(--ink)}
+  .hero h1{font-size:30px;line-height:1.12;margin:10px 0 0;max-width:20ch}
+  .hero p{margin:12px 0 0;color:var(--ink-2);max-width:60ch}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:26px}
+  @media(max-width:680px){.kpis{grid-template-columns:repeat(2,1fr)}}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .kpi .l{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3)}
+  .kpi .v{font-family:var(--mono);font-size:26px;font-weight:700;margin-top:8px;letter-spacing:-.02em;color:var(--green)}
+  .kpi .d{font-size:12px;color:var(--ink-2);margin-top:4px}
+  section{margin-top:42px}
+  .sec-head{display:flex;align-items:baseline;gap:12px}
+  section h2{font-size:19px}
+  .lede{color:var(--ink-2);font-size:14px;max-width:72ch;margin:6px 0 16px}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12.5px;color:var(--ink-2);margin-bottom:10px}
+  .legend span{display:flex;align-items:center;gap:6px}
+  .dot{width:11px;height:11px;border-radius:50%}
+  .chartbox{position:relative;width:100%}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3);font-weight:600;padding:0 10px 9px;border-bottom:1px solid var(--line-2)}
+  td{padding:9px 10px;border-bottom:1px solid var(--line)}
+  td.num,th.num{text-align:right}
+  tr:last-child td{border-bottom:none}
+  .chain{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;margin-top:6px}
+  @media(max-width:680px){.chain{grid-template-columns:1fr}}
+  .step{background:var(--card);border:1px solid var(--line);padding:16px 18px;position:relative}
+  .step:first-child{border-radius:12px 0 0 12px}.step:last-child{border-radius:0 12px 12px 0}
+  @media(max-width:680px){.step,.step:first-child,.step:last-child{border-radius:12px;margin-bottom:8px}}
+  .step .s{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--spine);font-weight:600}
+  .step h3{font-size:15px;margin:8px 0 4px}
+  .step p{font-size:12.5px;color:var(--ink-2);margin:0}
+  .step .big{font-family:var(--mono);font-size:20px;font-weight:600}
+  .foot{margin-top:38px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;color:var(--ink-3)}
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">ERCOT system · 2020–2026 · demand · generation mix · price shape</div>
+    <h1>ERCOT's solar surge is repricing the middle of the day.</h1>
+    <p>In five years solar went from a rounding error to an eighth of all generation. The grid didn't just get greener — it bent the daily price curve into a deep midday trough, and that trough is what's eroding every solar PPA's capture price and widening solar-node basis.</p>
+    <div class="kpis">
+      <div class="kpi"><div class="l">Demand 2020→2025</div><div class="v">+28%</div><div class="d">95 → 122 TWh</div></div>
+      <div class="kpi"><div class="l">Solar generation</div><div class="v" style="color:var(--solar)">8×</div><div class="d">2.3% → 14% of mix</div></div>
+      <div class="kpi"><div class="l">Midday price</div><div class="v" style="color:var(--hot)">89→54%</div><div class="d">of daily avg, 2021→2026</div></div>
+      <div class="kpi"><div class="l">Midday hours &lt; $0</div><div class="v" style="color:var(--hot)">14.5%</div><div class="d">was 0.8% in 2021</div></div>
+    </div>
+  </header>
+
+  <section>
+    <div class="sec-head"><h2>Generation mix: the solar ramp</h2></div>
+    <p class="lede">ERCOT generation by source (TWh). Wind has held ~24% of a growing pie; <b>solar is the mover</b> — 2.2 TWh in 2020 to 17.0 TWh in 2025, nearly all of it delivered in the same six midday hours.</p>
+    <div class="panel">
+      <div class="legend">
+        <span><span class="dot" style="background:var(--solar)"></span>Solar</span>
+        <span><span class="dot" style="background:var(--wind)"></span>Wind</span>
+        <span><span class="dot" style="background:var(--other)"></span>Gas / coal / nuclear / other</span>
+      </div>
+      <div class="chartbox" style="height:300px"><canvas id="mix" role="img" aria-label="Stacked bars of ERCOT generation by source 2020-2025; solar grows from 2.2 to 17 TWh while wind stays near 24-28 TWh and total rises from 95 to 122 TWh."></canvas></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>The duck curve, deepening</h2></div>
+    <p class="lede">HB_NORTH price by hour of day, each year normalized to its own daily average (so shape is comparable across high- and low-price years). The midday belly drops year after year as solar floods 10am–3pm; the evening ramp steepens as the grid leans on gas after sundown.</p>
+    <div class="panel">
+      <div class="legend">
+        <span><span class="dot" style="background:var(--other)"></span>2021 (pre-surge)</span>
+        <span><span class="dot" style="background:var(--solar)"></span>2025</span>
+        <span><span class="dot" style="background:var(--hot)"></span>2026 YTD</span>
+        <span style="color:var(--ink-3)">100% = that year's daily average</span>
+      </div>
+      <div class="chartbox" style="height:320px"><canvas id="duck" role="img" aria-label="Line chart of price by hour as percent of daily average. 2021 is roughly flat (84-118%). By 2026 midday hours 10-15 fall to 50-55% while evening hours 18-21 rise to 140-200%."></canvas></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>From system to settlement</h2></div>
+    <p class="lede">This is why the capture and basis numbers move the way they do — the chain runs straight from generation mix to the PPA bill.</p>
+    <div class="chain">
+      <div class="step"><div class="s">Cause</div><h3>Solar 2.3% → 14%</h3><p>8× growth concentrated midday, plus 28% demand growth that solar can't follow into the evening.</p></div>
+      <div class="step"><div class="s">Mechanism</div><h3>Midday collapses</h3><p class="big" style="color:var(--hot)">89% → 54%</p><p>of daily avg; midday hours going negative rose 0.8% → 14.5%.</p></div>
+      <div class="step"><div class="s">Effect</div><h3>Capture & basis erode</h3><p>Solar captures less of the grid average (Markum 76% T12, 50% spring) and congested solar nodes sink further midday (Markum basis −$2.66/MWh).</p></div>
+    </div>
+    <div class="panel" style="margin-top:16px">
+      <table>
+        <thead><tr><th>Year</th><th class="num">Daily avg $</th><th class="num">Midday (10–15h)</th><th class="num">Midday % of daily</th><th class="num">Midday hrs &lt; $0</th></tr></thead>
+        <tbody id="canrows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>What it means</h2></div>
+    <p class="lede" style="max-width:74ch">Solar capture decline in ERCOT is <b>structural and accelerating</b>, not a bad-weather blip. Every solar PPA struck against a fixed price is fighting a falling capture curve. Three implications for the book:</p>
+    <ul style="color:var(--ink-2);font-size:14px;line-height:1.6;padding-left:20px;max-width:74ch">
+      <li><b>Forward capture must trend down, not flat.</b> A model that freezes a recent ratio (e.g. 94%) is structurally optimistic — the realized curve is sliding ~5–10 pts/yr in spring.</li>
+      <li><b>Evening-firming assets gain.</b> The flip side of the midday crash is a steeper evening ramp — batteries and wind that deliver after sundown capture a rising premium.</li>
+      <li><b>Node beats hub for siting truth.</b> Congested solar pockets see the deepest midday basis; the asset's node, not the hub, tells you the real economics.</li>
+    </ul>
+    <div class="foot">ERCOT Fuel Mix Report (gen by source, 15-min) · HB_NORTH RT15 settlement prices · 2020–2026 · totals are net generation as a demand proxy (ERCOT is islanded; interchange is negligible). 2026 is year-to-date. Built on the unified ERCOT Data Hub.</div>
+  </section>
+
+  <div class="srfoot">
+    <span>Sustainable Business &amp; Enterprise Roundtable © 2026 Sustainability Roundtable, Inc.</span>
+    <span class="conf">Confidential — For use in connection with SR Inc. Services only.</span>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const MIX={"2020":{"total":95,"solar":2.2,"wind":21.8},"2021":{"total":98,"solar":3.9,"wind":23.8},"2022":{"total":107,"solar":6.0,"wind":26.8},"2023":{"total":111,"solar":8.1,"wind":27.0},"2024":{"total":115,"solar":12.1,"wind":27.9},"2025":{"total":122,"solar":17.0,"wind":28.7}};
+const SHAPE={"2021":[100,100,94,96,100,103,106,107,108,106,96,86,87,84,88,93,104,118,118,110,104,95,97,101],"2025":[87,82,80,79,82,91,114,139,86,64,61,61,64,68,71,77,84,111,143,192,191,163,119,94],"2026":[99,96,93,93,94,99,108,126,89,60,55,52,50,52,55,60,68,93,141,178,201,188,143,107]};
+const CAN=[[2021,149.49,132.91,89,0.8],[2023,48.69,37.74,78,1.2],[2024,25.89,18.89,73,3.9],[2025,32.06,21.48,67,7.2],[2026,31.24,16.93,54,14.5]];
+const ink='#8a96a3', grid='#eef1f4';
+const yrs=Object.keys(MIX);
+new Chart(document.getElementById('mix'),{type:'bar',
+ data:{labels:yrs,datasets:[
+   {label:'Solar',data:yrs.map(y=>MIX[y].solar),backgroundColor:'#88A918',stack:'s'},
+   {label:'Wind',data:yrs.map(y=>MIX[y].wind),backgroundColor:'#0069B3',stack:'s'},
+   {label:'Other',data:yrs.map(y=>+(MIX[y].total-MIX[y].solar-MIX[y].wind).toFixed(0)),backgroundColor:'#9fb3cc',stack:'s'}]},
+ options:{responsive:true,maintainAspectRatio:false,
+  plugins:{legend:{display:false},tooltip:{callbacks:{label:(c)=>` ${c.dataset.label}: ${c.parsed.y} TWh`}}},
+  scales:{x:{stacked:true,grid:{display:false},ticks:{color:ink}},y:{stacked:true,title:{display:true,text:'TWh / year',color:ink,font:{size:11}},ticks:{color:ink},grid:{color:grid}}}}});
+
+new Chart(document.getElementById('duck'),{type:'line',
+ data:{labels:[...Array(24).keys()],datasets:[
+   {label:'2021',data:SHAPE['2021'],borderColor:'#9fb3cc',borderWidth:2,borderDash:[5,4],pointRadius:0,tension:.35},
+   {label:'2025',data:SHAPE['2025'],borderColor:'#88A918',borderWidth:2,pointRadius:0,tension:.35},
+   {label:'2026',data:SHAPE['2026'],borderColor:'#001F5F',borderWidth:2.5,pointRadius:0,tension:.35}]},
+ options:{responsive:true,maintainAspectRatio:false,
+  plugins:{legend:{display:false},tooltip:{callbacks:{title:(c)=>`hour ${c[0].label}:00`,label:(c)=>` ${c.dataset.label}: ${c.parsed.y}% of daily avg`}}},
+  scales:{x:{title:{display:true,text:'hour of day',color:ink,font:{size:11}},ticks:{color:ink,maxTicksLimit:13},grid:{display:false}},
+          y:{title:{display:true,text:'% of daily average price',color:ink,font:{size:11}},ticks:{color:ink,callback:(v)=>v+'%'},grid:{color:grid}}}}});
+
+const tb=document.getElementById('canrows');
+CAN.forEach(r=>{const sev=r[3]<60?'#001F5F':r[3]<75?'#54A4DA':'#5a6775';
+  tb.insertAdjacentHTML('beforeend',`<tr><td>${r[0]}</td><td class="num">$${r[1].toFixed(2)}</td><td class="num">$${r[2].toFixed(2)}</td><td class="num" style="color:${sev};font-weight:500">${r[3]}%</td><td class="num">${r[4]}%</td></tr>`);});
+</script>

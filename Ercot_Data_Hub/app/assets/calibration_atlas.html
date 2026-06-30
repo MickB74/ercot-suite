@@ -1,0 +1,237 @@
+<style>
+  :root{
+    --ground:#ffffff; --card:#ffffff; --ink:#0069B3; --ink-2:#63666F; --ink-3:#848484;
+    --line:#D7E2F2; --line-2:#c4d6ef; --wind:#0069B3; --solar:#88A918;
+    --sev-ok:#D7E2F2; --sev-mid:#54A4DA; --sev-hi:#0069B3; --sev-max:#001F5F;
+    --spine:#0069B3; --green:#88A918; --pale:#ECF0F9;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    --sans:"Calibri","Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px 0;font-family:var(--sans);color:var(--ink-2);background:var(--ground);line-height:1.55}
+  .wrap{font-size:15px}
+  h1,h2,h3{font-weight:700;margin:0;text-wrap:balance;letter-spacing:-0.01em;color:var(--ink)}
+  .eyebrow{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--green)}
+  .num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+  /* header */
+  .hero{display:flex;justify-content:space-between;align-items:flex-end;gap:32px;flex-wrap:wrap;
+        padding:40px 0 28px;border-bottom:2px solid var(--ink)}
+  .hero h1{font-size:30px;line-height:1.12;margin:10px 0 0;max-width:18ch}
+  .hero p{margin:12px 0 0;color:var(--ink-2);max-width:48ch;font-size:15px}
+  .hero-stat{text-align:right;flex-shrink:0}
+  .hero-stat .big{font-family:var(--mono);font-size:46px;font-weight:700;line-height:1;letter-spacing:-.02em;color:var(--green)}
+  .srfoot{margin-top:40px;background:var(--spine);color:#fff;font-size:11px;padding:9px 18px;border-radius:6px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .srfoot .conf{opacity:.85}
+  .hero-stat .sub{font-size:12.5px;color:var(--ink-2);margin-top:6px;letter-spacing:.02em}
+  /* verdict cards */
+  .verdicts{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:32px}
+  @media(max-width:680px){.verdicts{grid-template-columns:1fr}}
+  .vc{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+  .vc .tag{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;letter-spacing:.04em}
+  .dot{width:10px;height:10px;border-radius:50%}
+  .vc .factor{font-family:var(--mono);font-size:40px;font-weight:600;line-height:1;margin:14px 0 2px;letter-spacing:-.02em}
+  .vc .factor small{font-size:16px;color:var(--ink-3);font-weight:400}
+  .vc .verdict{font-size:15px;font-weight:600;margin-top:8px}
+  .vc .desc{font-size:13.5px;color:var(--ink-2);margin-top:6px;line-height:1.5}
+  .vc .meta{display:flex;gap:22px;margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+  .vc .meta div{font-size:12px;color:var(--ink-3)}
+  .vc .meta b{display:block;font-family:var(--mono);font-size:18px;font-weight:600;color:var(--ink);margin-top:2px}
+  /* sections */
+  section{margin-top:44px}
+  .sec-head{display:flex;align-items:baseline;gap:12px;margin-bottom:4px}
+  section h2{font-size:19px}
+  .sec-head .n{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+  .lede{color:var(--ink-2);font-size:14px;max-width:70ch;margin:6px 0 18px}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12.5px;color:var(--ink-2);margin-bottom:10px}
+  .legend span{display:flex;align-items:center;gap:6px}
+  .chartbox{position:relative;width:100%}
+  /* table */
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);font-weight:600;padding:0 10px 9px;border-bottom:1px solid var(--line-2)}
+  td{padding:10px;border-bottom:1px solid var(--line)}
+  td.num,th.num{text-align:right}
+  tr:last-child td{border-bottom:none}
+  .bar{height:7px;border-radius:4px;background:var(--line);position:relative;overflow:hidden;min-width:70px}
+  .bar i{position:absolute;left:0;top:0;bottom:0;border-radius:4px}
+  .chip{font-family:var(--mono);font-weight:600;padding:2px 8px;border-radius:6px;font-size:12.5px}
+  /* portal cards */
+  .portals{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+  .pc{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+  .pc h3{font-size:15px}
+  .pc .stat{font-family:var(--mono);font-size:15px;margin-top:12px;display:flex;align-items:center;gap:8px}
+  .pc .stat .old{color:var(--ink-3);text-decoration:line-through}
+  .pc .stat .new{color:var(--wind);font-weight:600;font-size:18px}
+  .pc .label{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3);margin-top:14px}
+  .pc p{font-size:13px;color:var(--ink-2);margin:6px 0 0}
+  .status-pill{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;letter-spacing:.03em}
+  /* caveats */
+  .caveats{columns:2;column-gap:32px;font-size:13px;color:var(--ink-2)}
+  @media(max-width:680px){.caveats{columns:1}}
+  .caveats li{margin:0 0 10px;break-inside:avoid;list-style:none;padding-left:18px;position:relative}
+  .caveats li:before{content:"";position:absolute;left:0;top:8px;width:6px;height:6px;border-radius:50%;background:var(--line-2)}
+  .foot{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-size:12px;color:var(--ink-3)}
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <div>
+      <div class="eyebrow">ERCOT generation model calibration · EIA-923</div>
+      <h1>Reanalysis can see the sun. It can't see the wind.</h1>
+      <p>Anchoring every plant's physics model to ~9 years of EIA-measured output reveals a systematic blind spot: ERA5 under-predicts wind by roughly 2×, but predicts solar to within ~12%.</p>
+    </div>
+    <div class="hero-stat">
+      <div class="big num">33<small style="font-size:22px"> GW</small></div>
+      <div class="sub">176 plants calibrated<br>119 wind · 57 solar</div>
+    </div>
+  </header>
+
+  <div class="verdicts">
+    <div class="vc">
+      <span class="tag" style="color:var(--wind)"><span class="dot" style="background:var(--wind)"></span>WIND · 119 plants · 25 GW</span>
+      <div class="factor num">2.05×<small> median correction</small></div>
+      <div class="verdict">Model is unusable raw — always calibrate.</div>
+      <div class="desc">Turbulent hub-height wind sits below ERA5's grid resolution, worst over the coastal low-level jet. 87% of plants need more than a 1.3× boost.</div>
+      <div class="meta">
+        <div>need &gt;1.3×<b class="num">87%</b></div>
+        <div>within ±15%<b class="num">6%</b></div>
+        <div>median wind bias<b class="num">1.30×</b></div>
+      </div>
+    </div>
+    <div class="vc">
+      <span class="tag" style="color:#5f7a10"><span class="dot" style="background:var(--solar)"></span>SOLAR · 57 plants · 8 GW</span>
+      <div class="factor num">1.12×<small> median correction</small></div>
+      <div class="verdict">Near-accurate out of the box.</div>
+      <div class="desc">Irradiance is well-resolved by reanalysis, so ERA5 + PVWatts lands close. The residual ~12% is a uniform offset, removable with a single factor.</div>
+      <div class="meta">
+        <div>need &gt;1.3×<b class="num">5%</b></div>
+        <div>within ±15%<b class="num">61%</b></div>
+        <div>tracking source<b class="num">EIA-860</b></div>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <div class="sec-head"><h2>How much correction each plant needs</h2><span class="n">n = 176</span></div>
+    <p class="lede">Distribution of the calibration factor (measured output ÷ raw ERA5-physics model). Solar piles up against 1.0; wind spreads across the chart and peaks past 2.0.</p>
+    <div class="panel">
+      <div class="legend">
+        <span><span class="dot" style="background:var(--wind)"></span>Wind</span>
+        <span><span class="dot" style="background:var(--solar)"></span>Solar</span>
+        <span style="color:var(--ink-3)">1.0 = model already correct</span>
+      </div>
+      <div class="chartbox" style="height:300px"><canvas id="hist" role="img" aria-label="Histogram: solar clusters at 1.0-1.2, wind peaks at 2.0-2.5 and ranges past 3.0."></canvas></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Where ERA5 is blindest</h2><span class="n">119 wind farms</span></div>
+    <p class="lede">Each dot is a wind farm, placed by longitude and latitude, sized by capacity, colored by correction needed. The Rio Grande Valley and Gulf coast (lower right) run hot; far West Texas runs cool.</p>
+    <div class="panel">
+      <div class="legend">
+        <span><span class="dot" style="background:var(--sev-ok)"></span>&lt;1.3×</span>
+        <span><span class="dot" style="background:var(--sev-mid)"></span>1.3–1.8×</span>
+        <span><span class="dot" style="background:var(--sev-hi)"></span>1.8–2.4×</span>
+        <span><span class="dot" style="background:var(--sev-max)"></span>&gt;2.4×</span>
+        <span style="color:var(--ink-3)">dot size ∝ capacity</span>
+      </div>
+      <div class="chartbox" style="height:430px"><canvas id="map" role="img" aria-label="Texas map of wind farms colored by calibration factor; coastal southeast is red, west is green."></canvas></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Wind bias by region</h2></div>
+    <p class="lede">Median correction by ERCOT region — calibration priority is geographic.</p>
+    <div class="panel">
+      <table>
+        <thead><tr><th>Region</th><th class="num">Plants</th><th class="num">Median factor</th><th>Severity</th><th class="num">Wind bias</th><th class="num">Actual CF</th></tr></thead>
+        <tbody id="regrows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Portal impact</h2></div>
+    <p class="lede">The calibration is wired into the live settlement portals, node-gated so only anchored plants change.</p>
+    <div class="portals">
+      <div class="pc">
+        <h3>Hidalgo Mirasole Wind</h3>
+        <span class="status-pill" style="background:#eaf0e0;color:#5f7a10">LIVE · 112 months</span>
+        <div class="label">Typical-year capacity factor</div>
+        <div class="stat"><span class="old">0.14</span><span style="color:var(--ink-3)">→</span><span class="new">0.34</span></div>
+        <p>Raw physics → EIA-anchored. Now matches measured 0.354. Forward-bill calibration window widened 60 → 730 days.</p>
+      </div>
+      <div class="pc">
+        <h3>Markum Solar</h3>
+        <span class="status-pill" style="background:#D7E2F2;color:#00558E">ANCHORED · 17 months</span>
+        <div class="label">Typical year, no NREL key</div>
+        <div class="stat"><span class="new" style="color:var(--solar)">CF 0.33</span><span style="color:var(--ink-3);font-size:13px">· ~463 GWh/yr</span></div>
+        <p>Builds keylessly from ERA5 + PVWatts, anchored to EIA. Low-confidence flag — only ~1.4 years of history so far.</p>
+      </div>
+      <div class="pc">
+        <h3>Stafford Solar</h3>
+        <span class="status-pill" style="background:#eef1f4;color:#5a6775">TOO NEW · 6 months</span>
+        <div class="label">Falls through to SCED</div>
+        <div class="stat"><span style="color:var(--ink-2);font-size:15px">awaiting history</span></div>
+        <p>Online Oct 2025. The wiring auto-activates once it accrues ~2 years; until then it keeps its existing calibration.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Method &amp; caveats</h2></div>
+    <ul class="caveats">
+      <li><b>Truth source:</b> EIA-923 monthly net generation back to each plant's COD (up to ~9 yrs) vs. an ERA5-driven physics model, in capacity-factor space.</li>
+      <li><b>Curtailment is included.</b> EIA actuals embed dispatch curtailment (32–48% at some congested South-Texas nodes), so the factor is exact for revenue but a floor for pure weather bias.</li>
+      <li><b>Wind extremes</b> (Anacacho 4.6×, El Algodon 4.0×) pair short records or heavy curtailment with the coastal jet — treat as screening, validate before contract use.</li>
+      <li><b>Solar tracking/tilt/DC:AC</b> now read per-plant from EIA-860 Schedule 3.3; this sharpens individual plants though the fleet's ~12% offset is a uniform model bias.</li>
+      <li><b>Crosswalk</b> from a 496-node table is unvalidated per-plant (it mis-mapped Stafford to a wind farm); a CF-sanity gate catches gross errors.</li>
+      <li><b>Coverage:</b> 119 / 120 wind and 57 / 69 solar plants; the rest dropped for &lt;24 months of history or transient fetch failures.</li>
+    </ul>
+    <div class="foot">Built on the unified ERCOT Data Hub · EIA-923 + EIA-860 + ERA5 (Open-Meteo) + PVWatts · capacity-factor calibration via <span class="num">ercot_core.eia_anchor</span></div>
+  </section>
+
+  <div class="srfoot">
+    <span>Sustainable Business &amp; Enterprise Roundtable © 2026 Sustainability Roundtable, Inc.</span>
+    <span class="conf">Confidential — For use in connection with SR Inc. Services only.</span>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const REG=[{region:"North/East",n:3,factor:2.49,ws:1.37,cf:0.34},{region:"Coastal/RGV",n:28,factor:2.36,ws:1.30,cf:0.30},{region:"South/Central",n:27,factor:2.29,ws:1.36,cf:0.37},{region:"Panhandle",n:15,factor:1.97,ws:1.33,cf:0.43},{region:"West",n:46,factor:1.64,ws:1.20,cf:0.35}];
+const sevCol=(f)=>f<1.3?'#D7E2F2':f<1.8?'#54A4DA':f<2.4?'#0069B3':'#001F5F';
+const tb=document.getElementById('regrows');
+REG.forEach(r=>{
+  const pct=Math.min(100,(r.factor/2.6)*100);
+  tb.insertAdjacentHTML('beforeend',`<tr>
+    <td>${r.region}</td><td class="num">${r.n}</td>
+    <td class="num"><span class="chip" style="background:${sevCol(r.factor)}1f;color:${sevCol(r.factor)}">${r.factor.toFixed(2)}×</span></td>
+    <td><div class="bar"><i style="width:${pct}%;background:${sevCol(r.factor)}"></i></div></td>
+    <td class="num">${r.ws.toFixed(2)}×</td><td class="num">${r.cf.toFixed(2)}</td></tr>`);
+});
+
+const W=[[-97.744,27.993,4.04,200],[-100.564,32.967,2.09,250],[-100.209,29.235,4.62,100],[-101.832,31.157,1.93,172],[-100.697,31.793,2.16,525],[-97.598,27.185,2.1,188],[-97.691,26.522,2.36,228],[-98.582,33.493,1.87,161],[-97.523,28.208,2.86,240],[-99.563,34.17,2.6,200],[-98.91,27.44,2.37,200],[-101.148,32.948,1.09,182],[-98.328,33.052,2.04,120],[-98.377,32.371,2.35,100],[-100.177,32.318,1.04,232],[-101.579,32.929,1.09,180],[-100.022,32.304,1.72,114],[-97.466,26.195,2.18,165],[-101.008,32.631,2.95,309],[-101.019,31.952,1.76,662],[-98.359,31.394,2.88,197],[-98.905,27.576,1.14,300],[-97.512,26.25,2.21,198],[-97.297,27.996,2.38,200],[-97.445,28.198,2.82,220],[-100.867,32.849,1.45,242],[-98.917,27.18,2.75,78],[-99.005,27.488,1.62,92],[-101.144,32.932,2.11,155],[-99.74,33.915,2.17,353],[-98.603,31.684,2.52,200],[-100.791,31.952,1.2,150],[-101.326,35.094,1.56,266],[-99.411,33.628,1.55,150],[-101.311,35.238,2.17,211],[-99.582,33.609,2.29,226],[-100.057,32.214,1.82,736],[-101.881,31.172,1.15,500],[-99.54,33.35,2.22,230],[-102.174,34.748,2.03,200],[-99.423,32.768,1.29,166],[-102.201,30.931,1.07,82],[-100.58,32.497,1.23,197],[-99.595,33.187,3.25,301],[-98.161,33.143,3.44,110],[-102.506,30.773,1.53,132],[-101.299,31.73,2.36,301],[-99.656,32.514,1.45,200],[-100.744,32.438,1.49,150],[-98.806,26.389,2.57,200],[-97.586,26.331,2.07,200],[-98.572,26.412,2.6,110],[-102.578,34.667,2.56,230],[-99.844,31.262,1.59,492],[-101.22,32.039,1.29,124],[-101.741,32.7,2.28,211],[-98.746,26.524,1.81,202],[-100.539,35.654,1.54,289],[-97.667,26.349,2.53,202],[-100.524,32.97,1.51,30],[-100.967,33.752,1.59,150],[-98.467,31.383,2.95,150],[-100.679,31.085,1.65,150],[-98.691,31.823,1.94,200],[-101.251,34.311,1.97,200],[-99.265,34.072,2.73,184],[-101.385,32.122,0.77,59],[-98.712,33.384,1.92,198],[-97.496,26.289,2.12,145],[-97.459,27.939,2.84,180],[-101.451,32.101,1.94,142],[-97.499,27.022,1.18,202],[-95.863,28.843,3.07,151],[-101.253,35.428,1.39,218],[-101.373,35.443,1.66,182],[-96.904,31.55,1.27,300],[-98.495,31.548,2.34,302],[-100.673,32.589,1.45,249],[-101.453,30.595,2.49,300],[-97.691,26.475,2.42,203],[-99.388,27.03,1.59,209],[-97.378,26.126,2.15,95],[-101.434,35.205,1.9,150],[-101.319,31.181,1.85,300],[-98.365,33.206,2.76,150],[-101.607,30.936,2.18,224],[-98.361,33.51,2.26,204],[-99.421,31.242,2.44,180],[-100.934,35.182,2.15,174],[-101.298,31.936,1.92,116],[-101.324,34.081,2.08,200],[-101.648,32.926,2.36,376],[-102.721,35.295,1.97,194],[-97.642,26.942,3.05,201],[-100.129,32.408,1.24,101],[-101.837,32.235,1.66,120],[-100.422,32.291,1.63,135],[-100.339,32.361,1.67,38],[-100.53,32.312,1.39,241],[-99.192,33.578,2.73,30],[-101.657,33.303,2.47,338],[-97.599,27.001,1.88,283],[-100.648,32.398,1.33,126],[-100.666,32.469,1.42,209],[-98.794,27.614,2.83,300],[-100.236,32.43,1.49,152],[-99.665,33.746,2.05,336],[-100.269,32.198,1.35,170],[-97.372,33.704,2.49,126],[-101.1,33.825,2.04,257],[-101.099,34.105,1.28,60],[-101.263,30.91,2.09,501],[-97.428,33.733,2.88,112],[-98.5,33.495,2.31,68],[-102.414,30.951,1.12,82],[-98.853,33.119,2.29,500],[-99.065,33.852,2.21,367],[-97.817,28.17,3.31,307],[-99.039,26.649,1.9,238]];
+
+function draw(){
+  new Chart(document.getElementById('hist'),{type:'bar',
+   data:{labels:['0.8–1.0','1.0–1.2','1.2–1.4','1.4–1.6','1.6–1.8','1.8–2.0','2.0–2.5','2.5–3.0','3.0+'],
+     datasets:[{label:'Wind',data:[0,9,10,14,8,14,38,18,7],backgroundColor:'#0069B3',borderRadius:3},
+               {label:'Solar',data:[6,39,11,0,0,0,0,0,0],backgroundColor:'#54A4DA',borderRadius:3}]},
+   options:{responsive:true,maintainAspectRatio:false,
+     plugins:{legend:{display:false},tooltip:{callbacks:{label:(c)=>` ${c.dataset.label}: ${c.parsed.y} plants`}}},
+     scales:{x:{title:{display:true,text:'calibration factor (actual ÷ raw model)',color:'#8a96a3',font:{size:11}},ticks:{color:'#8a96a3',autoSkip:false,maxRotation:45,font:{size:11}},grid:{display:false}},
+             y:{title:{display:true,text:'plants',color:'#8a96a3',font:{size:11}},ticks:{color:'#8a96a3',precision:0},grid:{color:'#eef1f4'}}}}});
+
+  const col=(f)=>f<1.3?'#D7E2F2':f<1.8?'#54A4DA':f<2.4?'#0069B3':'#001F5F';
+  new Chart(document.getElementById('map'),{type:'scatter',
+   data:{datasets:[{data:W.map(p=>({x:p[0],y:p[1],f:p[2],cap:p[3]})),
+     pointBackgroundColor:W.map(p=>col(p[2])),pointBorderColor:'rgba(255,255,255,0.7)',pointBorderWidth:0.5,
+     pointRadius:W.map(p=>3+Math.sqrt(p[3])/4.5),pointHoverRadius:W.map(p=>5+Math.sqrt(p[3])/4.5)}]},
+   options:{responsive:true,maintainAspectRatio:false,
+     plugins:{legend:{display:false},tooltip:{callbacks:{label:(c)=>` ×${c.raw.f} · ${c.raw.cap} MW`}}},
+     scales:{x:{title:{display:true,text:'← west Texas      longitude      coast →',color:'#8a96a3',font:{size:11}},ticks:{color:'#8a96a3',font:{size:11}},grid:{color:'#eef1f4'}},
+             y:{title:{display:true,text:'latitude',color:'#8a96a3',font:{size:11}},ticks:{color:'#8a96a3',font:{size:11}},grid:{color:'#eef1f4'}}}}});
+}
+if(window.Chart)draw();else addEventListener('load',draw);
+</script>
