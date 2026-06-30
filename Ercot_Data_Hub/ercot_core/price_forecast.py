@@ -152,6 +152,8 @@ def capture_to_hub_monthly(monthly_breakdown: pd.DataFrame,
                             *, price_col: str = "spp",
                             cal_months: pd.Series | None = None,
                             fleet_fallback: dict[int, float] | None = None,
+                            node: str | None = None,
+                            spring_trend_pct: float = 0.0,
                             ) -> dict[int, float]:
     """Per-calendar-month capture-to-hub ratios.
 
@@ -206,6 +208,18 @@ def capture_to_hub_monthly(monthly_breakdown: pd.DataFrame,
         hatc = float(hub_atc_by_month.get(cm, 0))
         if mwh > 0 and hatc > 0:
             ratios[int(cm)] = (mv / mwh) / hatc
+    # Prefer the per-asset realized capture anchor (full-history P50 + optional
+    # spring-trend prior) over the displayed-window ratios — it's the robust,
+    # consolidated source. Opt-in: only when ``node`` has a built anchor.
+    if node:
+        try:
+            from ercot_core import capture_anchor
+            anc = capture_anchor.monthly_capture_ratio(node, "p50",
+                                                       spring_trend_pct=spring_trend_pct)
+        except Exception:  # noqa: BLE001 — never let calibration break the bill
+            anc = None
+        if anc:
+            ratios = {**ratios, **anc}   # anchor wins for months it covers
     if fleet_fallback:
         for cm in range(1, 13):
             if cm not in ratios and cm in fleet_fallback:

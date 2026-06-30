@@ -136,6 +136,9 @@ def render_near_term_tab(
     third_month_start = next_month_start + pd.offsets.MonthBegin(1)
     third_month_end_date = (third_month_start + pd.offsets.MonthEnd(1)).date()
     third_month_str = third_month_start.strftime("%Y-%m")
+    fourth_month_start = third_month_start + pd.offsets.MonthBegin(1)
+    fourth_month_end_date = (fourth_month_start + pd.offsets.MonthEnd(1)).date()
+    fourth_month_str = fourth_month_start.strftime("%Y-%m")
 
     # ── fetch weather forecast (standard 16-day + GEFS ensemble 35-day) ─────
     @st.cache_data(show_spinner="Fetching weather forecast…", ttl=7200)
@@ -175,9 +178,9 @@ def render_near_term_tab(
     # — gives realistic day-to-day variation vs a flat monthly average.
     _clim_start = month_start_ct.date().replace(year=month_start_ct.year - 1)
     try:
-        _clim_end = third_month_end_date.replace(year=third_month_end_date.year - 1)
+        _clim_end = fourth_month_end_date.replace(year=fourth_month_end_date.year - 1)
     except ValueError:  # Feb 29 -> non-leap prior year
-        _clim_end = third_month_end_date.replace(year=third_month_end_date.year - 1, day=28)
+        _clim_end = fourth_month_end_date.replace(year=fourth_month_end_date.year - 1, day=28)
 
     @st.cache_data(show_spinner="Loading prior-year ERA5 (climatological baseline)…", ttl=86400)
     def _prior_year(lat, lon, tech_key, start_str, end_str):
@@ -457,15 +460,17 @@ def render_near_term_tab(
     for d_date, mwh in daily_fcast.items():
         if d_date < cur_month_start_date or d_date in settled_dates:
             continue
-        if d_date > third_month_end_date:
+        if d_date > fourth_month_end_date:
             continue
         net = float(mwh) * (fwd_price - strike)
         if d_date < next_month_start.date():
             kind = "forecast_cur"
         elif d_date < third_month_start.date():
             kind = "forecast_next"
-        else:
+        elif d_date < fourth_month_start.date():
             kind = "forecast_third"
+        else:
+            kind = "forecast_fourth"
         forecast_rows.append({"date": d_date, "mwh": float(mwh), "net": net,
                               "price": fwd_price, "kind": kind})
 
@@ -479,14 +484,16 @@ def render_near_term_tab(
 
     # Fill days beyond the GEFS horizon — prior-year ERA5 first, flat shape as backstop
     d = weather_max_date + dt.timedelta(days=1)
-    while d <= third_month_end_date:
+    while d <= fourth_month_end_date:
         if d not in settled_dates and not any(r["date"] == d for r in forecast_rows):
             if d < next_month_start.date():
                 month_tag = "cur"
             elif d < third_month_start.date():
                 month_tag = "next"
-            else:
+            elif d < fourth_month_start.date():
                 month_tag = "third"
+            else:
+                month_tag = "fourth"
             try:
                 prior_date = d.replace(year=d.year - 1)
                 py_mwh = py_daily.get(prior_date)
@@ -516,6 +523,7 @@ def render_near_term_tab(
     cur_mask = all_df["date"].apply(lambda d: str(d)[:7] == cur_month_str)
     next_mask = all_df["date"].apply(lambda d: str(d)[:7] == next_month_str)
     third_mask = all_df["date"].apply(lambda d: str(d)[:7] == third_month_str)
+    fourth_mask = all_df["date"].apply(lambda d: str(d)[:7] == fourth_month_str)
 
     mtd_mwh = float(all_df.loc[mtd_mask, "mwh"].sum())
     mtd_net = float(all_df.loc[mtd_mask, "net"].sum())
@@ -524,18 +532,24 @@ def render_near_term_tab(
     next_mwh = float(all_df.loc[next_mask, "mwh"].sum())
     third_net = float(all_df.loc[third_mask, "net"].sum())
     third_mwh = float(all_df.loc[third_mask, "mwh"].sum())
+    fourth_net = float(all_df.loc[fourth_mask, "net"].sum())
+    fourth_mwh = float(all_df.loc[fourth_mask, "mwh"].sum())
 
     n_settled = int(actual_mask.sum())
     n_mtd = int(mtd_mask.sum())
     n_fcast_cur = int(all_df["kind"].str.contains("cur").sum())
     n_fcast_next = int(all_df["kind"].str.contains("next").sum())
     n_fcast_third = int(all_df["kind"].str.contains("third").sum())
+    n_fcast_fourth = int(all_df["kind"].str.contains("fourth").sum())
 
-    _ncols = 6 if has_prior else 5
-    _kcols = st.columns(_ncols)
-    _ki = 0
+    # Projected month-end = settled MTD + the remaining-days forecast, combined.
+    remain_cur = proj_cur - mtd_net
+    proj_mwh = float(all_df.loc[cur_mask, "mwh"].sum())
+
+    # ── Row 1: primary financial cards (3 columns, more readable) ────────────
+    _row1 = st.columns(3)
     if has_prior:
-        _kcols[_ki].metric(
+        _row1[0].metric(
             f"{prev_month_str} (ERA5 × actual)",
             branding.signed_money(prior_net),
             delta=f"{prior_mwh:,.0f} MWh · ERA5 generation model",
@@ -545,26 +559,23 @@ def render_near_term_tab(
                  f"({_settle_loc}). Generation is modelled, not metered — "
                  f"see Past Settlement for actual SCED output.",
         )
-        _ki += 1
-    _kcols[_ki].metric(
-        f"Month-to-date ({cur_month_str})",
-        branding.signed_money(mtd_net),
-        delta=(f"{mtd_mwh:,.0f} MWh · {n_mtd} days · ERA5 × actual price"
-               if mtd_is_est else
-               f"{mtd_mwh:,.0f} MWh · {n_mtd} days settled"),
-        delta_color="off",
-        help=(f"SCED meter data publishes on a ~60-day lag, so the elapsed days "
-              f"of {cur_month_str} are valued with ERA5 weather generation × "
-              f"actual {mtd_price_loc} settlement prices until metered data arrives."
-              if mtd_is_est else None),
-    )
-    # Projected month-end = settled MTD + the remaining-days forecast, combined.
-    remain_cur = proj_cur - mtd_net           # forecast-only portion of the month
-    proj_mwh = float(all_df.loc[cur_mask, "mwh"].sum())
-    _kcols[_ki + 1].metric(
+    else:
+        _row1[0].metric(
+            f"Month-to-date ({cur_month_str})",
+            branding.signed_money(mtd_net),
+            delta=(f"{mtd_mwh:,.0f} MWh · {n_mtd} days · ERA5 × actual price"
+                   if mtd_is_est else
+                   f"{mtd_mwh:,.0f} MWh · {n_mtd} days settled"),
+            delta_color="off",
+            help=(f"SCED meter data publishes on a ~60-day lag, so the elapsed days "
+                  f"of {cur_month_str} are valued with ERA5 weather generation × "
+                  f"actual {mtd_price_loc} settlement prices until metered data arrives."
+                  if mtd_is_est else None),
+        )
+    _row1[1].metric(
         "Projected month-end",
         branding.signed_money(proj_cur),
-        delta=f"{n_mtd} MTD + {n_fcast_cur} forecast days",
+        delta=f"{proj_mwh:,.0f} MWh · {n_mtd} MTD + {n_fcast_cur} forecast days",
         delta_color="off",
         help=(f"Full-month projection = month-to-date + remaining forecast.\n\n"
               f"• Month-to-date ({n_mtd} days): {branding.signed_money(mtd_net)}\n"
@@ -573,21 +584,7 @@ def render_near_term_tab(
               f"Forecast days valued at forward price − strike: "
               f"({fwd_price:,.2f} − {strike:,.2f}) = {fwd_price - strike:,.2f} $/MWh."),
     )
-    _kcols[_ki + 2].metric(
-        f"{next_month_str} estimate",
-        branding.signed_money(next_net),
-        delta=f"{next_mwh:,.0f} MWh · {n_fcast_next} days",
-        delta_color="off",
-    )
-    _kcols[_ki + 3].metric(
-        f"{third_month_str} estimate",
-        branding.signed_money(third_net),
-        delta=f"{third_mwh:,.0f} MWh · {n_fcast_third} days",
-        delta_color="off",
-        help="Entirely climatological (prior-year ERA5 / historical shape) — "
-             "beyond the weather-forecast horizon, so treat as indicative.",
-    )
-    _kcols[_ki + 4].metric(
+    _row1[2].metric(
         "Cal. factor",
         f"{cal_factor:.3f}",
         delta=f"from {n_cal_days} SCED days" if n_cal_days else "no overlap — uncalibrated",
@@ -603,6 +600,47 @@ def render_near_term_tab(
                if wind_bias_ratio else
                "\n\nGeneration uses a farm-level (multi-turbine) power curve.")
         ),
+    )
+
+    # ── Row 2: monthly estimates (wider cards, easier to scan) ───────────────
+    _row2_cols = 4 if has_prior else 3
+    _row2 = st.columns(_row2_cols)
+    _ri = 0
+    if has_prior:
+        _row2[_ri].metric(
+            f"Month-to-date ({cur_month_str})",
+            branding.signed_money(mtd_net),
+            delta=(f"{mtd_mwh:,.0f} MWh · {n_mtd} days · ERA5 × actual price"
+                   if mtd_is_est else
+                   f"{mtd_mwh:,.0f} MWh · {n_mtd} days settled"),
+            delta_color="off",
+            help=(f"SCED meter data publishes on a ~60-day lag, so the elapsed days "
+                  f"of {cur_month_str} are valued with ERA5 weather generation × "
+                  f"actual {mtd_price_loc} settlement prices until metered data arrives."
+                  if mtd_is_est else None),
+        )
+        _ri += 1
+    _row2[_ri].metric(
+        f"{next_month_str} estimate",
+        branding.signed_money(next_net),
+        delta=f"{next_mwh:,.0f} MWh · {n_fcast_next} days",
+        delta_color="off",
+    )
+    _row2[_ri + 1].metric(
+        f"{third_month_str} estimate",
+        branding.signed_money(third_net),
+        delta=f"{third_mwh:,.0f} MWh · {n_fcast_third} days",
+        delta_color="off",
+        help="Climatological (prior-year ERA5 / historical shape) — "
+             "beyond the weather-forecast horizon, treat as indicative.",
+    )
+    _row2[_ri + 2].metric(
+        f"{fourth_month_str} estimate",
+        branding.signed_money(fourth_net),
+        delta=f"{fourth_mwh:,.0f} MWh · {n_fcast_fourth} days",
+        delta_color="off",
+        help="Climatological (prior-year ERA5 / historical shape) — "
+             "beyond the weather-forecast horizon, treat as indicative.",
     )
 
     # Visible calc for the projected month-end (past + forecast combined).
@@ -671,11 +709,13 @@ def render_near_term_tab(
     FCAST_CUR_NEG = "rgba(178,58,72,0.50)"
     FCAST_NEXT_POS = "rgba(84,164,218,0.70)"
     FCAST_NEXT_NEG = "rgba(178,58,72,0.40)"
-    FCAST_THIRD_POS = "rgba(124,99,196,0.60)"   # +2 months — muted purple
+    FCAST_THIRD_POS = "rgba(124,99,196,0.60)"
     FCAST_THIRD_NEG = "rgba(178,58,72,0.35)"
+    FCAST_FOURTH_POS = "rgba(180,140,60,0.55)"
+    FCAST_FOURTH_NEG = "rgba(178,58,72,0.30)"
     HIST_POS = "rgba(84,164,218,0.40)"
     HIST_NEG = "rgba(178,58,72,0.30)"
-    RETRO_POS = "rgba(155,155,155,0.70)"   # prior month ERA5 × actual
+    RETRO_POS = "rgba(155,155,155,0.70)"
     RETRO_NEG = "rgba(178,58,72,0.55)"
 
     def _bar_color(row) -> str:
@@ -689,7 +729,9 @@ def render_near_term_tab(
             return FCAST_CUR_POS if pos else FCAST_CUR_NEG
         if "next" in k:
             return FCAST_NEXT_POS if pos else FCAST_NEXT_NEG
-        return FCAST_THIRD_POS if pos else FCAST_THIRD_NEG
+        if "third" in k:
+            return FCAST_THIRD_POS if pos else FCAST_THIRD_NEG
+        return FCAST_FOURTH_POS if pos else FCAST_FOURTH_NEG
 
     bar_colors = [_bar_color(r) for _, r in all_df.iterrows()]
     x_labels = [str(r["date"]) for _, r in all_df.iterrows()]
@@ -704,6 +746,7 @@ def render_near_term_tab(
     fig.add_bar(x=[], y=[], name=f"Forecast – {cur_month_str}", marker_color=FCAST_CUR_POS, showlegend=True)
     fig.add_bar(x=[], y=[], name=f"Forecast – {next_month_str}", marker_color=FCAST_NEXT_POS, showlegend=True)
     fig.add_bar(x=[], y=[], name=f"Forecast – {third_month_str}", marker_color=FCAST_THIRD_POS, showlegend=True)
+    fig.add_bar(x=[], y=[], name=f"Forecast – {fourth_month_str}", marker_color=FCAST_FOURTH_POS, showlegend=True)
 
     fig.add_bar(
         x=x_labels,
@@ -715,7 +758,6 @@ def render_near_term_tab(
     )
 
     # ── generation line (secondary y-axis) ───────────────────────────────────
-    # Solid line for settled days, dashed for forecast
     settled_mwh = [v if k == "actual" else None for v, k in zip(all_df["mwh"], all_df["kind"])]
     fcast_mwh   = [v if k != "actual" else None for v, k in zip(all_df["mwh"], all_df["kind"])]
 
@@ -740,11 +782,48 @@ def render_near_term_tab(
         hovertemplate="%{x}<br>Gen: %{y:,.0f} MWh<extra></extra>",
     )
 
+    # ── prior-year generation (secondary y-axis, faint reference line) ───────
+    if py_daily:
+        py_x, py_y = [], []
+        for d_date in sorted(all_df["date"]):
+            try:
+                prior_date = d_date.replace(year=d_date.year - 1) if not isinstance(d_date, dt.date) else d_date.replace(year=d_date.year - 1)
+            except ValueError:
+                continue
+            if prior_date in py_daily:
+                py_x.append(str(d_date))
+                py_y.append(py_daily[prior_date])
+        if py_x:
+            fig.add_scatter(
+                x=py_x, y=py_y,
+                mode="lines",
+                line=dict(color="rgba(0,105,179,0.25)", width=1.5, dash="dash"),
+                name=f"Generation ({d_date.year - 1})",
+                yaxis="y2",
+                connectgaps=True,
+                hovertemplate="%{x}<br>Prior yr: %{y:,.0f} MWh<extra></extra>",
+            )
+
+    # ── capture price line (secondary y-axis on right) ───────────────────────
+    price_vals = all_df["price"].tolist()
+    has_varied_prices = len(set(p for p in price_vals if pd.notna(p))) > 1
+    if has_varied_prices:
+        fig.add_scatter(
+            x=x_labels, y=price_vals,
+            mode="lines",
+            line=dict(color="rgba(218,165,32,0.7)", width=1.5),
+            name="Capture price ($/MWh)",
+            yaxis="y3",
+            connectgaps=True,
+            hovertemplate="%{x}<br>Price: $%{y:,.2f}/MWh<extra></extra>",
+        )
+
     # Shaded month backgrounds + labels above the plot area
     bdy_str = next_month_start.strftime("%Y-%m-%d")
     bdy2_str = third_month_start.strftime("%Y-%m-%d")
+    bdy3_str = fourth_month_start.strftime("%Y-%m-%d")
     cur_start_str = str(cur_month_start_date)
-    third_end_str = str(third_month_end_date + dt.timedelta(days=1))
+    fourth_end_str = str(fourth_month_end_date + dt.timedelta(days=1))
     if has_prior:
         prev_start_str = str(prev_month_start_date)
         fig.add_vrect(x0=prev_start_str, x1=cur_start_str,
@@ -754,14 +833,18 @@ def render_near_term_tab(
                   fillcolor="rgba(136,169,24,0.06)", line_width=0)
     fig.add_vrect(x0=bdy_str, x1=bdy2_str,
                   fillcolor="rgba(84,164,218,0.06)", line_width=0)
-    fig.add_vrect(x0=bdy2_str, x1=third_end_str,
+    fig.add_vrect(x0=bdy2_str, x1=bdy3_str,
                   fillcolor="rgba(124,99,196,0.06)", line_width=0)
+    fig.add_vrect(x0=bdy3_str, x1=fourth_end_str,
+                  fillcolor="rgba(180,140,60,0.06)", line_width=0)
     fig.add_vline(x=bdy_str, line_dash="dot", line_color="#848484", line_width=1.5)
     fig.add_vline(x=bdy2_str, line_dash="dot", line_color="#848484", line_width=1.5)
+    fig.add_vline(x=bdy3_str, line_dash="dot", line_color="#848484", line_width=1.5)
     # Month summary labels centred above each region
     cur_mid  = str(cur_month_start_date + dt.timedelta(days=15))
     next_mid = str(next_month_start.date() + dt.timedelta(days=15))
     third_mid = str(third_month_start.date() + dt.timedelta(days=15))
+    fourth_mid = str(fourth_month_start.date() + dt.timedelta(days=15))
     _lbl = dict(showarrow=False, yref="paper", y=1.07,
                 font=dict(size=11), xanchor="center",
                 bgcolor="rgba(255,255,255,0.88)",
@@ -784,11 +867,30 @@ def render_near_term_tab(
                        text=f"<b>+2 months</b> ({third_month_str})  {branding.signed_money_raw(third_net)}"
                             f"<br>{third_mwh:,.0f} MWh",
                        **_lbl)
+    fig.add_annotation(x=fourth_mid,
+                       text=f"<b>+3 months</b> ({fourth_month_str})  {branding.signed_money_raw(fourth_net)}"
+                            f"<br>{fourth_mwh:,.0f} MWh",
+                       **_lbl)
+
+    _y3_layout = {}
+    if has_varied_prices:
+        _y3_layout = dict(
+            yaxis3=dict(
+                title="Price ($/MWh)",
+                overlaying="y",
+                side="right",
+                showgrid=False,
+                anchor="free",
+                position=0.97,
+                tickfont=dict(color="rgba(218,165,32,0.8)", size=10),
+                title_font=dict(color="rgba(218,165,32,0.8)"),
+            ),
+        )
 
     fig.update_layout(
-        height=400,
+        height=440,
         hovermode="x unified",
-        margin=dict(t=30, b=10),
+        margin=dict(t=30, b=10, r=80 if has_varied_prices else 40),
         yaxis=dict(
             title="Daily net settlement ($)",
             zeroline=True, zerolinecolor="#ddd",
@@ -803,6 +905,7 @@ def render_near_term_tab(
             tickfont=dict(color="rgba(0,105,179,0.8)"),
             title_font=dict(color="rgba(0,105,179,0.8)"),
         ),
+        **_y3_layout,
         legend=dict(orientation="h", y=1.18),
         bargap=0.15,
     )
@@ -827,6 +930,9 @@ def render_near_term_tab(
             "forecast_third": f"GEFS forecast – {third_month_str}",
             "clim_third": f"Prior-year ERA5 – {third_month_str}",
             "hist_third": f"Hist. shape – {third_month_str}",
+            "forecast_fourth": f"GEFS forecast – {fourth_month_str}",
+            "clim_fourth": f"Prior-year ERA5 – {fourth_month_str}",
+            "hist_fourth": f"Hist. shape – {fourth_month_str}",
         }
         show["kind"] = show["kind"].map(kind_labels).fillna(show["kind"])
         show.columns = ["Date", "MWh", "Net ($)", "Source"]
@@ -856,6 +962,9 @@ def render_near_term_tab(
             "forecast_third": f"GEFS forecast – {third_month_str}",
             "clim_third":   f"Prior-year ERA5 – {third_month_str}",
             "hist_third":   f"Hist. shape – {third_month_str}",
+            "forecast_fourth": f"GEFS forecast – {fourth_month_str}",
+            "clim_fourth":  f"Prior-year ERA5 – {fourth_month_str}",
+            "hist_fourth":  f"Hist. shape – {fourth_month_str}",
         }
 
         def _build_excel() -> bytes:

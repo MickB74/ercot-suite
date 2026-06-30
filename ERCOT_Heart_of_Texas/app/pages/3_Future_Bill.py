@@ -42,7 +42,7 @@ if win_start is None:
     st.info("No historical data is available yet to base a projection on.")
     st.stop()
 
-tab_near, tab_long = st.tabs(["📅 Next 3 months — weather forecast",
+tab_near, tab_long = st.tabs(["📅 Next 4 months — weather forecast",
                                "📈 Long range — TMY / history"])
 
 
