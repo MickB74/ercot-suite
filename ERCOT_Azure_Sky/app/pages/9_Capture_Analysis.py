@@ -16,7 +16,9 @@ a = contract.ASSET
 loc = contract.settle_location(terms)
 terms, loc = settle_ui.choose(st, contract, terms)
 
-win_start, win_end = hub.settlement_window(a["resource_node"], loc)
+# Azure Sky's settlement_window takes the VORTEX units list (generation is stored
+# per unit under the aggregate node), not the aggregate resource_node string.
+win_start, win_end = hub.settlement_window(a["units"], loc)
 if win_start is None:
     st.info("No data available yet for this asset.")
     st.stop()

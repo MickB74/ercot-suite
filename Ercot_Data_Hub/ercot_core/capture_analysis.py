@@ -124,13 +124,24 @@ def _period_picker(st, win_start: dt.date, win_end: dt.date):
 
 def _load_intervals(st, hub, analytics, a, terms, start_d, end_d, share):
     """Load 15-min generation, node prices, and hub prices for the window."""
+    import inspect  # noqa: PLC0415
+    # Some portals (e.g. Azure Sky's VORTEX aggregate) store generation per unit,
+    # so their hub.generation takes a `units` list; standard single-node portals
+    # don't. Detect the signature and pass units only when supported.
+    _gen_units = (a.get("units")
+                  if "units" in inspect.signature(hub.generation).parameters
+                  else None)
+    # Node price lives at the priced node when it differs from the generation
+    # aggregate (Azure Sky: AZURE_RN vs AZURE_SKY_WIND_AGG); else the resource node.
+    _node_price_loc = a.get("price_node") or a["resource_node"]
 
     @st.cache_data(show_spinner="Loading generation & prices...")
-    def _fetch(rnode, hub_name, start_str, end_str, terms_key):
+    def _fetch(rnode, node_price_loc, hub_name, start_str, end_str, units_key, terms_key):
         s = pd.Timestamp(start_str)
         e = pd.Timestamp(end_str) + pd.Timedelta(days=1)
 
-        gen = hub.generation(rnode, s, e)
+        gen = (hub.generation(rnode, list(units_key), s, e) if units_key
+               else hub.generation(rnode, s, e))
         if gen is None or (hasattr(gen, "empty") and gen.empty):
             gen = pd.DataFrame()
         else:
@@ -142,7 +153,7 @@ def _load_intervals(st, hub, analytics, a, terms, start_d, end_d, share):
         else:
             hp = hp.copy()
 
-        np_ = hub.node_prices(rnode, s, e)
+        np_ = hub.node_prices(node_price_loc, s, e)
         if np_ is None or (hasattr(np_, "empty") and np_.empty):
             np_ = pd.DataFrame()
         else:
@@ -153,8 +164,9 @@ def _load_intervals(st, hub, analytics, a, terms, start_d, end_d, share):
     rnode = a["resource_node"]
     hub_name = a.get("hub", rnode)
     gen_df, hub_df, node_df = _fetch(
-        rnode, hub_name,
+        rnode, _node_price_loc, hub_name,
         str(start_d), str(end_d),
+        tuple(_gen_units) if _gen_units else None,
         tuple(sorted(terms.items())),
     )
     return gen_df, hub_df, node_df
@@ -438,6 +450,53 @@ def render(
             title_font=dict(color=branding.ACCENT),
         )
         st.plotly_chart(fig_mo, use_container_width=True)
+
+        # ── Monthly capture table — with year-over-year ─────────────────────
+        st.markdown("**Monthly capture — with year-over-year**")
+        st.caption("Each settled month's generation-weighted capture price, the mean "
+                   "hub price, capture ratio, and volume — with the same calendar month "
+                   "a year earlier (· YoY = % change). Metered settled history only. "
+                   "**⚠** marks a month the settlement window doesn't fully cover (its "
+                   "volume is partial, so MWh-YoY is omitted).")
+
+        # Align each month with the same calendar month a year earlier: shift the
+        # prior year's rows forward 12 months so they join on the current label.
+        _py = monthly[["month_label", "capture_price", "mwh"]].copy()
+        _py["month_label"] = (
+            pd.to_datetime(_py["month_label"] + "-01") + pd.offsets.DateOffset(years=1)
+        ).dt.strftime("%Y-%m")
+        _py = _py.rename(columns={"capture_price": "cap_py", "mwh": "mwh_py"})
+        _t = monthly.merge(_py, on="month_label", how="left").sort_values(
+            "month_label", ascending=False).reset_index(drop=True)
+        _t["mwh_yoy"] = 100.0 * (_t["mwh"] / _t["mwh_py"] - 1.0)
+        _t["cap_yoy"] = 100.0 * (_t["capture_price"] / _t["cap_py"] - 1.0)
+
+        # Flag months the settled window doesn't fully cover (typically the most
+        # recent one) — their volume and MWh-YoY aren't comparable to a full month.
+        _gf = df_full.loc[full_gen_mask].copy()
+        _gf["_day"] = pd.to_datetime(_gf["interval_start"]).dt.date
+        _days = _gf.groupby("month_label")["_day"].nunique()
+        _dim = {m: calendar.monthrange(int(m[:4]), int(m[5:7]))[1] for m in _t["month_label"]}
+        _partial = {m for m in _t["month_label"] if int(_days.get(m, 0)) < _dim[m]}
+        # A partial month's MWh comparison is apples-to-oranges → suppress its MWh-YoY.
+        _t.loc[_t["month_label"].isin(_partial), "mwh_yoy"] = float("nan")
+
+        def _fmt(v, spec):
+            return spec.format(v) if pd.notna(v) else "—"
+
+        _disp = pd.DataFrame({
+            "Month":               _t["month_label"].map(
+                lambda m: f"{m} ⚠" if m in _partial else m),
+            "MWh":                 _t["mwh"].map(lambda v: _fmt(v, "{:,.0f}")),
+            "Capture $/MWh":       _t["capture_price"].map(lambda v: _fmt(v, "${:,.2f}")),
+            "Mean grid $/MWh":     _t["hub_avg"].map(lambda v: _fmt(v, "${:,.2f}")),
+            "Capture ratio":       _t["capture_ratio"].map(lambda v: _fmt(v, "{:,.0f}%")),
+            "MWh (prior yr)":      _t["mwh_py"].map(lambda v: _fmt(v, "{:,.0f}")),
+            "MWh · YoY":           _t["mwh_yoy"].map(lambda v: _fmt(v, "{:+,.0f}%")),
+            "Capture (prior yr)":  _t["cap_py"].map(lambda v: _fmt(v, "${:,.2f}")),
+            "Capture · YoY":       _t["cap_yoy"].map(lambda v: _fmt(v, "{:+,.0f}%")),
+        })
+        st.dataframe(_disp, hide_index=True, use_container_width=True)
 
     st.divider()
 
