@@ -301,16 +301,30 @@ def build_typical_profile(asset: dict, *, api_key: str | None = None,
     node = asset.get("resource_node") or asset.get("resource_name")
     try:
         if "solar" in tech or "pv" in tech:
-            # Guard: a solar plant with <9 months of EIA history yields a
-            # season-skewed anchor (e.g. a Feb-COD plant reads winter-only). Don't
-            # ship a misleading calibrated year — leave it on the historical shape
-            # until it matures (unless an NREL key is present for the NSRDB path).
+            cfg = system_config_from_asset(asset)
             from ercot_core import eia_anchor  # noqa: PLC0415
             _a = eia_anchor.load(node) if node else None
-            if _a and int(_a.get("n_months", 0)) < 9 and not (api_key and email):
-                return None
-            cfg = system_config_from_asset(asset)
-            return _load_or_run_solar(asset, cfg, "tmy", api_key, email, use_cache=not force)
+            _mature = bool(_a) and int(_a.get("n_months", 0)) >= 9
+            if _mature or (api_key and email):
+                # enough history → EIA-anchored (or NSRDB if keyed)
+                return _load_or_run_solar(asset, cfg, "tmy", api_key, email, use_cache=not force)
+            # Young/pre-COD plant: a <9-month anchor would be season-skewed
+            # (a Feb-COD plant reads winter-only). Use a RAW ERA5+PVWatts typical
+            # year instead — the physically-correct full-year shape at nameplate,
+            # uncalibrated but seasonally sound. Keyless; every portal gets one.
+            import solar_pvwatts as sf  # noqa: PLC0415
+            cp = _solar_cache_path(asset, cfg, "tmy")
+            if not force and cp.exists():
+                return pd.read_parquet(cp)
+            s_str, e_str, _ = _wind_year_range("tmy")
+            wx = sf.fetch_weather_era5(float(asset["lat"]), float(asset["lon"]), s_str, e_str)
+            gen = sf.run_pvwatts(wx, cfg)
+            try:
+                paths.PLANT_VALUE_DIR.mkdir(parents=True, exist_ok=True)
+                gen.to_parquet(cp)
+            except Exception:  # noqa: BLE001
+                pass
+            return gen
         # wind: align the cache filename to the portal's glob (resource_node)
         a2 = dict(asset)
         a2["resource_name"] = asset.get("resource_node") or asset["resource_name"]
