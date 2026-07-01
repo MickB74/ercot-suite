@@ -101,6 +101,8 @@ def _load_generation(hub, resource_node: str, start: dt.date, end: dt.date,
         return pd.DataFrame()
     df = df.copy()
     df["interval_start"] = pd.to_datetime(df["interval_start"])
+    if "mwh" not in df.columns and "mw" in df.columns:
+        df["mwh"] = df["mw"] * HOURS_PER_INTERVAL
     return df
 
 
