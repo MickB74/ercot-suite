@@ -102,7 +102,10 @@ def region_bias_multiplier(lat=None, lon=None, hub_name=None, table=None) -> tup
     hub = normalize_hub(hub_name) or infer_hub(lat, lon)
     hub_map = table.get("hub_multiplier", {}) if isinstance(table, dict) else {}
     if hub and hub in hub_map:
-        return _clamp(float(hub_map[hub]), 0.85, 1.25), f"hub:{hub}"
+        # Wider band than the original [0.85, 1.25]: ERA5 + parametric curves
+        # under-resolve, so learned hub priors run high; kept in sync with the
+        # Hub copy (parity test). ws_scale (speed-space) carries most of the fix.
+        return _clamp(float(hub_map[hub]), 0.7, 2.0), f"hub:{hub}"
     if hub and hub in DEFAULT_HUB_MULTIPLIER:
         return DEFAULT_HUB_MULTIPLIER[hub], f"default:{hub}"
     return 1.0, "none"

@@ -70,6 +70,50 @@ def _wind_bias_ratio(forecast_df: pd.DataFrame, archive_df, hub_h: float):
     return float(j["a"].mean() / j["f"].mean())
 
 
+_MAX_DAILY_CF = 1.0  # physical ceiling: a plant can't average above nameplate over a day
+
+
+def _cap_fill(weights, total, cap):
+    """Distribute ``total`` MWh across days ∝ ``weights`` with no day exceeding
+    ``cap`` (nameplate × 24 h). Overflow from capped days spills onto the days
+    that still have headroom (water-filling), so the month total is preserved
+    while no single day exceeds what the plant can physically produce.
+
+    ``weights`` maps day → non-negative weight. Returns day → MWh; the values
+    sum to ``total`` whenever that is feasible (``total ≤ cap × n_days``), and
+    otherwise every day is pinned at ``cap``.
+    """
+    days = list(weights)
+    n = len(days)
+    if n == 0:
+        return {}
+    if total >= cap * n - 1e-6:            # infeasible / exactly full → all at cap
+        return {d: cap for d in days}
+    alloc = {d: 0.0 for d in days}
+    free = set(days)
+    for _ in range(n + 2):
+        rem = total - sum(alloc.values())
+        if rem <= 1e-6 or not free:
+            break
+        wsum = sum(max(weights[d], 0.0) for d in free)
+        if wsum <= 0:                      # no shape info among free days → equal split
+            w = {d: 1.0 for d in free}
+            wsum = float(len(free))
+        else:
+            w = {d: max(weights[d], 0.0) for d in free}
+        capped = False
+        for d in list(free):
+            if alloc[d] + rem * w[d] / wsum >= cap - 1e-9:
+                alloc[d] = cap
+                free.discard(d)
+                capped = True
+        if not capped:                     # everything fits → place remainder and stop
+            for d in free:
+                alloc[d] += rem * w[d] / wsum
+            break
+    return alloc
+
+
 def _guard_forecast_months(forecast_rows, *, hist_mwh, cap_share, tech, strike,
                            fpx, blocked, fwin_start, fwin_end, envelope=None,
                            ground_cf=None):
@@ -111,26 +155,42 @@ def _guard_forecast_months(forecast_rows, *, hist_mwh, cap_share, tech, strike,
             out.extend(rows)
             continue
         # ── grounded path: set month LEVEL to EIA P50, keep weather daily SHAPE ──
+        # The month TOTAL is pinned to the plant's EIA-923 P50; the weather forecast
+        # only supplies the day-to-day shape. We then water-fill that total so no day
+        # exceeds nameplate (× 24 h) — the ERA5 archive winds routinely sit below
+        # cut-in for whole weeks, which without a cap would pile the month's energy
+        # onto the few surviving days at physically impossible daily output. The
+        # month total (and therefore the net settlement) is unchanged by the reshape.
         if mo in ground_cf:
             per_day = ground_cf[mo] * cap_share * 24.0            # target MWh/day at P50
             month_target = per_day * len(intended)
+            day_cap = cap_share * 24.0 * _MAX_DAILY_CF            # physical daily ceiling
             present = {x["date"]: x for x in rows}
-            if fmwh > 0 and len(rows) >= 0.5 * len(intended):
-                # scale present (weather-shaped) days to their pro-rata share…
-                scale = (per_day * len(rows)) / fmwh
-                for d in intended:
-                    if d in present:
-                        m2 = present[d]["mwh"] * scale
-                        out.append({**present[d], "mwh": m2,
-                                    "net": m2 * (fpx(d) - strike), "kind": "anchored"})
-                    else:                                        # …fill gaps at month mean
-                        out.append({"date": d, "mwh": per_day, "net": per_day * (fpx(d) - strike),
-                                    "price": fpx(d), "kind": "anchored_fill"})
-            else:                                                # little/no weather → flat P50
-                for d in intended:
-                    out.append({"date": d, "mwh": per_day, "net": per_day * (fpx(d) - strike),
-                                "price": fpx(d), "kind": "anchored_flat"})
-            if abs(cf - ground_cf[mo]) > 0.03:
+            # A weather shape is only usable if it covers enough of the month AND
+            # isn't mostly dead days (sub-cut-in ≈ 0). ERA5 archive under-reads wind
+            # badly at some nodes, collapsing the shape to a handful of live days;
+            # when that happens fall back to a flat P50 spread instead of trusting it.
+            dead_thr = 0.02 * cap_share * 24.0
+            n_dead = sum(1 for x in rows if x["mwh"] < dead_thr)
+            shape_ok = (fmwh > 0 and len(present) >= 0.5 * len(intended)
+                        and n_dead <= 0.40 * len(intended))
+            if shape_ok:
+                mean_present = fmwh / max(len(present), 1)
+                weights = {d: (present[d]["mwh"] if d in present else mean_present)
+                           for d in intended}
+            else:
+                weights = {d: 1.0 for d in intended}             # shape unusable → flat
+            alloc = _cap_fill(weights, month_target, day_cap)
+            for d in intended:
+                m2 = alloc[d]
+                base = present.get(d, {})
+                kind = ("anchored" if shape_ok and d in present
+                        else "anchored_flat" if not shape_ok else "anchored_fill")
+                out.append({**base, "date": d, "mwh": m2,
+                            "net": m2 * (fpx(d) - strike), "price": fpx(d), "kind": kind})
+            if not shape_ok:
+                notes.append((ym, "grounded→P50 (flat: weak weather shape)", round(cf, 3)))
+            elif abs(cf - ground_cf[mo]) > 0.03:
                 notes.append((ym, "grounded→P50", round(cf, 3)))
             continue
         # ── fallback: clamp into P10–P90 (or generic band) ──
@@ -445,6 +505,8 @@ def render_near_term_tab(
             for _d, _mwh in _prev_daily.items():
                 if _d < prev_month_start_date or _d > prev_month_end_date:
                     continue
+                if pd.isna(_mwh):          # ERA5 archive had too few hours that day
+                    continue
                 _price = float(_prev_prices.get(_d, float("nan")))
                 if pd.isna(_price):
                     continue
@@ -530,6 +592,8 @@ def render_near_term_tab(
                 for _d, _mwh in _cur_daily.items():
                     if _d < cur_month_start_date or _d > _mtd_end:
                         continue
+                    if pd.isna(_mwh):      # ERA5 archive had too few hours that day
+                        continue
                     _price = float(_cur_prices.get(_d, float("nan")))
                     if pd.isna(_price):
                         continue
@@ -561,6 +625,8 @@ def render_near_term_tab(
             continue
         if d_date > fourth_month_end_date:
             continue
+        if pd.isna(mwh):        # sparse-coverage day → let the month guard fill it
+            continue
         net = float(mwh) * (_fpx(d_date) - strike)
         if d_date < next_month_start.date():
             kind = "forecast_cur"
@@ -579,7 +645,7 @@ def render_near_term_tab(
         py_raw = gf.daily_forecast_mwh(py_df, tech, cap_share, hub_height_m=hub_h, cal_factor=cal_factor,
                                         cut_in=cut_in_ms, rated=rated_ms, cut_out=cut_out_ms,
                                         turbine_type=turbine_type)
-        py_daily = {d_py: float(v) for d_py, v in py_raw.items()}
+        py_daily = {d_py: float(v) for d_py, v in py_raw.items() if pd.notna(v)}
 
     # Fill days beyond the GEFS horizon — prior-year ERA5 first, flat shape as backstop
     d = weather_max_date + dt.timedelta(days=1)
@@ -620,18 +686,17 @@ def render_near_term_tab(
     if _has_anchor and cap_share and cap_share == cap_share:
         _node = a.get("resource_node") or a.get("resource_name") or ""
         _acf = _eia.monthly_cf_targets(_node, "p50")
-        if _acf:
+        # Use the anchor as the baseline + grounding target ONLY with a full year
+        # of the plant's own history (complete seasonal cycle). A thin anchor
+        # (new plant) is NOT allowed to replace the caller's 12-month hist_mwh —
+        # that would leave uncovered calendar months with no guard at all — so it
+        # falls through to the physics forecast + the P10–P90 / generic guard.
+        if _acf and len(_acf) >= 12:
             import calendar as _cal2
             guard_hist = pd.Series({
                 int(m): float(cf) * cap_share * _cal2.monthrange(2025, int(m))[1] * 24.0
                 for m, cf in _acf.items()})
-            # Ground each near-term month's LEVEL to the EIA-923 P50 CF (weather
-            # keeps the daily shape) — but ONLY with a full year of the plant's
-            # own history, so the P50 reflects a complete seasonal cycle. New
-            # plants (thin anchor) fall through to the physics forecast + the
-            # P10–P90 guard instead of being grounded to a partial year.
-            if len(_acf) >= 12:
-                guard_ground = {int(m): float(cf) for m, cf in _acf.items()}
+            guard_ground = {int(m): float(cf) for m, cf in _acf.items()}
         # Per-month P10–P90 CF envelope from the anchor → the guard clamps each
         # forecast month into the plant's own historical range (catches a month
         # that lands below its historical P10, which a generic band misses).
@@ -687,10 +752,14 @@ def render_near_term_tab(
 
     n_settled = int(actual_mask.sum())
     n_mtd = int(mtd_mask.sum())
-    n_fcast_cur = int(all_df["kind"].str.contains("cur").sum())
-    n_fcast_next = int(all_df["kind"].str.contains("next").sum())
-    n_fcast_third = int(all_df["kind"].str.contains("third").sum())
-    n_fcast_fourth = int(all_df["kind"].str.contains("fourth").sum())
+    # Count forecast days by DATE bucket, not by the kind string — the guard
+    # rewrites rows to kinds ("anchored", "histguard_…") that carry no month tag,
+    # so a substring match on cur/next/third/fourth would undercount to ~0.
+    _fcast_mask = ~all_df["kind"].isin(["actual", "mtd_est", "retrocast"])
+    n_fcast_cur = int((cur_mask & _fcast_mask).sum())
+    n_fcast_next = int((next_mask & _fcast_mask).sum())
+    n_fcast_third = int((third_mask & _fcast_mask).sum())
+    n_fcast_fourth = int((fourth_mask & _fcast_mask).sum())
 
     # Projected month-end = settled MTD + the remaining-days forecast, combined.
     remain_cur = proj_cur - mtd_net
@@ -734,23 +803,37 @@ def render_near_term_tab(
               f"Forecast days valued at forward price − strike: "
               f"({fwd_price:,.2f} − {strike:,.2f}) = {fwd_price - strike:,.2f} $/MWh."),
     )
-    _row1[2].metric(
-        "Cal. factor",
-        f"{cal_factor:.3f}",
-        delta=f"from {n_cal_days} SCED days" if n_cal_days else "no overlap — uncalibrated",
-        delta_color="off",
-        help=(
-            "Weather-model output is scaled by this factor so it matches the "
-            f"plant's metered SCED over the last {n_cal_days} days."
-            + (f"\n\nForecast winds also bias-corrected ×{wind_bias_ratio:.3f} "
-               "to the ERA5 calibration baseline (the forecast product runs "
-               "hotter than ERA5). Generation uses a farm-level (multi-turbine) "
-               "power curve, so daily output tracks the metered distribution "
-               "instead of pegging at 100%."
-               if wind_bias_ratio else
-               "\n\nGeneration uses a farm-level (multi-turbine) power curve.")
-        ),
-    )
+    if guard_ground:
+        # Grounded plants: the monthly LEVEL comes from EIA-923 P50, not cal_factor
+        # (which cancels out), so surfacing cal_factor here would mislead.
+        _row1[2].metric(
+            "Level basis",
+            "EIA-923 P50",
+            delta="weather sets daily shape",
+            delta_color="off",
+            help=("Each month's generation level is set from this plant's own EIA-923 "
+                  "P50 capacity factor (its metered multi-year history); the weather "
+                  "forecast only distributes it across days. The ERA5 cal-factor and "
+                  "wind bias-correction cancel out on this path and don't affect the level."),
+        )
+    else:
+        _row1[2].metric(
+            "Cal. factor",
+            f"{cal_factor:.3f}",
+            delta=f"from {n_cal_days} SCED days" if n_cal_days else "no overlap — uncalibrated",
+            delta_color="off",
+            help=(
+                "Weather-model output is scaled by this factor so it matches the "
+                f"plant's metered SCED over the last {n_cal_days} days."
+                + (f"\n\nForecast winds also bias-corrected ×{wind_bias_ratio:.3f} "
+                   "to the ERA5 calibration baseline (the forecast product runs "
+                   "hotter than ERA5). Generation uses a farm-level (multi-turbine) "
+                   "power curve, so daily output tracks the metered distribution "
+                   "instead of pegging at 100%."
+                   if wind_bias_ratio else
+                   "\n\nGeneration uses a farm-level (multi-turbine) power curve.")
+            ),
+        )
 
     # ── Row 2: monthly estimates (wider cards, easier to scan) ───────────────
     _row2_cols = 4 if has_prior else 3
@@ -905,11 +988,14 @@ def render_near_term_tab(
             return RETRO_POS if pos else RETRO_NEG
         if k == "actual":
             return SOLID_POS if pos else SOLID_NEG
-        if "cur" in k:
+        # Forecast bars: colour by DATE bucket, not the kind string (the guard
+        # rewrites kinds to "anchored"/"histguard_…" with no month tag).
+        ym = str(row["date"])[:7]
+        if ym == cur_month_str:
             return FCAST_CUR_POS if pos else FCAST_CUR_NEG
-        if "next" in k:
+        if ym == next_month_str:
             return FCAST_NEXT_POS if pos else FCAST_NEXT_NEG
-        if "third" in k:
+        if ym == third_month_str:
             return FCAST_THIRD_POS if pos else FCAST_THIRD_NEG
         return FCAST_FOURTH_POS if pos else FCAST_FOURTH_NEG
 

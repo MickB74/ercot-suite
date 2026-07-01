@@ -72,18 +72,24 @@ def _ramp(v, cut_in, rated, exponent, cut_out=25.0):
 # ---------------------------------------------------------------------------
 
 PARAMETRIC_CURVES = {
-    # Modern low-specific-power / large-rotor machines reach rated early → high CF.
-    "VESTAS_V163":  (3.0, 10.5, 2.5, 25.0),   # V163-4.5 low-wind specialist
-    "NORDEX_N163":  (3.0, 10.0, 2.5, 25.0),   # N163/5.X very aggressive low wind
-    "NORDEX_N149":  (3.0, 11.5, 2.8, 25.0),   # N149/4.X-5.X standard-to-low wind
-    "GE_3X":        (3.0, 10.5, 2.6, 25.0),   # GE 3.6-154 modern mainstream
-    "SG_3_4_132":   (3.0, 10.8, 2.6, 25.0),   # Siemens Gamesa SG 3.4-132
-    "AW3000":       (3.0, 11.5, 2.7, 25.0),   # Acciona AW116/125-3000
-    "GE_2X":        (3.0, 11.0, 3.0, 25.0),   # GE 2.5-127 / 2.82-127 workhorse
-    "GENERIC_IEC2": (3.0, 12.0, 3.0, 25.0),   # IEC Class II proxy (default)
-    "GENERIC_IEC1": (3.5, 13.0, 3.0, 25.0),   # IEC Class I (high-wind sites)
-    "GE_1X":        (3.5, 12.5, 3.0, 25.0),   # legacy GE 1.5/1.6 MW
-    "MWT_1X":       (4.0, 13.0, 3.0, 25.0),   # legacy Mitsubishi MWT62/1.0
+    # Re-tuned (2026-06) to real OEDB/manufacturer power curves: the prior rated
+    # speeds (11.5–13 m/s) + steep exponents (2.8–3.0) under-predicted mid-wind
+    # (6–9 m/s) output by ~2× vs metered SCED. Modern low-specific-power machines
+    # reach rated near ~10 m/s with a gentler low-wind ramp; legacy high-specific-
+    # power machines reach rated later. Validated against ERCOT metered CF.
+    # NB: kept identical to Ercot_Data_Hub/datasets/wind_forecast/power_curves.py
+    # (parity enforced by ercot_core/tests/test_wind_engine_parity.py).
+    "VESTAS_V163":  (3.0,  9.8, 1.8, 25.0),   # V163-4.5 low-wind specialist
+    "NORDEX_N163":  (3.0,  9.6, 1.8, 25.0),   # N163/5.X very aggressive low wind
+    "NORDEX_N149":  (3.0, 10.3, 2.0, 25.0),   # N149/4.X-5.X standard-to-low wind
+    "GE_3X":        (3.0, 10.3, 2.0, 25.0),   # GE 3.6-154 modern mainstream
+    "SG_3_4_132":   (3.0, 10.6, 2.1, 25.0),   # Siemens Gamesa SG 3.4-132
+    "AW3000":       (3.0, 11.0, 2.3, 25.0),   # Acciona AW116/125-3000
+    "GE_2X":        (3.0, 10.8, 2.3, 25.0),   # GE 2.5-127 / 2.82-127 workhorse
+    "GENERIC_IEC2": (3.0, 11.0, 2.4, 25.0),   # IEC Class II proxy (default)
+    "GENERIC_IEC1": (3.5, 12.0, 2.7, 25.0),   # IEC Class I (high-wind sites)
+    "GE_1X":        (3.5, 12.0, 2.7, 25.0),   # legacy GE 1.5/1.6 MW
+    "MWT_1X":       (4.0, 12.5, 2.8, 25.0),   # legacy Mitsubishi MWT62/1.0
 }
 
 

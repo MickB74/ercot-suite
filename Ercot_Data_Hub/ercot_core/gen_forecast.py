@@ -147,8 +147,10 @@ def _wind_hourly_mw(
     for col, h in (("wind_speed_120m", 120.0), ("wind_speed_100m", 100.0),
                    ("wind_speed_80m", 80.0)):
         if col in weather_df.columns:
-            s = pd.to_numeric(weather_df[col], errors="coerce").fillna(0.0)
-            if s.sum() > 0:
+            # Keep NaN for null hours (do not coerce to 0 = dead calm); a fully
+            # null level sums to 0 and is skipped in favour of the next height.
+            s = pd.to_numeric(weather_df[col], errors="coerce")
+            if s.notna().any() and float(s.sum()) > 0:
                 ws_raw, meas_h = s, h
                 break
     if ws_raw is None:
@@ -158,6 +160,27 @@ def _wind_hourly_mw(
     raw = _power_curve(ws_hub, capacity_mw, cut_in=cut_in, rated=rated,
                        cut_out=cut_out, turbine_type=turbine_type)
     return (raw * cal_factor).clip(0.0, capacity_mw)
+
+
+def _daily_from_hourly(hourly_mw: pd.Series, *, min_hours: int = 6) -> pd.Series:
+    """UTC hourly MW → Central-local daily MWh, coverage-aware.
+
+    Missing hours (NaN — e.g. ERA5 archive nulls) are NOT counted as zero
+    generation. Each day is scaled from the hours actually present
+    (``mean(present) × 24``), and a day with fewer than ``min_hours`` present is
+    returned as NaN (unknown) rather than a fabricated near-zero. Fully-covered
+    days (all 24 h present, the solar/forecast norm) are unchanged from a plain
+    daily sum.
+    """
+    local = pd.Series(hourly_mw.to_numpy(dtype=float),
+                      index=hourly_mw.index.tz_convert("America/Chicago"))
+    by_day = local.groupby(local.index.date)
+    n = by_day.count()                     # non-NaN hours per day
+    s = by_day.sum()                       # sum of present hours (skips NaN)
+    daily = s * (24.0 / n.where(n > 0, np.nan))
+    daily[n < min_hours] = np.nan
+    daily.index = daily.index.map(lambda d: d)  # keep datetime.date index
+    return daily
 
 
 # ── calibration ───────────────────────────────────────────────────────────────
@@ -210,10 +233,9 @@ def calibrate(
                                      cut_in=cut_in, rated=rated, cut_out=cut_out,
                                      turbine_type=turbine_type)
 
-    # Convert UTC hourly MW → Central local date daily MWh (each row = 1 h)
-    local_idx = raw_hourly.index.tz_convert("America/Chicago")
-    raw_daily = pd.Series(raw_hourly.values, index=local_idx).resample("D").sum()
-    raw_daily.index = raw_daily.index.date  # type: ignore[assignment]
+    # Convert UTC hourly MW → Central local date daily MWh (coverage-aware, so
+    # null archive hours don't fabricate calm and bias the calibration factor).
+    raw_daily = _daily_from_hourly(raw_hourly).dropna()
 
     # Align with SCED
     common = [d for d in raw_daily.index if d in sced_daily_mwh.index]
@@ -271,10 +293,7 @@ def daily_forecast_mwh(
                                     cut_in=cut_in, rated=rated, cut_out=cut_out,
                                     turbine_type=turbine_type)
 
-    local_idx = hourly_mw.index.tz_convert("America/Chicago")
-    daily = pd.Series(hourly_mw.values, index=local_idx).resample("D").sum()
-    daily.index = daily.index.date  # type: ignore[assignment]
-    return daily
+    return _daily_from_hourly(hourly_mw)
 
 
 # ── historical shape fallback ─────────────────────────────────────────────────

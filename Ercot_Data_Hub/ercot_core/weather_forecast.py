@@ -179,7 +179,15 @@ def fetch_archive(
     df["time"] = pd.to_datetime(df["time"], utc=True)
     df = df.set_index("time")
     numeric_cols = df.select_dtypes("number").columns
-    df[numeric_cols] = df[numeric_cols].fillna(0.0).clip(lower=0.0)
+    # Do NOT fill null wind-speed hours with 0 — the Open-Meteo archive returns
+    # `null` for a highly variable fraction of hours at some grid points (seen up
+    # to 90% for a month), and treating those as 0 m/s dead calm fabricates
+    # multi-week zero-generation blocks and biases the level down. Leave wind
+    # nulls as NaN so the daily aggregation can reconstruct from present hours.
+    # Solar keeps the night-fill (null radiation ≈ 0 is physically fine).
+    if tech == "solar":
+        df[numeric_cols] = df[numeric_cols].fillna(0.0)
+    df[numeric_cols] = df[numeric_cols].clip(lower=0.0)
     return df
 
 
