@@ -95,49 +95,49 @@ st.divider()
 if st.button("⬇️ Refresh now", type="primary",
              disabled=not (do_gen or do_price or do_hub)):
     # ── node generation + prices ─────────────────────────────────────────────
+    # ── node generation + prices (delegated to the Hub venv) ──────────────────
+    # The generation + node-price pulls use gridstatus + ERCOT credentials, which
+    # live in the Data Hub's virtualenv — NOT this display portal's venv. So we run
+    # the asset's own proven refresh.py under the Hub venv as a streamed subprocess
+    # (same reason the hub-price section shells out via orchestrate), rather than
+    # importing the gridstatus-backed pullers in-process.
     if do_gen or do_price:
-        try:
-            pull_nodes, node_generation, spp_archive, sced = hub.datasets()
-            latest = sced.latest_available_date()
-
-            gen_chunks   = []
-            price_chunks = []
-            if do_gen:
-                gstart = _start_for(_cached_max(hub.generation, node), full)
-                gen_chunks = _month_ranges(gstart, latest) if gstart <= latest else []
-            if do_price:
-                pstart = _start_for(_cached_max(hub.node_prices, node), full)
-                price_chunks = _month_ranges(pstart, latest) if pstart <= latest else []
-
-            total = len(gen_chunks) + len(price_chunks)
-            if total == 0:
-                st.success(f"Node data already current through {latest}.")
-            else:
-                bar = st.progress(0.0, text="Starting…")
-                done = 0
-                for cs, ce in gen_chunks:
-                    bar.progress(done / total, text=f"Generation · {cs:%b %Y}")
-                    g = node_generation.fetch_generation([node], cs, ce, verbose=False)
-                    if not g.empty:
-                        pull_nodes._merge_save(g, pull_nodes.GEN_TEMPLATE,
-                                               pull_nodes.GEN_KEY)
-                    done += 1
-                for cs, ce in price_chunks:
-                    bar.progress(done / total,
-                                 text=f"Node prices · {cs:%b %Y} (archive can be slow)")
-                    p = spp_archive.fetch_rtm_spp([node], cs, ce,
-                                                  location_type="Resource Node",
-                                                  log=lambda *a: None)
-                    if not p.empty:
-                        pull_nodes._merge_save(p, pull_nodes.PRICE_TEMPLATE,
-                                               pull_nodes.PRICE_KEY)
-                    done += 1
-                bar.progress(1.0, text="Done")
-                hub.clear_data_caches()   # reflect the just-saved parquet data
-                nws, nwe = hub.settlement_window(node, loc)
-                st.success(f"✓ Node data updated — settlement window now **{nws} → {nwe}**.")
-        except Exception as exc:  # noqa: BLE001
-            st.error(f"Node refresh failed: {exc}")
+        import subprocess  # noqa: PLC0415
+        from pathlib import Path as _Path  # noqa: PLC0415
+        portal_root = _Path(__file__).resolve().parents[2]
+        refresh_py = portal_root / "refresh.py"
+        hub_py = hub.hub_root() / ".venv" / "bin" / "python"
+        if not hub_py.exists():
+            st.error(f"Data-pull venv not found at `{hub_py}`. The generation + node-price "
+                     "pull needs the Data Hub's virtualenv (gridstatus + ERCOT credentials). "
+                     'You can also double-click this portal\'s "Refresh … Data.command".')
+        elif not refresh_py.exists():
+            st.error(f"refresh.py not found at `{refresh_py}`.")
+        else:
+            cmd = [str(hub_py), str(refresh_py)] + (["--full"] if full else [])
+            with st.status("Refreshing generation + node price via the Data Hub venv "
+                           "(archive pulls can take a few minutes)…", expanded=True) as status:
+                try:
+                    proc = subprocess.Popen(cmd, cwd=str(portal_root),
+                                            stdout=subprocess.PIPE,
+                                            stderr=subprocess.STDOUT, text=True, bufsize=1)
+                    for line in proc.stdout:                       # stream progress live
+                        line = line.rstrip()
+                        if line:
+                            st.write(line)
+                    rc = proc.wait()
+                    if rc == 0:
+                        hub.clear_data_caches()   # reflect the just-saved parquet data
+                        nws, nwe = hub.settlement_window(node, loc)
+                        status.update(
+                            label=(f"✓ Node data updated — settlement window now "
+                                   f"{nws} → {nwe}.") if nws else "✓ Node data updated.",
+                            state="complete")
+                    else:
+                        status.update(label=f"Node refresh failed (exit {rc}) — see log above.",
+                                      state="error")
+                except Exception as exc:  # noqa: BLE001
+                    status.update(label=f"Node refresh failed: {exc}", state="error")
 
     # ── hub prices via orchestrate ───────────────────────────────────────────
     if do_hub:

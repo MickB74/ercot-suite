@@ -154,7 +154,9 @@ def _wind_hourly_mw(
                 ws_raw, meas_h = s, h
                 break
     if ws_raw is None:
-        return pd.Series(0.0, index=weather_df.index)
+        # No usable wind at any height → unknown, not calm. NaN so the daily
+        # aggregation marks these days missing rather than fabricating 0 output.
+        return pd.Series(np.nan, index=weather_df.index)
 
     ws_hub = _extrapolate_wind(ws_raw, meas_h, hub_height_m)
     raw = _power_curve(ws_hub, capacity_mw, cut_in=cut_in, rated=rated,

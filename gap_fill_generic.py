@@ -48,6 +48,17 @@ cf.index = pd.to_datetime(cf.index)
 if getattr(cf.index, "tz", None) is not None:
     cf.index = cf.index.tz_convert("America/Chicago").tz_localize(None)
 
+# The ERA5 archive nulls some hours (wind model now returns NaN rather than
+# fabricating 0 m/s calm). Fill those with the month's mean modeled CF so a
+# missing hour is treated as AVERAGE — never 0 (fake calm) and never NaN (which
+# would write null MW settlement rows into the lake). Consistent with the
+# coverage-aware generation model.
+if cf.isna().any():
+    n_missing = int(cf.isna().sum())
+    cf = cf.fillna(cf.groupby(cf.index.month).transform("mean"))
+    cf = cf.fillna(cf.mean())          # a fully-null month → overall mean
+    print(f"  filled {n_missing} ERA5-null hours with month-mean modeled CF")
+
 # ── anchor each gap month to 2025 node_generation monthly CF ─────────────────
 piv25 = g25.groupby("interval_start")["mw"].sum()
 tgt_cf = (piv25.groupby(pd.to_datetime(piv25.index).month).mean() / CAP)
@@ -75,6 +86,7 @@ rows = [{"interval_start": ts, "interval_end": ts + pd.Timedelta(minutes=15), "r
          "resource_name": u, "mw": float(mw) * shares[u], "base_point_mw": float(mw) * shares[u],
          "source": "era5_model", "fetched_at": now_utc} for u in units for ts, mw in qm.items()]
 new = pd.DataFrame(rows); new["mw"] = new["mw"].astype("float32"); new["base_point_mw"] = new["base_point_mw"].astype("float32")
+new = new.dropna(subset=["mw", "base_point_mw"])   # never write NaN settlement MW
 
 path = paths.NODE_DATA_DIR / "node_generation_2026.parquet"
 ex = pd.read_parquet(path); before = len(ex)

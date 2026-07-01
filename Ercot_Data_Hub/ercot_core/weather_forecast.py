@@ -114,10 +114,38 @@ def fetch(
     df = pd.DataFrame(h)
     df["time"] = pd.to_datetime(df["time"], utc=True)
     df = df.set_index("time")
-    # Fill any gaps (API sometimes returns null for very recent hours)
+    # The API sometimes returns null for very recent hours. Solar keeps the
+    # night-fill (null radiation ≈ 0 is fine); wind nulls stay NaN so the daily
+    # aggregation reconstructs from present hours instead of fabricating 0 m/s
+    # calm (same rule as fetch_archive).
     numeric_cols = df.select_dtypes("number").columns
-    df[numeric_cols] = df[numeric_cols].fillna(0.0).clip(lower=0.0)
+    if tech == "solar":
+        df[numeric_cols] = df[numeric_cols].fillna(0.0)
+    df[numeric_cols] = df[numeric_cols].clip(lower=0.0)
     return df
+
+
+# Minimum fraction of non-null hours for an archive response to be trusted /
+# cached as-is. Below this, refetch (transient Open-Meteo partials) rather than
+# pin a truncated window. Wind only — solar nulls (night) are legitimate.
+_MIN_ARCHIVE_COVERAGE = 0.80
+
+
+def _archive_coverage(raw: dict, tech: str) -> float:
+    """Fraction of non-null hours in the best wind-speed height (1.0 for solar).
+
+    Used to reject flaky partial archive responses before they're trusted/cached.
+    """
+    if tech != "wind":
+        return 1.0
+    hourly = (raw or {}).get("hourly") or {}
+    best = 0.0
+    for col in ("wind_speed_100m", "wind_speed_120m", "wind_speed_80m"):
+        vals = hourly.get(col)
+        if vals:
+            present = sum(1 for x in vals if x is not None)
+            best = max(best, present / len(vals))
+    return best
 
 
 def fetch_archive(
@@ -158,9 +186,18 @@ def fetch_archive(
 
     _CACHE_DIR.mkdir(parents=True, exist_ok=True)
     cpath = _CACHE_DIR / f"{lat:.4f}_{lon:.4f}_{tech}_arch_{start_date}_{end_date}.json"
+
+    # The Open-Meteo archive intermittently returns a PARTIAL response for a
+    # window (a block of hours null) that a retry moments later serves complete.
+    # A fresh-but-partial cache would otherwise be trusted for `cache_hours` and
+    # pin a truncated chart, so: only trust a fresh cache if its coverage is good,
+    # retry flaky partials, and never overwrite a better cache with a worse one.
+    raw = None
     if _is_fresh(cpath, cache_hours):
-        raw = json.loads(cpath.read_text())
-    else:
+        cand = json.loads(cpath.read_text())
+        if _archive_coverage(cand, tech) >= _MIN_ARCHIVE_COVERAGE:
+            raw = cand
+    if raw is None:
         hourly_vars = _SOLAR_VARS if tech == "solar" else _WIND_VARS_ARCHIVE
         params = (
             f"latitude={lat}&longitude={lon}"
@@ -170,8 +207,22 @@ def fetch_archive(
             f"&wind_speed_unit=ms"
         )
         url = f"{_ARCHIVE_URL}?{params}"
-        with urllib.request.urlopen(url, timeout=15) as resp:
-            raw = json.loads(resp.read())
+        raw = {}
+        for attempt in range(3):
+            with urllib.request.urlopen(url, timeout=15) as resp:
+                raw = json.loads(resp.read())
+            if _archive_coverage(raw, tech) >= _MIN_ARCHIVE_COVERAGE:
+                break
+            time.sleep(1.5)   # transient partial — let the archive settle, retry
+        # Keep whichever of {this fetch, existing cache} has better coverage, so a
+        # transient partial never clobbers good historical data already on disk.
+        if cpath.exists():
+            try:
+                old = json.loads(cpath.read_text())
+                if _archive_coverage(old, tech) > _archive_coverage(raw, tech):
+                    raw = old
+            except Exception:  # noqa: BLE001 — unreadable cache, just use the fetch
+                pass
         cpath.write_text(json.dumps(raw))
 
     h = raw["hourly"]
@@ -259,8 +310,13 @@ def fetch_medium_range(
             all_runs.append(h[var])
         all_runs += [h[k] for k in h if k.startswith(var + "_member")]
         if all_runs:
-            n = len(all_runs)
-            mean_vals = [sum((r[i] or 0.0) for r in all_runs) / n for i in range(len(times))]
+            # Ensemble mean over PRESENT members only — a member missing an hour
+            # must not be coalesced to 0 (that would drag wind toward fake calm).
+            # An hour with no present member stays NaN.
+            mean_vals = []
+            for i in range(len(times)):
+                present = [r[i] for r in all_runs if r[i] is not None]
+                mean_vals.append(sum(present) / len(present) if present else float("nan"))
             records[var] = mean_vals
 
     df = pd.DataFrame(records).set_index("time")
@@ -269,8 +325,11 @@ def fetch_medium_range(
     if tech == "wind" and "wind_speed_80m" in df.columns:
         df["wind_speed_120m"] = df["wind_speed_80m"] * (120.0 / 80.0) ** (1.0 / 7.0)
 
+    # Solar keeps the night-fill; wind nulls stay NaN (reconstructed downstream).
     numeric_cols = df.select_dtypes("number").columns
-    df[numeric_cols] = df[numeric_cols].fillna(0.0).clip(lower=0.0)
+    if tech == "solar":
+        df[numeric_cols] = df[numeric_cols].fillna(0.0)
+    df[numeric_cols] = df[numeric_cols].clip(lower=0.0)
 
     # GEFS zeroes out the trailing partial day at the model boundary; drop it.
     # Group by Central local date so the dusk-UTC-hours don't make a zeroed
