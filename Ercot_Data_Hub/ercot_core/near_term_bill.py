@@ -83,6 +83,7 @@ def render_near_term_tab(
     hist_mwh: pd.Series,
     fwd_price: float,
     fwd_price_by_month: dict | None = None,
+    fwd_band_df: pd.DataFrame | None = None,
     gen_kwargs: dict | None = None,
 ) -> None:
     """Render the near-term weather bill forecast tab.
@@ -877,8 +878,9 @@ def render_near_term_tab(
             row=1, col=1, secondary_y=True,
         )
 
-    # ── capture price subplot (row 2) ────────────────────────────────────────
+    # ── price subplot (row 2) ──────────────────────────────────────────────
     if has_real_prices:
+        # Realized market price (solid)
         fig.add_scatter(
             x=x_labels, y=real_prices,
             mode="lines+markers",
@@ -889,8 +891,67 @@ def render_near_term_tab(
             hovertemplate="%{x}<br>Price: $%{y:,.2f}/MWh<extra></extra>",
             row=2, col=1,
         )
-        # Expected (forecast) market price across the forward months
-        if any(p is not None for p in fcast_prices):
+
+        # P10/P50/P90 forward price band from the forecast model
+        _band_df = fwd_band_df
+        if _band_df is not None and not _band_df.empty:
+            _bx, _p10, _p50, _p90 = [], [], [], []
+            for _, row in all_df.iterrows():
+                mk = row["date"].strftime("%Y-%m") if hasattr(row["date"], "strftime") else str(row["date"])[:7]
+                if row["kind"] in real_price_kinds:
+                    continue
+                brow = _band_df[_band_df["Month"] == mk]
+                if brow.empty:
+                    continue
+                _bx.append(str(row["date"]))
+                _p10.append(float(brow.iloc[0]["p10"]))
+                _p50.append(float(brow.iloc[0]["p50"]))
+                _p90.append(float(brow.iloc[0]["p90"]))
+            if _bx:
+                # Shaded P10–P90 band
+                fig.add_scatter(
+                    x=_bx + _bx[::-1],
+                    y=_p90 + _p10[::-1],
+                    fill="toself",
+                    fillcolor="rgba(0,105,179,0.10)",
+                    line=dict(width=0),
+                    name="P10–P90 range",
+                    hoverinfo="skip",
+                    showlegend=True,
+                    row=2, col=1,
+                )
+                # P50 center line
+                fig.add_scatter(
+                    x=_bx, y=_p50,
+                    mode="lines",
+                    line=dict(color="rgba(0,105,179,0.6)", width=2, dash="dot"),
+                    name="P50 forecast",
+                    connectgaps=True,
+                    hovertemplate="%{x}<br>P50: $%{y:,.2f}/MWh<extra></extra>",
+                    row=2, col=1,
+                )
+                # P10/P90 edges
+                fig.add_scatter(
+                    x=_bx, y=_p10,
+                    mode="lines",
+                    line=dict(color="rgba(0,105,179,0.25)", width=1, dash="dot"),
+                    name="P10",
+                    connectgaps=True,
+                    hovertemplate="%{x}<br>P10: $%{y:,.2f}/MWh<extra></extra>",
+                    showlegend=False,
+                    row=2, col=1,
+                )
+                fig.add_scatter(
+                    x=_bx, y=_p90,
+                    mode="lines",
+                    line=dict(color="rgba(0,105,179,0.25)", width=1, dash="dot"),
+                    name="P90",
+                    connectgaps=True,
+                    hovertemplate="%{x}<br>P90: $%{y:,.2f}/MWh<extra></extra>",
+                    showlegend=False,
+                    row=2, col=1,
+                )
+        elif any(p is not None for p in fcast_prices):
             fig.add_scatter(
                 x=x_labels, y=fcast_prices,
                 mode="lines",
@@ -900,7 +961,8 @@ def render_near_term_tab(
                 hovertemplate="%{x}<br>Expected: $%{y:,.2f}/MWh<extra></extra>",
                 row=2, col=1,
             )
-        # Strike reference line — span the full chart (settled + forecast)
+
+        # Strike reference line
         if x_labels:
             fig.add_scatter(
                 x=[x_labels[0], x_labels[-1]], y=[strike, strike],
@@ -945,30 +1007,43 @@ def render_near_term_tab(
     third_mid = str(third_month_start.date() + dt.timedelta(days=15))
     fourth_mid = str(fourth_month_start.date() + dt.timedelta(days=15))
     _lbl = dict(showarrow=False, yref="y domain", y=1.07,
-                font=dict(size=11), xanchor="center",
-                bgcolor="rgba(255,255,255,0.88)",
+                font=dict(size=10), xanchor="center",
+                bgcolor="rgba(255,255,255,0.92)",
                 bordercolor="#bbb", borderwidth=1, borderpad=4)
+
+    # Per-month average forward price for the annotation detail
+    def _avg_price(mask):
+        _s = all_df.loc[mask]
+        if _s.empty or _s["mwh"].sum() == 0:
+            return fwd_price
+        return float((_s["net"].sum() / _s["mwh"].sum()) + strike)
+
     if has_prior:
         prev_mid = str(prev_month_start_date + dt.timedelta(days=15))
         fig.add_annotation(x=prev_mid,
-                           text=f"<b>{prev_month_str}</b> ERA5×actual  {branding.signed_money_raw(prior_net)}"
-                                f"<br>{prior_mwh:,.0f} MWh",
+                           text=f"<b>{prev_month_str}</b> ERA5×actual"
+                                f"<br>{branding.signed_money_raw(prior_net)}  ·  {prior_mwh:,.0f} MWh"
+                                f"<br><span style='color:#888'>{len(prior_rows)} days  ·  avg ${_avg_price(all_df['kind']=='retrocast'):,.1f}/MWh</span>",
                            **_lbl)
     fig.add_annotation(x=cur_mid,
-                       text=f"<b>Current month</b> ({cur_month_str})  {branding.signed_money_raw(proj_cur)}"
-                            f"<br>{proj_mwh:,.0f} MWh",
+                       text=f"<b>Current month</b> ({cur_month_str})"
+                            f"<br>{branding.signed_money_raw(proj_cur)}  ·  {proj_mwh:,.0f} MWh"
+                            f"<br><span style='color:#888'>{n_mtd} MTD + {n_fcast_cur} forecast days</span>",
                        **_lbl)
     fig.add_annotation(x=next_mid,
-                       text=f"<b>Next month</b> ({next_month_str})  {branding.signed_money_raw(next_net)}"
-                            f"<br>{next_mwh:,.0f} MWh",
+                       text=f"<b>Next month</b> ({next_month_str})"
+                            f"<br>{branding.signed_money_raw(next_net)}  ·  {next_mwh:,.0f} MWh"
+                            f"<br><span style='color:#888'>{n_fcast_next} days  ·  avg ${_avg_price(next_mask):,.1f}/MWh</span>",
                        **_lbl)
     fig.add_annotation(x=third_mid,
-                       text=f"<b>+2 months</b> ({third_month_str})  {branding.signed_money_raw(third_net)}"
-                            f"<br>{third_mwh:,.0f} MWh",
+                       text=f"<b>+2 months</b> ({third_month_str})"
+                            f"<br>{branding.signed_money_raw(third_net)}  ·  {third_mwh:,.0f} MWh"
+                            f"<br><span style='color:#888'>{n_fcast_third} days  ·  avg ${_avg_price(third_mask):,.1f}/MWh</span>",
                        **_lbl)
     fig.add_annotation(x=fourth_mid,
-                       text=f"<b>+3 months</b> ({fourth_month_str})  {branding.signed_money_raw(fourth_net)}"
-                            f"<br>{fourth_mwh:,.0f} MWh",
+                       text=f"<b>+3 months</b> ({fourth_month_str})"
+                            f"<br>{branding.signed_money_raw(fourth_net)}  ·  {fourth_mwh:,.0f} MWh"
+                            f"<br><span style='color:#888'>{n_fcast_fourth} days  ·  avg ${_avg_price(fourth_mask):,.1f}/MWh</span>",
                        **_lbl)
 
     fig.update_layout(

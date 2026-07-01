@@ -179,6 +179,7 @@ with tab_near:
         fwd_price_by_month=(None if use_manual else
                             (dict(zip(fwd_band["Month"], fwd_band["p50"]))
                              if forecast_ok and not fwd_band.empty else None)),
+        fwd_band_df=(None if use_manual else (fwd_band if forecast_ok and not fwd_band.empty else None)),
         # Azure Sky: generation is summed across 4 SCED units
         gen_kwargs={"units": a["units"]},
     )
