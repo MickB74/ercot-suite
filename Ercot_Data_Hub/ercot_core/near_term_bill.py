@@ -70,6 +70,57 @@ def _wind_bias_ratio(forecast_df: pd.DataFrame, archive_df, hub_h: float):
     return float(j["a"].mean() / j["f"].mean())
 
 
+def _guard_forecast_months(forecast_rows, *, hist_mwh, cap_share, tech, strike,
+                           fpx, blocked, fwin_start, fwin_end):
+    """Clamp implausible forecast months to the historical monthly shape.
+
+    Weather-driven months can imply impossible capacity factors: a hot GEFS run
+    over-predicts (70%+ CF) and a short/under-covered climatological tail
+    under-predicts (near-0%). For any forecast month whose implied CF falls
+    outside a sane band — or that is materially under-covered — rebuild or rescale
+    its unsettled days from ``hist_mwh`` (the historical monthly shape, already at
+    the contracted share). Returns ``(rows, notes)`` where notes lists
+    ``(ym, action, observed_cf)`` for anything the guard changed.
+    """
+    import calendar as _cal
+    if hist_mwh is None or len(hist_mwh) == 0 or not cap_share or cap_share != cap_share:
+        return forecast_rows, []
+    cf_lo, cf_hi = (0.10, 0.60) if tech == "wind" else (0.06, 0.42)
+    by_ym: dict[str, list] = {}
+    for r in forecast_rows:
+        by_ym.setdefault(r["date"].strftime("%Y-%m"), []).append(r)
+    out, notes = [], []
+    for ym, rows in by_ym.items():
+        yr, mo = int(ym[:4]), int(ym[5:7])
+        dim = _cal.monthrange(yr, mo)[1]
+        intended = [dt.date(yr, mo, i + 1) for i in range(dim)]
+        intended = [d for d in intended if fwin_start <= d <= fwin_end and d not in blocked]
+        hist_month = float(hist_mwh.get(mo, float("nan")))
+        fmwh = sum(x["mwh"] for x in rows)
+        cf = fmwh / (cap_share * max(len(rows), 1) * 24.0)
+        undercov = len(rows) < 0.9 * max(len(intended), 1)
+        bad = undercov or not (cf_lo <= cf <= cf_hi)
+        if not intended or hist_month != hist_month or hist_month <= 0 or not bad:
+            out.extend(rows)                       # month is fine — leave untouched
+            continue
+        if undercov or fmwh <= 0:                  # coverage gap → fill every day flat
+            daily = hist_month / dim
+            for d in intended:
+                out.append({"date": d, "mwh": daily, "net": daily * (fpx(d) - strike),
+                            "price": fpx(d), "kind": f"histguard_{ym}"})
+            notes.append((ym, "filled", round(cf, 3)))
+        else:                                      # covered but impossible CF → rescale
+            target = hist_month * (len(rows) / dim)
+            scale = target / fmwh
+            for x in rows:
+                m2 = x["mwh"] * scale
+                out.append({**x, "mwh": m2, "net": m2 * (fpx(x["date"]) - strike),
+                            "kind": str(x["kind"]) + "_capped"})
+            notes.append((ym, "rescaled", round(cf, 3)))
+    out.sort(key=lambda r: r["date"])
+    return out, notes
+
+
 def render_near_term_tab(
     st,
     *,
@@ -283,7 +334,11 @@ def render_near_term_tab(
             _ov_arch, _ = _archive(float(a["lat"]), float(a["lon"]), tech,
                                    str(_ov_start), str(_ov_end))
             _r = _wind_bias_ratio(weather_df, _ov_arch, hub_h)
-            if _r is not None and 0.5 < _r < 1.5:   # ignore implausible ratios
+            if _r is not None:
+                # Clamp rather than discard. A very hot forecast (r ≤ 0.5) is
+                # exactly the case that most needs correcting — dropping it let the
+                # current month over-predict (e.g. 70%+ CF). Apply a clamped ratio.
+                _r = min(max(_r, 0.55), 1.45)
                 wind_bias_ratio = _r
                 weather_df = weather_df.copy()
                 for _c in ("wind_speed_80m", "wind_speed_100m", "wind_speed_120m"):
@@ -516,6 +571,36 @@ def render_near_term_tab(
             forecast_rows.append({"date": d, "mwh": mwh, "net": mwh * (_fpx(d) - strike),
                                   "price": _fpx(d), "kind": row_kind})
         d += dt.timedelta(days=1)
+
+    # ── plausibility guard: no forecast month may imply an impossible CF ───────
+    # Catches both failure modes seen in the field: a hot GEFS current month
+    # (~70% CF) and an under-covered far month (~1% CF). Out-of-band months are
+    # rebuilt/rescaled to the historical monthly shape.
+    #
+    # Baseline: prefer the EIA-923 multi-year monthly shape when the node is
+    # anchored (2–3 yr of independent history vs the ~1 yr of local SCED), by
+    # converting the anchor's P50 capacity factors to full-month MWh at the
+    # contracted share. Falls back to the SCED-derived hist_mwh otherwise.
+    guard_hist = hist_mwh
+    if _has_anchor and cap_share and cap_share == cap_share:
+        _acf = _eia.monthly_cf_targets(
+            a.get("resource_node") or a.get("resource_name") or "", "p50")
+        if _acf:
+            import calendar as _cal2
+            guard_hist = pd.Series({
+                int(m): float(cf) * cap_share * _cal2.monthrange(2025, int(m))[1] * 24.0
+                for m, cf in _acf.items()})
+    forecast_rows, _guard_notes = _guard_forecast_months(
+        forecast_rows, hist_mwh=guard_hist, cap_share=cap_share, tech=tech,
+        strike=strike, fpx=_fpx,
+        blocked=settled_dates | {r["date"] for r in mtd_est_rows},
+        fwin_start=cur_month_start_date, fwin_end=fourth_month_end_date,
+    )
+    if _guard_notes:
+        _msg = ", ".join(f"{ym} ({act}, model CF {cf:.0%})" for ym, act, cf in _guard_notes)
+        st.caption(f"⚠️ Forecast sanity guard adjusted {_msg} to the historical "
+                   f"monthly shape — the weather model implied an out-of-range "
+                   f"capacity factor for {'that month' if len(_guard_notes)==1 else 'those months'}.")
 
     all_rows = prior_rows + actual_rows + mtd_est_rows + forecast_rows
     if not all_rows:
