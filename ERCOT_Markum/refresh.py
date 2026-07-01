@@ -131,6 +131,17 @@ def main() -> int:
 
     ws, we = hub.settlement_window(node, contract.settle_location(contract.load_contract()))
     print(f"✓ Done. Portal settlement window is now {ws} → {we}.")
+    # ── typical-year plant-value profile (enables the calibrated model) ───────
+    # Built here so a fresh portal is ready without a manual Hub run.
+    try:
+        from ercot_core import plant_value  # noqa: PLC0415
+        print("[plant-value] building typical-year profile (if missing) …")
+        _prof = plant_value.build_typical_profile(contract.ASSET)
+        print("  \u2713 profile ready." if _prof is not None
+              else "  \u26a0 skipped (solar without NREL key, or engine unavailable).")
+    except Exception as _pe:  # noqa: BLE001
+        print(f"  \u26a0 plant-value build skipped: {str(_pe)[:80]}")
+
     return 0
 
 

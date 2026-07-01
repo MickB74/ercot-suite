@@ -157,25 +157,56 @@ def _solar_config(eia_plant_ids: list[int], e860_year: int = 2024) -> dict:
     return cfg
 
 
+def _first_gen_month(eia_plant_ids: list[int]) -> str | None:
+    """First EIA-923 month with positive net generation → "YYYY-MM-01", or None."""
+    import sys
+    sys.path.insert(0, str(paths.ROOT / "datasets" / "eia923"))
+    import eia923  # noqa: E402
+    df = eia923.load_region("ercot", years=list(range(2016, 2027)))
+    sub = df[df["plant_id"].isin(eia_plant_ids)]
+    sub = sub[sub["netgen_mwh"] > 0]
+    if sub.empty:
+        return None
+    ts = pd.to_datetime(dict(year=sub["year"], month=sub["month"], day=1)).min()
+    return ts.strftime("%Y-%m-01")
+
+
 def spec_from_eia_solar(node: str, eia_plant_ids: list[int], *, label: str = "",
                         dc_ac_ratio: float | None = None, array_type: str | None = None,
                         start_year: int | None = None, e860_year: int = 2024) -> SolarSpec:
     """Build a :class:`SolarSpec` from EIA-860 (PV generators), auto-phasing.
 
-    Tracking / tilt / DC:AC default to the plant's actual EIA-860 Schedule 3.3
-    config (per-plant), overridable via the keyword args.
+    Robust to new plants: falls back across EIA-860 vintages to find the plant,
+    and when its 860 record lacks an online date (brand-new), infers COD from the
+    first EIA-923 generating month. Tracking / tilt / DC:AC default to the plant's
+    actual Schedule 3.3 config, overridable via the keyword args.
     """
-    e = pd.read_parquet(paths.EIA_DIR / f"eia860_ercot_{e860_year}.parquet")
-    sub = e[e["plant_id"].isin(eia_plant_ids) & (e["prime_mover"] == "PV")].copy()
-    if sub.empty:
+    sub = None
+    for yr in [e860_year, 2025, 2024, 2023]:
+        p = paths.EIA_DIR / f"eia860_ercot_{yr}.parquet"
+        if not p.exists():
+            continue
+        s = pd.read_parquet(p)
+        s = s[s["plant_id"].isin(eia_plant_ids) & (s["prime_mover"] == "PV")].copy()
+        if not s.empty:
+            sub, e860_year = s, yr
+            break
+    if sub is None or sub.empty:
         raise RuntimeError(f"No EIA-860 PV generators for {eia_plant_ids}.")
-    sub = sub.dropna(subset=["online_date"])
     cfg = _solar_config(eia_plant_ids, e860_year)
     ratio = dc_ac_ratio or cfg["dc_ac_ratio"]
     # EIA nameplate is DC; convert to AC for the capacity-factor basis.
-    phases_g = (sub.groupby(sub["online_date"].dt.strftime("%Y-%m-01"))["nameplate_mw"].sum()
-                / ratio)
-    phases = [(round(float(c), 1), on) for on, c in sorted(phases_g.items())]
+    dated = sub.dropna(subset=["online_date"])
+    if not dated.empty:
+        phases_g = (dated.groupby(dated["online_date"].dt.strftime("%Y-%m-01"))["nameplate_mw"].sum()
+                    / ratio)
+        phases = [(round(float(c), 1), on) for on, c in sorted(phases_g.items())]
+    else:
+        # brand-new plant, no 860 online date — infer COD from EIA-923.
+        cod = _first_gen_month(eia_plant_ids)
+        if not cod:
+            raise RuntimeError(f"No online date or EIA-923 generation for {eia_plant_ids}.")
+        phases = [(round(float(sub["nameplate_mw"].sum()) / ratio, 1), cod)]
     cod_year = int(min(p[1] for p in phases)[:4])
     return SolarSpec(
         node=node, eia_plant_ids=eia_plant_ids,

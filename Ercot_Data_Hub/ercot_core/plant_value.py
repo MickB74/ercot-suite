@@ -284,6 +284,42 @@ def _load_or_run_solar(asset: dict, cfg, year: str,
     return gen
 
 
+def build_typical_profile(asset: dict, *, api_key: str | None = None,
+                          email: str | None = None, force: bool = False):
+    """Build (and cache) the typical-year 8,760-h profile a portal expects.
+
+    This is the "plant-value step" the portals need before their calibrated model
+    lights up — wire it into a portal's refresh so a new portal is ready without a
+    manual Hub run. Caches at the path the portal globs for: wind →
+    ``windgen_{resource_node}_…mw``; solar → ``gen_{resource_name}_…kw``. Wind uses
+    the keyless ERA5+physics engine (EIA-anchored when available); solar uses the
+    keyless ERA5+PVWatts path when the node has an EIA anchor, else needs NREL keys.
+    Returns the hourly ``ac_kw`` frame, or None on failure (best-effort).
+    """
+    _ensure_engines_on_path()
+    tech = str(asset.get("tech", "")).lower()
+    node = asset.get("resource_node") or asset.get("resource_name")
+    try:
+        if "solar" in tech or "pv" in tech:
+            # Guard: a solar plant with <9 months of EIA history yields a
+            # season-skewed anchor (e.g. a Feb-COD plant reads winter-only). Don't
+            # ship a misleading calibrated year — leave it on the historical shape
+            # until it matures (unless an NREL key is present for the NSRDB path).
+            from ercot_core import eia_anchor  # noqa: PLC0415
+            _a = eia_anchor.load(node) if node else None
+            if _a and int(_a.get("n_months", 0)) < 9 and not (api_key and email):
+                return None
+            cfg = system_config_from_asset(asset)
+            return _load_or_run_solar(asset, cfg, "tmy", api_key, email, use_cache=not force)
+        # wind: align the cache filename to the portal's glob (resource_node)
+        a2 = dict(asset)
+        a2["resource_name"] = asset.get("resource_node") or asset["resource_name"]
+        gen, _meta = _load_or_run_wind(a2, "tmy", use_cache=not force)
+        return gen
+    except Exception:  # noqa: BLE001 — best-effort; portal falls back to history
+        return None
+
+
 def _wind_cache_path(asset: dict, year: str) -> Path:
     res = str(asset["resource_name"])
     return paths.PLANT_VALUE_DIR / f"windgen_{res}_{year}_{int(asset['capacity_mw'])}mw.parquet"
