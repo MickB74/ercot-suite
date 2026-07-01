@@ -6,9 +6,12 @@ Rendered as the default page by the router in app/Home.py. The router owns
 
 from __future__ import annotations
 
+import os
+import signal
 import socket
 import subprocess
 import sys
+import time
 import pathlib
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2]))  # repo root
@@ -199,14 +202,87 @@ def _launch_portal(portal: dict) -> None:
     )
 
 
+def _pids_on_port(port: int) -> list[int]:
+    """PIDs LISTENing on ``port`` — the only reliable handle to a portal, since
+    the streamlit command line doesn't carry the portal's directory name."""
+    try:
+        out = subprocess.run(
+            ["lsof", "-nP", f"-iTCP:{port}", "-sTCP:LISTEN", "-t"],
+            capture_output=True, text=True, timeout=5,
+        ).stdout
+    except (OSError, subprocess.SubprocessError):
+        return []
+    return [int(x) for x in out.split()]
+
+
+def _stop_portal(port: int) -> None:
+    """Terminate whatever is listening on ``port`` (SIGTERM, then SIGKILL)."""
+    for pid in _pids_on_port(port):
+        try:
+            os.kill(pid, signal.SIGTERM)
+        except ProcessLookupError:
+            pass
+    for _ in range(10):  # up to ~5s for a graceful exit
+        if not _port_open(port):
+            return
+        time.sleep(0.5)
+    for pid in _pids_on_port(port):  # still up → force it
+        try:
+            os.kill(pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+
+
+def _restart_portal(portal: dict) -> None:
+    _stop_portal(portal["port"])
+    _launch_portal(portal)
+    for _ in range(16):  # give the fresh server up to ~8s to bind
+        if _port_open(portal["port"]):
+            return
+        time.sleep(0.5)
+
+
+def _restart_many(portals: list[dict]) -> None:
+    """Stop then relaunch a whole set at once — stop all first, launch all, then
+    poll collectively so it's not N × the single-portal wait."""
+    for p in portals:
+        _stop_portal(p["port"])
+    for p in portals:
+        _launch_portal(p)
+    for _ in range(16):  # up to ~8s for the fleet to come back up
+        if all(_port_open(p["port"]) for p in portals):
+            return
+        time.sleep(0.5)
+
+
 st.divider()
 st.subheader("Settlement Portals")
 
-_live_count = sum(_port_open(_p["port"]) for _p in _PORTALS)
-st.caption(
-    f"Customer-facing VPPA/CfD settlement apps — one per asset, each on its own "
-    f"port.  **{_live_count} of {len(_PORTALS)} live.**"
-)
+_running_portals = [_p for _p in _PORTALS if _port_open(_p["port"])]
+_live_count = len(_running_portals)
+_capcol, _rallcol, _sallcol = st.columns([3, 1, 1])
+with _capcol:
+    st.caption(
+        f"Customer-facing VPPA/CfD settlement apps — one per asset, each on its "
+        f"own port.  **{_live_count} of {len(_PORTALS)} live.**"
+    )
+with _rallcol:
+    if st.button("↻ Restart all", use_container_width=True,
+                 disabled=_live_count == 0,
+                 help="Restart every currently-running portal"):
+        with st.spinner(f"Restarting {_live_count} running portal(s)…"):
+            _restart_many(_running_portals)
+        st.toast(f"Restarted {_live_count} portal(s).")
+        st.rerun()
+with _sallcol:
+    if st.button("⏹ Stop all", use_container_width=True,
+                 disabled=_live_count == 0,
+                 help="Stop every currently-running portal"):
+        with st.spinner(f"Stopping {_live_count} running portal(s)…"):
+            for _p in _running_portals:
+                _stop_portal(_p["port"])
+        st.toast(f"Stopped {_live_count} portal(s).")
+        st.rerun()
 
 # Optional filter so the grid stays scannable as the fleet grows.
 _techs = sorted({_p["tech"] for _p in _PORTALS})
@@ -260,6 +336,21 @@ for _i in range(0, len(_shown), _PER_ROW):
             if _running:
                 st.link_button("Open portal ↗", f"http://localhost:{_p['port']}",
                                use_container_width=True, type="primary")
+                _rc, _sc = st.columns(2)
+                with _rc:
+                    if st.button("↻ Restart", key=f"restart_{_p['port']}",
+                                 use_container_width=True):
+                        with st.spinner(f"Restarting {_p['name']}…"):
+                            _restart_portal(_p)
+                        st.toast(f"Restarted {_p['name']} on port {_p['port']}.")
+                        st.rerun()
+                with _sc:
+                    if st.button("⏹ Stop", key=f"stop_{_p['port']}",
+                                 use_container_width=True):
+                        with st.spinner(f"Stopping {_p['name']}…"):
+                            _stop_portal(_p["port"])
+                        st.toast(f"Stopped {_p['name']}.")
+                        st.rerun()
             elif st.button("Launch", key=f"launch_{_p['port']}",
                            use_container_width=True):
                 _launch_portal(_p)
