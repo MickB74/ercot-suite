@@ -33,6 +33,10 @@ nav = st.navigation({
         st.Page("pages/4_Invoice_Audit.py", title="Invoice Audit", icon="🔍"),
         st.Page("pages/7_Hub_vs_Node.py", title="Hub vs Node", icon="📡"),
     ],
+    "Analysis": [
+        st.Page("pages/8_Generation_Analysis.py", title="Generation Analysis", icon="⚡"),
+        st.Page("pages/9_Capture_Analysis.py", title="Capture Analysis", icon="🎯"),
+    ],
     "Data": [
         st.Page("pages/6_Update_Data.py", title="Update data", icon="⬇️"),
     ],
