@@ -33,7 +33,7 @@ st.markdown(
 
 st.subheader("📥 Where the data comes from")
 xcheck = (f"**EIA-923** monthly net generation (plant {a.get('eia_plant_id')}) as an "
-          "independent sanity-check against the ERCOT SCED totals."
+          "independent multi-year **anchor**: it sets the expected monthly capacity-factor shape (with P10–P90 bounds) used by the projection and cross-checks the ERCOT SCED totals."
           if a.get("eia_plant_id")
           else "An **EIA-923** cross-check becomes available once an EIA plant id is mapped "
                "to this asset (not set yet).")
@@ -93,6 +93,8 @@ central estimate. If the forecast is unavailable you can override it with a **fl
 price** (defaulting to the trailing capture price from history) and a **± sensitivity band**
 that shows how the bill swings if prices land higher or lower. The projection is
 *expected MWh × (price − strike)*, month by month.
+
+For the **current and next few months**, generation is a **weather forecast** (Open-Meteo high-res + GEFS ensemble), not a flat average. Forecast winds are **bias-corrected to the plant's ERA5/SCED level** before the power curve, and every month is **clamped to the plant's own EIA-923 historical P10–P90 capacity-factor range** — so no month can read implausibly high or low.
 """)
 
 st.subheader("⚠️ What this is *not*")

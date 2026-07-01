@@ -585,12 +585,23 @@ def render(
 
     scat = df.loc[mask_gen & df["settle_price"].notna()].copy()
     if not scat.empty:
-        fig_sc = go.Figure(data=go.Scattergl(
+        # Render with the SVG engine (go.Scatter), not WebGL (go.Scattergl): some
+        # browsers/VDIs have WebGL disabled and would show "WebGL is not supported".
+        # SVG handles ~15k points comfortably, so downsample a long history first
+        # (a full year of 15-min intervals is ~35k points) — the pattern is
+        # unchanged and the plot renders everywhere.
+        SCATTER_CAP = 15000
+        n_full = len(scat)
+        if n_full > SCATTER_CAP:
+            scat = scat.sample(n=SCATTER_CAP, random_state=0).sort_index()
+            st.caption(f"Showing a {SCATTER_CAP:,}-point sample of {n_full:,} intervals "
+                       "(rendered without WebGL for broad browser support).")
+        fig_sc = go.Figure(data=go.Scatter(
             x=scat["mwh"],
             y=scat["settle_price"],
             mode="markers",
             marker=dict(
-                size=3,
+                size=4,
                 color=scat["hour"],
                 colorscale="Viridis",
                 colorbar=dict(title="Hour"),

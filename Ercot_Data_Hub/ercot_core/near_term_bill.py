@@ -71,21 +71,30 @@ def _wind_bias_ratio(forecast_df: pd.DataFrame, archive_df, hub_h: float):
 
 
 def _guard_forecast_months(forecast_rows, *, hist_mwh, cap_share, tech, strike,
-                           fpx, blocked, fwin_start, fwin_end):
-    """Clamp implausible forecast months to the historical monthly shape.
+                           fpx, blocked, fwin_start, fwin_end, envelope=None,
+                           ground_cf=None):
+    """Ground / bound each forecast month to the plant's own history.
 
-    Weather-driven months can imply impossible capacity factors: a hot GEFS run
-    over-predicts (70%+ CF) and a short/under-covered climatological tail
-    under-predicts (near-0%). For any forecast month whose implied CF falls
-    outside a sane band — or that is materially under-covered — rebuild or rescale
-    its unsettled days from ``hist_mwh`` (the historical monthly shape, already at
-    the contracted share). Returns ``(rows, notes)`` where notes lists
-    ``(ym, action, observed_cf)`` for anything the guard changed.
+    The near-term physics *level* is unreliable: the ERA5-archive wind feed used to
+    fit ``cal_factor`` and the forward forecast wind feed are different products at
+    different native heights, so the two-step correction fights through the
+    nonlinear power curve. The trustworthy level is the plant's EIA-923 record.
+
+    * ``ground_cf`` (``{month: p50_cf}``) — when present (anchored plants), each
+      month's LEVEL is set to the EIA-923 P50 capacity factor while the weather
+      forecast keeps the day-to-day SHAPE (which days are windy). Missing days are
+      filled at the month mean. This is the grounded path.
+    * ``envelope`` (``{month: (p10_cf, p90_cf)}``) — fallback clamp into the
+      plant's historical P10–P90 when no P50 grounding is supplied.
+    * else a generic capacity-factor band.
+
+    Returns ``(rows, notes)`` listing ``(ym, action, observed_cf)`` for changes.
     """
     import calendar as _cal
     if hist_mwh is None or len(hist_mwh) == 0 or not cap_share or cap_share != cap_share:
         return forecast_rows, []
-    cf_lo, cf_hi = (0.10, 0.60) if tech == "wind" else (0.06, 0.42)
+    gen_lo, gen_hi = (0.10, 0.60) if tech == "wind" else (0.06, 0.42)
+    envelope, ground_cf = envelope or {}, ground_cf or {}
     by_ym: dict[str, list] = {}
     for r in forecast_rows:
         by_ym.setdefault(r["date"].strftime("%Y-%m"), []).append(r)
@@ -98,25 +107,52 @@ def _guard_forecast_months(forecast_rows, *, hist_mwh, cap_share, tech, strike,
         hist_month = float(hist_mwh.get(mo, float("nan")))
         fmwh = sum(x["mwh"] for x in rows)
         cf = fmwh / (cap_share * max(len(rows), 1) * 24.0)
-        undercov = len(rows) < 0.9 * max(len(intended), 1)
-        bad = undercov or not (cf_lo <= cf <= cf_hi)
-        if not intended or hist_month != hist_month or hist_month <= 0 or not bad:
-            out.extend(rows)                       # month is fine — leave untouched
+        if not intended or hist_month != hist_month or hist_month <= 0:
+            out.extend(rows)
             continue
-        if undercov or fmwh <= 0:                  # coverage gap → fill every day flat
+        # ── grounded path: set month LEVEL to EIA P50, keep weather daily SHAPE ──
+        if mo in ground_cf:
+            per_day = ground_cf[mo] * cap_share * 24.0            # target MWh/day at P50
+            month_target = per_day * len(intended)
+            present = {x["date"]: x for x in rows}
+            if fmwh > 0 and len(rows) >= 0.5 * len(intended):
+                # scale present (weather-shaped) days to their pro-rata share…
+                scale = (per_day * len(rows)) / fmwh
+                for d in intended:
+                    if d in present:
+                        m2 = present[d]["mwh"] * scale
+                        out.append({**present[d], "mwh": m2,
+                                    "net": m2 * (fpx(d) - strike), "kind": "anchored"})
+                    else:                                        # …fill gaps at month mean
+                        out.append({"date": d, "mwh": per_day, "net": per_day * (fpx(d) - strike),
+                                    "price": fpx(d), "kind": "anchored_fill"})
+            else:                                                # little/no weather → flat P50
+                for d in intended:
+                    out.append({"date": d, "mwh": per_day, "net": per_day * (fpx(d) - strike),
+                                "price": fpx(d), "kind": "anchored_flat"})
+            if abs(cf - ground_cf[mo]) > 0.03:
+                notes.append((ym, "grounded→P50", round(cf, 3)))
+            continue
+        # ── fallback: clamp into P10–P90 (or generic band) ──
+        lo, hi = envelope.get(mo, (gen_lo, gen_hi))
+        undercov = len(rows) < 0.9 * max(len(intended), 1)
+        if undercov or fmwh <= 0:
             daily = hist_month / dim
             for d in intended:
                 out.append({"date": d, "mwh": daily, "net": daily * (fpx(d) - strike),
                             "price": fpx(d), "kind": f"histguard_{ym}"})
             notes.append((ym, "filled", round(cf, 3)))
-        else:                                      # covered but impossible CF → rescale
-            target = hist_month * (len(rows) / dim)
-            scale = target / fmwh
+        elif cf < lo or cf > hi:
+            target_cf = lo if cf < lo else hi
+            scale = target_cf / cf if cf else 1.0
             for x in rows:
                 m2 = x["mwh"] * scale
                 out.append({**x, "mwh": m2, "net": m2 * (fpx(x["date"]) - strike),
-                            "kind": str(x["kind"]) + "_capped"})
-            notes.append((ym, "rescaled", round(cf, 3)))
+                            "kind": str(x["kind"]) + ("_floored" if cf < lo else "_capped")})
+            notes.append((ym, f"clamped→{'P10' if cf < lo else 'P90'}" if mo in envelope
+                          else "rescaled", round(cf, 3)))
+        else:
+            out.extend(rows)
     out.sort(key=lambda r: r["date"])
     return out, notes
 
@@ -572,35 +608,56 @@ def render_near_term_tab(
                                   "price": _fpx(d), "kind": row_kind})
         d += dt.timedelta(days=1)
 
-    # ── plausibility guard: no forecast month may imply an impossible CF ───────
-    # Catches both failure modes seen in the field: a hot GEFS current month
-    # (~70% CF) and an under-covered far month (~1% CF). Out-of-band months are
-    # rebuilt/rescaled to the historical monthly shape.
-    #
-    # Baseline: prefer the EIA-923 multi-year monthly shape when the node is
-    # anchored (2–3 yr of independent history vs the ~1 yr of local SCED), by
-    # converting the anchor's P50 capacity factors to full-month MWh at the
-    # contracted share. Falls back to the SCED-derived hist_mwh otherwise.
+    # ── ground / bound the forecast months to the plant's own history ──────────
+    # Primary path (full-year EIA anchor): set each month's LEVEL to the plant's
+    # EIA-923 P50 capacity factor; the weather forecast keeps the daily SHAPE.
+    # This makes the ERA5 cal_factor / forecast-bias corrections irrelevant to the
+    # level (a uniform ×k then rescale-to-P50 cancels k). Fallbacks for thin/no
+    # anchor: clamp into the anchor P10–P90 envelope, else a generic CF band.
     guard_hist = hist_mwh
+    guard_env = None
+    guard_ground = None
     if _has_anchor and cap_share and cap_share == cap_share:
-        _acf = _eia.monthly_cf_targets(
-            a.get("resource_node") or a.get("resource_name") or "", "p50")
+        _node = a.get("resource_node") or a.get("resource_name") or ""
+        _acf = _eia.monthly_cf_targets(_node, "p50")
         if _acf:
             import calendar as _cal2
             guard_hist = pd.Series({
                 int(m): float(cf) * cap_share * _cal2.monthrange(2025, int(m))[1] * 24.0
                 for m, cf in _acf.items()})
+            # Ground each near-term month's LEVEL to the EIA-923 P50 CF (weather
+            # keeps the daily shape) — but ONLY with a full year of the plant's
+            # own history, so the P50 reflects a complete seasonal cycle. New
+            # plants (thin anchor) fall through to the physics forecast + the
+            # P10–P90 guard instead of being grounded to a partial year.
+            if len(_acf) >= 12:
+                guard_ground = {int(m): float(cf) for m, cf in _acf.items()}
+        # Per-month P10–P90 CF envelope from the anchor → the guard clamps each
+        # forecast month into the plant's own historical range (catches a month
+        # that lands below its historical P10, which a generic band misses).
+        _anchor = _eia.load(_node) or {}
+        _p10, _p90 = _anchor.get("monthly_cf_p10"), _anchor.get("monthly_cf_p90")
+        if _p10 and _p90:
+            guard_env = {int(m): (float(_p10[m]), float(_p90[m]))
+                         for m in _p10 if m in _p90}
     forecast_rows, _guard_notes = _guard_forecast_months(
         forecast_rows, hist_mwh=guard_hist, cap_share=cap_share, tech=tech,
         strike=strike, fpx=_fpx,
         blocked=settled_dates | {r["date"] for r in mtd_est_rows},
         fwin_start=cur_month_start_date, fwin_end=fourth_month_end_date,
+        envelope=guard_env, ground_cf=guard_ground,
     )
     if _guard_notes:
-        _msg = ", ".join(f"{ym} ({act}, model CF {cf:.0%})" for ym, act, cf in _guard_notes)
-        st.caption(f"⚠️ Forecast sanity guard adjusted {_msg} to the historical "
-                   f"monthly shape — the weather model implied an out-of-range "
-                   f"capacity factor for {'that month' if len(_guard_notes)==1 else 'those months'}.")
+        _msg = ", ".join(f"{ym} (was {cf:.0%} CF)" for ym, act, cf in _guard_notes)
+        if guard_ground:
+            st.caption(f"ℹ️ Generation level set from this plant's **EIA-923 P50** history "
+                       f"(the weather forecast drives the daily shape); adjusted {_msg} where "
+                       f"the raw weather model diverged materially. The forward wind feed and "
+                       f"the ERA5 calibration feed differ, so the plant's own record is the "
+                       f"trustworthy level.")
+        else:
+            st.caption(f"⚠️ Forecast sanity guard bounded {_msg} to this plant's historical "
+                       f"capacity-factor range.")
 
     all_rows = prior_rows + actual_rows + mtd_est_rows + forecast_rows
     if not all_rows:
@@ -1344,10 +1401,20 @@ def render_near_term_tab(
         f"Beyond 35 days: prior-year ERA5 (same calendar days, {month_start_ct.year - 1})."
         if py_daily else "Beyond 35 days: historical monthly shape."
     )
+    _wind_note = ""
+    if tech == "wind" and wind_bias_ratio:
+        _wind_note = (f"Forecast winds bias-corrected ×{wind_bias_ratio:.2f} to the "
+                      f"ERA5/SCED level before the power curve. ")
+    if guard_ground:
+        _method = ("Monthly generation **level** is set from this plant's own **EIA-923 P50** "
+                   "capacity factor (full-year history); the weather forecast (Open-Meteo "
+                   "16-day + GEFS ensemble 35-day) drives the **daily shape**. ")
+    else:
+        _method = (f"{_wind_note}Near-term: high-res forecast (16 days) then GEFS ensemble "
+                   f"P50 (35 days), scaled to SCED (**cal. factor {cal_factor:.3f}**), "
+                   f"bounded to the plant's historical range. {py_note} ")
     st.caption(
         f"**Source:** {src}. "
-        f"**Cal. factor {cal_factor:.3f}** — weather-model output scaled to match "
-        f"{'last ' + str(n_cal_days) + ' days of SCED history' if n_cal_days else 'no SCED history (uncalibrated)'}. "
-        f"Near-term: high-res forecast (16 days) then GEFS ensemble P50 (35 days). {py_note} "
+        f"{_method}"
         f"Forward price: **\\${fwd_price:,.2f}/MWh** · Strike: **\\${strike:,.2f}/MWh**."
     )
