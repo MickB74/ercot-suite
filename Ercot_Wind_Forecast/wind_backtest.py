@@ -202,7 +202,7 @@ def _era5_cached(lat, lon, start, end) -> wp.WeatherResult:
 
 
 def model_hourly(site: SiteSpec, start, end, *, use_region_prior: bool = True,
-                 curve_mode: str = "parametric") -> pd.Series:
+                 curve_mode: str = "parametric", ws_scale: float = 1.0) -> pd.Series:
     """Run the physics model over [start, end] with ERA5 weather → hourly net MW.
 
     ``use_region_prior`` applies the geographic hub bias multiplier (mirrors the
@@ -218,7 +218,8 @@ def model_hourly(site: SiteSpec, start, end, *, use_region_prior: bool = True,
     # Prefer the real USWTDB fleet at the site; fall back to any explicit fleet.
     fleet, _ = usw_fleet(site.lat, site.lon, curve_mode=curve_mode)
     fleet = fleet or site.fleet or generic_wind_fleet(site.capacity_mw)
-    out = wp.run_wind(weather, fleet, use_windpowerlib=(curve_mode == "oem"))
+    out = wp.run_wind(weather, fleet, use_windpowerlib=(curve_mode == "oem"),
+                      ws_scale=ws_scale)
     net = out["net_mw"]
     if use_region_prior:
         net = wc.apply_region_priors(net, site.capacity_mw, lat=site.lat, lon=site.lon,
@@ -330,6 +331,67 @@ def run_site(site: SiteSpec, *, curve_mode: str = "parametric", **kw) -> tuple[p
     model = model_hourly(site, s, e, curve_mode=curve_mode)
     bt = walk_forward(model, actual, site.capacity_mw, **kw)
     return bt, summarize(bt)
+
+
+def compare_bias(site: SiteSpec, *, ks=None, train_months: int = 6, test_months: int = 1,
+                 asof_step_months: int = 1) -> pd.DataFrame:
+    """Compare three ways to remove the ERA5 wind under-prediction bias:
+
+    * ``energy_cap1.8`` — production: energy multiplier, clamped 0.5–1.8 (saturates).
+    * ``energy_cap3.5`` — same, clamp raised so it can fully correct the level.
+    * ``ws_scale``      — physical: fit a hub-height wind-speed multiplier on the
+                          train window, apply it before the power curve.
+
+    All are strictly out-of-sample (fit on the trailing window, scored on the
+    next). ``ws_scale`` is fit from a precomputed grid of model runs."""
+    actual = load_actuals(site.sced_units, site.sced_dir)
+    if actual.empty:
+        raise ValueError(f"no SCED actuals for {site.name}")
+    s = actual.index.min().strftime("%Y-%m-%d")
+    e = actual.index.max().strftime("%Y-%m-%d")
+    ks = ks or [1.0, 1.05, 1.1, 1.15, 1.2, 1.25, 1.3, 1.35, 1.4, 1.45, 1.5]
+    grid = {k: model_hourly(site, s, e, ws_scale=k) for k in ks}   # net MW per k
+    base = grid[1.0]
+    df = pd.DataFrame({"a": actual}).join(pd.DataFrame({f"k{k}": v for k, v in grid.items()})).dropna()
+    tz, first, last = df.index.tz, df.index.min(), df.index.max()
+    asof = (first + pd.DateOffset(months=train_months)).normalize().replace(day=1)
+
+    def score_window(m, a):
+        return score(pd.Series(m, index=a.index), a, site.capacity_mw)
+
+    rows = []
+    while asof + pd.DateOffset(months=test_months) <= last + pd.Timedelta(hours=1):
+        tr = df[(df.index >= asof - pd.DateOffset(months=train_months)) & (df.index < asof)]
+        te = df[(df.index >= asof) & (df.index < asof + pd.DateOffset(months=test_months))]
+        if len(tr) >= 24 * 20 and len(te) >= 24:
+            # Energy-multiplier modes (fit on train k=1 model).
+            r = {"asof": asof.strftime("%Y-%m"), "n": len(te)}
+            for tag, clamp in (("energy_cap1.8", (0.5, 1.8)), ("energy_cap3.5", (0.5, 3.5))):
+                cal = wc.calibrate_against_actuals(tr["k1.0"], tr["a"],
+                                                   capacity_mw=site.capacity_mw, clamp=clamp)
+                m_cal = wc.apply_calibration(te["k1.0"], cal, capacity_mw=site.capacity_mw)
+                sc = score_window(m_cal.to_numpy(), te["a"])
+                r[f"{tag}_energy%"] = sc.get("energy_err_%")
+                r[f"{tag}_nrmse%"] = sc.get("nrmse_%")
+            # ws_scale mode: pick k matching train energy, apply that k to test.
+            best_k = min(ks, key=lambda k: abs(tr[f"k{k}"].sum() - tr["a"].sum()))
+            sc = score_window(te[f"k{best_k}"].to_numpy(), te["a"])
+            r["ws_scale_k"] = best_k
+            r["ws_scale_energy%"] = sc.get("energy_err_%")
+            r["ws_scale_nrmse%"] = sc.get("nrmse_%")
+            rows.append(r)
+        asof = asof + pd.DateOffset(months=asof_step_months)
+    bt = pd.DataFrame(rows)
+    if bt.empty:
+        return bt
+    w = bt["n"]
+    wabs = lambda c: float((bt[c].abs() * w).sum() / w.sum())  # noqa: E731
+    wm = lambda c: float((bt[c] * w).sum() / w.sum())          # noqa: E731
+    return pd.DataFrame({
+        "abs_energy_%": {m: wabs(f"{m}_energy%") for m in ("energy_cap1.8", "energy_cap3.5", "ws_scale")},
+        "nrmse_%": {m: wm(f"{m}_nrmse%") for m in ("energy_cap1.8", "energy_cap3.5", "ws_scale")},
+        "mean_k": {"ws_scale": wm("ws_scale_k")},
+    })
 
 
 def compare_curves(site: SiteSpec, **kw) -> pd.DataFrame:
