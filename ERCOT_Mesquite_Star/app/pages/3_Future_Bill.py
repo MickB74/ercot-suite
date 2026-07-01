@@ -181,6 +181,9 @@ with tab_near:
         win_end=win_end,
         hist_mwh=hist_mwh,
         fwd_price=fwd,
+        fwd_price_by_month=(None if use_manual else
+                            (dict(zip(fwd_band["Month"], fwd_band["p50"]))
+                             if forecast_ok and not fwd_band.empty else None)),
     )
 
 # ── tab: long-range TMY / history ─────────────────────────────────────────────

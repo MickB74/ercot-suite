@@ -82,6 +82,7 @@ def render_near_term_tab(
     win_end,
     hist_mwh: pd.Series,
     fwd_price: float,
+    fwd_price_by_month: dict | None = None,
     gen_kwargs: dict | None = None,
 ) -> None:
     """Render the near-term weather bill forecast tab.
@@ -456,13 +457,19 @@ def render_near_term_tab(
     )
     weather_max_date = max(daily_fcast.index) if len(daily_fcast) > 0 else today_ct.date()
 
+    # Expected market price per forward day: the month's forecast P50 when the
+    # caller supplies one (so the forward price varies Jul→Oct like the projection
+    # table), else the flat sidebar forward price.
+    def _fpx(d) -> float:
+        return float((fwd_price_by_month or {}).get(d.strftime("%Y-%m"), fwd_price))
+
     forecast_rows: list[dict] = []
     for d_date, mwh in daily_fcast.items():
         if d_date < cur_month_start_date or d_date in settled_dates:
             continue
         if d_date > fourth_month_end_date:
             continue
-        net = float(mwh) * (fwd_price - strike)
+        net = float(mwh) * (_fpx(d_date) - strike)
         if d_date < next_month_start.date():
             kind = "forecast_cur"
         elif d_date < third_month_start.date():
@@ -472,7 +479,7 @@ def render_near_term_tab(
         else:
             kind = "forecast_fourth"
         forecast_rows.append({"date": d_date, "mwh": float(mwh), "net": net,
-                              "price": fwd_price, "kind": kind})
+                              "price": _fpx(d_date), "kind": kind})
 
     # Build prior-year daily MWh lookup for the climatological tail
     py_daily: dict[dt.date, float] = {}
@@ -505,8 +512,8 @@ def render_near_term_tab(
             else:
                 mwh = gf.hist_mwh_for_date(d, hist_mwh)
                 row_kind = f"hist_{month_tag}"
-            forecast_rows.append({"date": d, "mwh": mwh, "net": mwh * (fwd_price - strike),
-                                  "price": fwd_price, "kind": row_kind})
+            forecast_rows.append({"date": d, "mwh": mwh, "net": mwh * (_fpx(d) - strike),
+                                  "price": _fpx(d), "kind": row_kind})
         d += dt.timedelta(days=1)
 
     all_rows = prior_rows + actual_rows + mtd_est_rows + forecast_rows
@@ -773,6 +780,17 @@ def render_near_term_tab(
         for _, row in all_df.iterrows()
     ]
     has_real_prices = any(p is not None for p in real_prices)
+    # Expected (forecast) market price for the forward months — was missing, so the
+    # future months showed no price line at all.
+    fcast_prices = [
+        float(row["price"]) if row["kind"] not in real_price_kinds and pd.notna(row["price"]) else None
+        for _, row in all_df.iterrows()
+    ]
+    # Bridge the forecast line to the last settled price so it connects visually.
+    if has_real_prices:
+        _lr = max((i for i, p in enumerate(real_prices) if p is not None), default=None)
+        if _lr is not None:
+            fcast_prices[_lr] = real_prices[_lr]
 
     # Build prior-year generation lookup for the chart
     py_x, py_y = [], []
@@ -871,11 +889,21 @@ def render_near_term_tab(
             hovertemplate="%{x}<br>Price: $%{y:,.2f}/MWh<extra></extra>",
             row=2, col=1,
         )
-        # Strike reference line
-        _real_x = [x for x, p in zip(x_labels, real_prices) if p is not None]
-        if _real_x:
+        # Expected (forecast) market price across the forward months
+        if any(p is not None for p in fcast_prices):
             fig.add_scatter(
-                x=[_real_x[0], _real_x[-1]], y=[strike, strike],
+                x=x_labels, y=fcast_prices,
+                mode="lines",
+                line=dict(color="rgba(218,165,32,0.6)", width=2, dash="dot"),
+                name="Expected market price",
+                connectgaps=True,
+                hovertemplate="%{x}<br>Expected: $%{y:,.2f}/MWh<extra></extra>",
+                row=2, col=1,
+            )
+        # Strike reference line — span the full chart (settled + forecast)
+        if x_labels:
+            fig.add_scatter(
+                x=[x_labels[0], x_labels[-1]], y=[strike, strike],
                 mode="lines",
                 line=dict(color="rgba(178,58,72,0.5)", width=1, dash="dash"),
                 name=f"Strike (${strike:,.2f})",
