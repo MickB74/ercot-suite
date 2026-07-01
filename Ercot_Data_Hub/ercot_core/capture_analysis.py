@@ -531,7 +531,7 @@ def render(
             y=month_labels,
             colorscale=[
                 [0.0, branding.BAD],
-                [0.5, "#FFFFFF"],
+                [0.5, "#888888"],
                 [1.0, branding.GOOD],
             ],
             zmid=100,
