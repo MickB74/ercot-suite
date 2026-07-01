@@ -109,26 +109,48 @@ def _region(lat: float, lon: float) -> str:
     return hub
 
 
+def _alpha(s: str) -> str:
+    return re.sub(r"[^a-z]", "", str(s).lower())
+
+
 def build(cap_tol: float = 0.22, verbose: bool = True) -> list:
+    import os
     projs = [p for p in tdb.list_projects() if (p.get("capacity_mw") or 0) >= 50]
-    ptok = [(p, _norm_tokens(p["name"])) for p in projs]
+    # (project, name tokens, alpha-smooshed name) for matching.
+    ptok = [(p, _norm_tokens(p["name"]), _alpha(p["name"])) for p in projs]
     rows, used = [], set()
     for key, c in sorted(_sced_clusters().items()):
         peak = c["peak"]
         if peak < 40:
             continue
         ktok = _norm_tokens(key)
+        ka = _alpha(key)
         best, best_score = None, 0.0
-        for p, tk in ptok:
+        for p, tk, pa in ptok:
             cap = p["capacity_mw"] or 0
-            if not cap or abs(cap - peak) / max(cap, peak) > cap_tol:
+            if not cap:
                 continue
-            inter = ktok & tk
-            # Require a *distinctive* shared token (≥4 chars) or a strong overall
-            # overlap — avoids coincidental matches on short common words.
-            distinctive = any(len(t) >= 4 for t in inter)
-            score = len(inter) / max(1, len(ktok | tk))
-            if inter and (distinctive or score >= 0.5) and score > best_score:
+            # A shared ≥5-char name prefix (e.g. AVIATOR↔aviatorwind, SHANNONW↔
+            # shannon) is a strong ID; allow a looser cap window for it since SCED
+            # clustering can split/partial a plant. Otherwise require tight cap +
+            # a distinctive shared token.
+            # ≥6-char shared prefix: strong enough to avoid common-prefix
+            # collisions (e.g. "santa" in Santa Rita vs Santa Cruz).
+            cpre = len(os.path.commonprefix([ka, pa]))
+            strong = cpre >= 6
+            if strong:
+                if not (0.5 <= peak / cap <= 2.0):
+                    continue
+                score = 1.0 + cpre / 100.0        # prefer longer prefixes
+            else:
+                if abs(cap - peak) / max(cap, peak) > cap_tol:
+                    continue
+                inter = ktok & tk
+                distinctive = any(len(t) >= 4 for t in inter)
+                score = len(inter) / max(1, len(ktok | tk))
+                if not (inter and (distinctive or score >= 0.5)):
+                    continue
+            if score > best_score:
                 best, best_score = p, score
         if best and best_score >= 0.2 and best["name"] not in used:
             used.add(best["name"])

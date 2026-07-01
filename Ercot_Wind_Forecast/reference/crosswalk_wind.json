@@ -13,6 +13,18 @@
     ]
   },
   {
+    "plant": "AMADEUS2",
+    "uswtdb_name": "Amadeus",
+    "lat": 32.9837,
+    "lon": -100.5501,
+    "uswtdb_cap": 250.0,
+    "sced_peak": 168.0,
+    "region": "WEST",
+    "units": [
+      "AMADEUS2_UNIT3"
+    ]
+  },
+  {
     "plant": "ANACACHO_ANA",
     "uswtdb_name": "Anacacho",
     "lat": 29.1902,
@@ -50,6 +62,19 @@
     ]
   },
   {
+    "plant": "AVIATOR",
+    "uswtdb_name": "Aviator Wind",
+    "lat": 31.8098,
+    "lon": -100.6429,
+    "uswtdb_cap": 525.0,
+    "sced_peak": 319.0,
+    "region": "WEST",
+    "units": [
+      "AVIATOR_UNIT1",
+      "AVIATOR_UNIT2"
+    ]
+  },
+  {
     "plant": "BCATWIND",
     "uswtdb_name": "Bobcat Bluff",
     "lat": 33.5035,
@@ -59,6 +84,19 @@
     "region": "NORTH",
     "units": [
       "BCATWIND_WIND_1"
+    ]
+  },
+  {
+    "plant": "BLACKJAK",
+    "uswtdb_name": "Blackjack Creek",
+    "lat": 28.2596,
+    "lon": -97.5179,
+    "uswtdb_cap": 240.0,
+    "sced_peak": 220.0,
+    "region": "SOUTH_COAST",
+    "units": [
+      "BLACKJAK_UNIT1",
+      "BLACKJAK_UNIT2"
     ]
   },
   {
@@ -137,6 +175,23 @@
     "region": "SOUTH_COAST",
     "units": [
       "CAMWIND_UNIT1"
+    ]
+  },
+  {
+    "plant": "CANYONWD",
+    "uswtdb_name": "Canyon Wind",
+    "lat": 32.6159,
+    "lon": -100.9693,
+    "uswtdb_cap": 309.0,
+    "sced_peak": 303.0,
+    "region": "WEST",
+    "units": [
+      "CANYONWD_UNIT1",
+      "CANYONWD_UNIT2",
+      "CANYONWD_UNIT3",
+      "CANYONWD_UNIT4",
+      "CANYONWD_UNIT5",
+      "CANYONWD_UNIT6"
     ]
   },
   {
@@ -242,6 +297,19 @@
     ]
   },
   {
+    "plant": "ELSAUZ",
+    "uswtdb_name": "El Sauz Ranch",
+    "lat": 26.5273,
+    "lon": -97.6022,
+    "uswtdb_cap": 302.0,
+    "sced_peak": 291.0,
+    "region": "SOUTH_COAST",
+    "units": [
+      "ELSAUZ_UNIT1",
+      "ELSAUZ_UNIT2"
+    ]
+  },
+  {
     "plant": "FLUVANNA",
     "uswtdb_name": "Fluvanna I",
     "lat": 32.8856,
@@ -252,6 +320,32 @@
     "units": [
       "FLUVANNA_UNIT1",
       "FLUVANNA_UNIT2"
+    ]
+  },
+  {
+    "plant": "FOARDCTY",
+    "uswtdb_name": "Foard City",
+    "lat": 33.9106,
+    "lon": -99.7419,
+    "uswtdb_cap": 350.0,
+    "sced_peak": 342.0,
+    "region": "WEST",
+    "units": [
+      "FOARDCTY_UNIT1",
+      "FOARDCTY_UNIT2"
+    ]
+  },
+  {
+    "plant": "GOODNIT1",
+    "uswtdb_name": "Goodnight I",
+    "lat": 35.0509,
+    "lon": -101.3246,
+    "uswtdb_cap": 266.0,
+    "sced_peak": 256.0,
+    "region": "PAN",
+    "units": [
+      "GOODNIT1_UNIT1",
+      "GOODNIT1_UNIT2"
     ]
   },
   {
@@ -705,6 +799,19 @@
     "region": "WEST",
     "units": [
       "STWF_T1"
+    ]
+  },
+  {
+    "plant": "SWEETWN2",
+    "uswtdb_name": "Sweetwater IVa",
+    "lat": 32.2984,
+    "lon": -100.5031,
+    "uswtdb_cap": 135.0,
+    "sced_peak": 120.0,
+    "region": "WEST",
+    "units": [
+      "SWEETWN2_WND24",
+      "SWEETWN2_WND2"
     ]
   },
   {
