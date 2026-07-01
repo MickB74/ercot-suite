@@ -15,15 +15,11 @@ if str(ROOT) not in sys.path:
 
 
 def _data_lake_present() -> bool:
-    """True if the cached parquet data lake the settlement engine reads exists."""
-    try:
-        from ercot_core import hub  # noqa: PLC0415
-        root = hub.hub_root()
-    except Exception:               # noqa: BLE001
-        return False
-    # Any of the lake dirs the portals read from.
-    candidates = ["data", "data_lake", "cache"]
-    return any((root / c).is_dir() for c in candidates)
+    """True if the cached parquet data lake the settlement engine reads exists.
+
+    The lake lives at ``<Data Hub root>/data`` (with ``datasets`` alongside).
+    """
+    return (ROOT / "data").is_dir()
 
 
 @pytest.fixture(scope="session")

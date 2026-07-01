@@ -1,0 +1,35 @@
+{
+  "_comment": "Golden regression baselines: real per-portal settlement of a fully-settled month (SCED final, prices final), locking penny-exact engine output \u2014 the numbers that reach customers. Each entry is computed by tests/_settle_worker.py in its own process. If a LEGITIMATE data backfill (e.g. a DST fall-back re-pull) intentionally changes a settled month, rebaseline with:  python tests/regenerate_golden.py  \u2014 never edit a number to hide an engine regression.",
+  "tol_mwh": 0.01,
+  "tol_net": 0.01,
+  "baselines": [
+    {
+      "portal_dir": "ERCOT_Aguayo_Wind",
+      "package": "portal",
+      "month": "2026-03",
+      "mwh": 40276.8672,
+      "net_cfd": -398180.4276
+    },
+    {
+      "portal_dir": "ERCOT_Stafford_Solar",
+      "package": "portal",
+      "month": "2026-03",
+      "mwh": 59823.8984,
+      "net_cfd": -2154052.6628
+    },
+    {
+      "portal_dir": "ERCOT_Azure_Sky",
+      "package": "azuresky",
+      "month": "2025-12",
+      "mwh": 23412.1685,
+      "net_cfd": 184448.5076
+    },
+    {
+      "portal_dir": "ERCOT_Heart_of_Texas",
+      "package": "hotwind",
+      "month": "2026-03",
+      "mwh": 34531.1328,
+      "net_cfd": -823032.7974
+    }
+  ]
+}

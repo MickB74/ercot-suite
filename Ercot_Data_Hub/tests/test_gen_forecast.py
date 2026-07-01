@@ -8,6 +8,7 @@ import pandas as pd
 import pytest
 
 from ercot_core import gen_forecast as gf
+from ercot_core import near_term_bill as nb
 
 
 def _central_hours(start: str, days: int, mw: float = 100.0) -> pd.Series:
@@ -60,13 +61,13 @@ def test_low_coverage_day_is_missing_not_zero():
 # ── _cap_fill: water-filling with a nameplate ceiling ─────────────────────────
 
 def test_cap_fill_conserves_total_when_feasible():
-    alloc = gf._cap_fill({1: 1.0, 2: 2.0, 3: 3.0}, total=300.0, cap=200.0)
+    alloc = nb._cap_fill({1: 1.0, 2: 2.0, 3: 3.0}, total=300.0, cap=200.0)
     assert abs(sum(alloc.values()) - 300.0) < 1e-6
 
 
 def test_cap_fill_never_exceeds_cap():
     # weight wants everything on day 3, but the cap forces a spill
-    alloc = gf._cap_fill({1: 0.0, 2: 0.0, 3: 1.0}, total=300.0, cap=200.0)
+    alloc = nb._cap_fill({1: 0.0, 2: 0.0, 3: 1.0}, total=300.0, cap=200.0)
     assert all(v <= 200.0 + 1e-6 for v in alloc.values())
     assert abs(sum(alloc.values()) - 300.0) < 1e-6
     assert abs(alloc[3] - 200.0) < 1e-6          # capped
@@ -75,7 +76,7 @@ def test_cap_fill_never_exceeds_cap():
 
 
 def test_cap_fill_infeasible_pins_all_at_cap():
-    alloc = gf._cap_fill({1: 1.0, 2: 1.0}, total=1000.0, cap=200.0)
+    alloc = nb._cap_fill({1: 1.0, 2: 1.0}, total=1000.0, cap=200.0)
     assert all(abs(v - 200.0) < 1e-6 for v in alloc.values())
 
 

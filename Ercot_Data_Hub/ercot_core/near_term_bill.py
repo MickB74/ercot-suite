@@ -683,8 +683,22 @@ def render_near_term_tab(
     guard_hist = hist_mwh
     guard_env = None
     guard_ground = None
+    guard_cap = cap_share
     if _has_anchor and cap_share and cap_share == cap_share:
         _node = a.get("resource_node") or a.get("resource_name") or ""
+        _anchor = _eia.load(_node) or {}
+        # Ground on the anchor's OWN nameplate, not the registry capacity_mw.
+        # The anchor's capacity factors are EIA-923 net generation ÷ its
+        # ``capacity_full_mw`` — a metered AC rating. The registry capacity_mw
+        # can be a DC rating (e.g. Hornet 600 DC vs 461.5 AC), so grounding the
+        # anchor CFs onto cap_share (registry) over-levels the forecast by the
+        # DC/AC ratio (~1.30× for Hornet — Aug reads ~200k MWh against a real
+        # ~154k metered). Using the anchor's own nameplate × the contract share
+        # makes CF × capacity reconstruct the plant's actual metered energy, and
+        # self-corrects every anchored plant regardless of its registry ratio.
+        _anchor_cap = float(_anchor.get("capacity_full_mw") or 0.0)
+        if _anchor_cap > 0:
+            guard_cap = _anchor_cap * share
         _acf = _eia.monthly_cf_targets(_node, "p50")
         # Use the anchor as the baseline + grounding target ONLY with a full year
         # of the plant's own history (complete seasonal cycle). A thin anchor
@@ -694,19 +708,18 @@ def render_near_term_tab(
         if _acf and len(_acf) >= 12:
             import calendar as _cal2
             guard_hist = pd.Series({
-                int(m): float(cf) * cap_share * _cal2.monthrange(2025, int(m))[1] * 24.0
+                int(m): float(cf) * guard_cap * _cal2.monthrange(2025, int(m))[1] * 24.0
                 for m, cf in _acf.items()})
             guard_ground = {int(m): float(cf) for m, cf in _acf.items()}
         # Per-month P10–P90 CF envelope from the anchor → the guard clamps each
         # forecast month into the plant's own historical range (catches a month
         # that lands below its historical P10, which a generic band misses).
-        _anchor = _eia.load(_node) or {}
         _p10, _p90 = _anchor.get("monthly_cf_p10"), _anchor.get("monthly_cf_p90")
         if _p10 and _p90:
             guard_env = {int(m): (float(_p10[m]), float(_p90[m]))
                          for m in _p10 if m in _p90}
     forecast_rows, _guard_notes = _guard_forecast_months(
-        forecast_rows, hist_mwh=guard_hist, cap_share=cap_share, tech=tech,
+        forecast_rows, hist_mwh=guard_hist, cap_share=guard_cap, tech=tech,
         strike=strike, fpx=_fpx,
         blocked=settled_dates | {r["date"] for r in mtd_est_rows},
         fwin_start=cur_month_start_date, fwin_end=fourth_month_end_date,

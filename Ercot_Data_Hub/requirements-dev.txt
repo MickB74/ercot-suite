@@ -1,0 +1,5 @@
+# Dev/test dependencies for the ercot_core engine test suite.
+#   pip install -r requirements-dev.txt
+#   python -m pytest
+-r requirements.txt
+pytest>=8.0
