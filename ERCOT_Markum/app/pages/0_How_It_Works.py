@@ -94,7 +94,7 @@ price** (defaulting to the trailing capture price from history) and a **± sensi
 that shows how the bill swings if prices land higher or lower. The projection is
 *expected MWh × (price − strike)*, month by month.
 
-For the **current and next few months**, generation is a **weather forecast** (Open-Meteo high-res + GEFS ensemble), not a flat average. Forecast winds are **bias-corrected to the plant's ERA5/SCED level** before the power curve, and every month is **clamped to the plant's own EIA-923 historical P10–P90 capacity-factor range** — so no month can read implausibly high or low.
+For the **current and next few months**, the **weather forecast** (Open-Meteo high-res + GEFS ensemble) drives the day-to-day **shape**. Where the plant has a **full year of EIA-923 history**, each month's **level** is set from its own historical **P50 capacity factor** — the plant's metered record is the most reliable level, so the weather shapes the days while history sets the magnitude. Newer plants without a full year use the physics forecast, **bounded to the plant's historical P10–P90 range** so no month reads implausibly high or low.
 """)
 
 st.subheader("⚠️ What this is *not*")
