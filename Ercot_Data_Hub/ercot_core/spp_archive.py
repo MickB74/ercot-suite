@@ -24,9 +24,14 @@ bootstrap.setup_path()  # make the hub_prices `ercot_api` module importable
 
 PRICE_COLUMNS = [
     "interval_start", "interval_end", "location", "location_type", "market",
-    "spp", "source", "fetched_at",
+    "spp", "dst_flag", "source", "fetched_at",
 ]
-_DEDUP = ["settlement_point", "delivery_date", "delivery_hour", "delivery_interval"]
+# Include dst_flag so the two passes of the November fall-back hour (same
+# delivery_date/hour/interval, opposite DSTFlag) are BOTH kept — otherwise the
+# fall-back day collapses from 100 to 96 intervals. Mirrors the live hub path
+# (datasets/hub_prices/ercot_api.py) and lets settlement._aware() disambiguate.
+_DEDUP = ["settlement_point", "delivery_date", "delivery_hour", "delivery_interval",
+          "dst_flag"]
 
 
 def _empty() -> pd.DataFrame:
@@ -36,6 +41,10 @@ def _empty() -> pd.DataFrame:
 def _to_tidy(df: pd.DataFrame, location_type: str, start, end) -> pd.DataFrame:
     if df is None or df.empty:
         return _empty()
+    df = df.copy()
+    if "dst_flag" not in df.columns:   # older/live rows without the flag → normal-time "N"
+        df["dst_flag"] = "N"
+    df["dst_flag"] = df["dst_flag"].fillna("N").astype(str)
     df = df.drop_duplicates(subset=_DEDUP, keep="last")
     ie = pd.to_datetime(df["interval_ending_central"])
     out = pd.DataFrame()
@@ -45,6 +54,7 @@ def _to_tidy(df: pd.DataFrame, location_type: str, start, end) -> pd.DataFrame:
     out["location_type"] = location_type
     out["market"] = "RT15"
     out["spp"] = pd.to_numeric(df["price"], errors="coerce")
+    out["dst_flag"] = df["dst_flag"].values
     out["source"] = "ercot_api"
     out["fetched_at"] = pd.Timestamp.now(tz="UTC")
     s = pd.Timestamp(pd.Timestamp(start).date())

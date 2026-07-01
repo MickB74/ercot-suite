@@ -40,7 +40,9 @@ GEN_TEMPLATE = "node_generation_{year}.parquet"
 PRICE_TEMPLATE = "node_price_{year}.parquet"
 
 GEN_KEY = ["interval_start", "resource_name"]
-PRICE_KEY = ["interval_start", "location", "market"]
+# dst_flag distinguishes the two passes of the November fall-back hour (identical
+# naive interval_start) so _merge_save keeps both instead of collapsing to one.
+PRICE_KEY = ["interval_start", "location", "market", "dst_flag"]
 
 
 def _path(template: str, year: int) -> str:
