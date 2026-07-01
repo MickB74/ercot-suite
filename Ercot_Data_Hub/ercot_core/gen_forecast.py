@@ -179,7 +179,6 @@ def _daily_from_hourly(hourly_mw: pd.Series, *, min_hours: int = 6) -> pd.Series
     s = by_day.sum()                       # sum of present hours (skips NaN)
     daily = s * (24.0 / n.where(n > 0, np.nan))
     daily[n < min_hours] = np.nan
-    daily.index = daily.index.map(lambda d: d)  # keep datetime.date index
     return daily
 
 
