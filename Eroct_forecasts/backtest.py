@@ -2,11 +2,21 @@
 
 For each historical *as-of* date we train the heat-rate buckets on data **strictly
 before** that date, then predict the following months and score against what
-actually settled. This measures the part of the model we built — the heat-rate
-multiplier and the Monte-Carlo bands — holding gas at its realized value
-(perfect-foresight gas), since we don't have historical gas *forward* curves to
-replay. So a clean read here = "given gas, the heat-rate model and its P10/P90
-are well calibrated"; total live error additionally carries gas-forecast error.
+actually settled.
+
+``gas_mode`` selects what the forecast assumes about gas (we don't store historical
+gas *forward* curves to replay, so the live modes use a naive forward proxy):
+
+  * ``perfect``     — hold gas at its realized value. Isolates the part of the
+                      model we built: the heat-rate multiplier and the MC bands.
+                      A clean read = "given gas, the heat-rate model and its
+                      P10/P90 are well calibrated."
+  * ``persistence`` — naive forward = last spot known at as-of, plus a sqrt(t)
+                      gas band. Live-like: central error now carries gas-forecast
+                      error and the band widens with horizon.
+  * ``seasonal``    — persistence seeded with the same month a year earlier.
+
+Use :func:`compare_gas_modes` to see the gap between perfect and live skill.
 
 Metrics:
   * P50 bias / MAE / MAPE / RMSE        — central-forecast accuracy
@@ -35,11 +45,64 @@ def _gas_by_month() -> dict:
             for m, v in zip(g["month"], g["henry_hub"])}
 
 
+# Spot Henry Hub log-vol (annualized). Used for the horizon term-structure of the
+# gas Monte-Carlo band in live-like mode; simulate_month scales it by sqrt(t) and
+# caps it (GV_MAX) so far months don't diverge unrealistically.
+GAS_SPOT_VOL = 0.76
+
+
+def _gas_forecast(gas: dict, asof: pd.Timestamp, tgt: pd.Timestamp,
+                  mode: str) -> float | None:
+    """Gas level a forecaster could have used at ``asof`` for target ``tgt``.
+
+    * ``perfect``     — realized gas that settled in the target month (the
+                        original harness behaviour: isolates heat-rate skill).
+    * ``persistence`` — last monthly Henry Hub known strictly before ``asof``
+                        (naive forward = today's spot; carries gas-forecast error).
+    * ``seasonal``    — same calendar month one year before ``asof`` if known,
+                        else falls back to persistence (captures winter/summer
+                        gas seasonality that flat persistence misses).
+    """
+    if mode == "perfect":
+        return gas.get((tgt.year, tgt.month))
+    # Latest realized month strictly before the as-of date.
+    known = [(y, m) for (y, m) in gas if pd.Timestamp(y, m, 1) < asof]
+    if not known:
+        return None
+    last_key = max(known)
+    if mode == "seasonal":
+        prior = pd.Timestamp(asof.year - 1, tgt.month, 1)
+        if prior < asof and (prior.year, prior.month) in gas:
+            return gas[(prior.year, prior.month)]
+    return gas[last_key]
+
+
 def run_backtest(hub: str = "HB_NORTH", *, asof_start="2023-01-01",
                  asof_step_months: int = 3, horizon_months: int = 12,
                  n_sims: int = 2000, price_cap: float | None = 5000.0,
-                 min_train_years: int = 2, seed: int = 7) -> pd.DataFrame:
-    """One row per (as_of, target_month, block) forecast-vs-realized point."""
+                 min_train_years: int = 2, seed: int = 7,
+                 gas_mode: str = "perfect",
+                 gas_vol: float | None = None) -> pd.DataFrame:
+    """One row per (as_of, target_month, block) forecast-vs-realized point.
+
+    ``gas_mode`` controls how gas enters the forecast:
+
+    * ``perfect``     — realized gas, no gas band (``gas_vol`` -> 0). Grades the
+                        heat-rate model and its P10/P90 alone.
+    * ``persistence`` — naive forward (last spot known at as-of) + a sqrt(t) gas
+                        band. Live-like: central error now carries gas-forecast
+                        error and bands widen with horizon.
+    * ``seasonal``    — like persistence but seeds the level with the same month
+                        a year earlier (gas seasonality).
+
+    ``gas_vol`` overrides the annualized gas vol used for the band; defaults to 0
+    for ``perfect`` and :data:`GAS_SPOT_VOL` otherwise.
+    """
+    if gas_mode not in ("perfect", "persistence", "seasonal"):
+        raise ValueError(f"unknown gas_mode {gas_mode!r}")
+    if gas_vol is None:
+        gas_vol = 0.0 if gas_mode == "perfect" else GAS_SPOT_VOL
+
     rt = pf_history.load_rt15(hub)
     realized = pf_history.monthly_block_mean(rt)            # year, month, block, price
     rmap = {(int(r.year), int(r.month), r.block): float(r.price)
@@ -64,6 +127,11 @@ def run_backtest(hub: str = "HB_NORTH", *, asof_start="2023-01-01",
             ykey = (tgt.year, tgt.month)
             if ykey not in gas:
                 continue
+            gas_hat = _gas_forecast(gas, asof, tgt, gas_mode)
+            if gas_hat is None:
+                continue
+            # Horizon in years for the sqrt(t) gas band (0 in perfect mode).
+            t_years = 0.0 if gas_mode == "perfect" else step / 12.0
             for block in BLOCKS:
                 if (tgt.month, block) not in bk.index:
                     continue
@@ -72,12 +140,13 @@ def run_backtest(hub: str = "HB_NORTH", *, asof_start="2023-01-01",
                     continue
                 b = bk.loc[(tgt.month, block)]
                 sims = scenarios.simulate_month(
-                    gas[ykey], b["samples"], 0.0, rng=rng, n=n_sims,
-                    gas_vol=0.0, price_cap=price_cap)   # gas known -> gas_vol 0
+                    gas_hat, b["samples"], t_years, rng=rng, n=n_sims,
+                    gas_vol=gas_vol, price_cap=price_cap)
                 s = scenarios.summarize(sims)
                 rows.append({
                     "asof": asof.strftime("%Y-%m"), "target": tgt.strftime("%Y-%m"),
                     "step": step + 1, "block": block, "realized": real,
+                    "gas_hat": gas_hat, "gas_real": gas.get(ykey, float("nan")),
                     "p10": s["p10"], "p25": s["p25"], "p50": s["p50"],
                     "p75": s["p75"], "p90": s["p90"], "mean": s["mean"],
                 })
@@ -118,3 +187,21 @@ def summarize(df: pd.DataFrame) -> dict:
 def report(hub: str = "HB_NORTH", **kw) -> tuple[pd.DataFrame, dict]:
     df = run_backtest(hub, **kw)
     return df, summarize(df)
+
+
+def compare_gas_modes(hub: str = "HB_NORTH",
+                      modes=("perfect", "persistence", "seasonal"),
+                      **kw) -> pd.DataFrame:
+    """Overall skill under each gas assumption, side by side.
+
+    The gap between ``perfect`` and ``persistence``/``seasonal`` is the error the
+    gas forecast adds on top of the heat-rate model — i.e. the difference between
+    "given gas, how good is the model" and "how good is the live forward".
+    """
+    out = {}
+    for m in modes:
+        df = run_backtest(hub, gas_mode=m, **kw)
+        met = _metrics(df)
+        if met:
+            out[m] = met
+    return pd.DataFrame(out).T

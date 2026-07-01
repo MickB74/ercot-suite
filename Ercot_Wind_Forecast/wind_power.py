@@ -343,12 +343,19 @@ def _windpowerlib_fraction(ws_corrected, segment: TurbineSpec):
 
 def run_wind(weather: WeatherResult, fleet: FleetConfig,
              use_windpowerlib: bool = False,
-             fallback_alpha: float = 0.20) -> pd.DataFrame:
+             fallback_alpha: float = 0.20,
+             ws_scale: float = 1.0) -> pd.DataFrame:
     """Run the wind model → hourly DataFrame indexed by local time.
 
     Columns: ``ws_hub`` (mean across segments, m/s), ``alpha`` (shear exponent),
     ``air_density`` (kg/m³), ``gross_mw`` (before losses), ``net_mw`` (after
     losses). One column ``mw__<label>`` per segment is also returned (net).
+
+    ``ws_scale`` multiplies the hub-height wind speed before the power curve — a
+    physically-correct bias correction for reanalysis wind that under-resolves
+    hub-height speed (power ∝ ws³ in the ramp, so a ~1.3× speed fix ≈ 2× energy).
+    Correcting in speed-space preserves the curve shape and the P10/P90 spread,
+    unlike an after-the-fact energy multiplier.
     """
     df = weather.data
     idx = df.index
@@ -364,6 +371,8 @@ def run_wind(weather: WeatherResult, fleet: FleetConfig,
 
     for seg in fleet.segments:
         ws_hub, alpha = hub_height_wind(df, seg.hub_height_m, fallback_alpha=fallback_alpha)
+        if ws_scale != 1.0:
+            ws_hub = ws_hub * float(ws_scale)
         rho = air_density(df["temp_c"].to_numpy(), df["pressure_pa"].to_numpy(),
                           hub_height_m=seg.hub_height_m)
         ws_corr = power_curves.density_correct_speed(ws_hub.to_numpy(), rho, seg.curve_key)

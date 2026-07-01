@@ -143,7 +143,7 @@ def get_curve_for_specs(manuf, model, rotor_m=None, rated_kw=None):
     manuf_u = str(manuf or "").upper()
     combo = f"{manuf_u} {model_u}"
 
-    # Try the model string through the alias resolver first.
+    # Strong, model-specific matches for machines whose exact curve shape we know.
     for token, key in (
         ("V163", "VESTAS_V163"), ("V162", "VESTAS_V163"), ("V150", "VESTAS_V163"),
         ("N163", "NORDEX_N163"), ("N149", "NORDEX_N149"),
@@ -152,13 +152,15 @@ def get_curve_for_specs(manuf, model, rotor_m=None, rated_kw=None):
         ("GE1.", "GE_1X"), ("1.5-77", "GE_1X"), ("1.5-87", "GE_1X"), ("1.79-100", "GE_1X"),
         ("SG", "SG_3_4_132"), ("SWT-2.3", "GE_2X"), ("SWT-2.7", "GE_2X"),
         ("MWT", "MWT_1X"), ("AW1", "AW3000"),
-        ("V110", "GENERIC_IEC2"), ("V100", "GENERIC_IEC2"), ("V120", "GENERIC_IEC2"),
-        ("V117", "GENERIC_IEC2"), ("V126", "GENERIC_IEC2"),
     ):
         if token in combo:
             return key
 
-    # Specific-power heuristic when the model is unrecognised.
+    # Specific-power heuristic — the strongest single predictor of curve shape,
+    # so it runs BEFORE any coarse model-name fallback. Low specific power (large
+    # rotor per MW) reaches rated early → high-CF curve. This correctly routes
+    # modern low-wind Vestas/GE machines (e.g. V110-2.0 ≈ 210 W/m², V136-3.45)
+    # that were previously mis-mapped to the conservative GENERIC_IEC2.
     if rotor_m and rated_kw and rotor_m > 0:
         swept = np.pi * (float(rotor_m) / 2.0) ** 2
         specific_power = float(rated_kw) * 1000.0 / swept  # W/m²
@@ -169,6 +171,12 @@ def get_curve_for_specs(manuf, model, rotor_m=None, rated_kw=None):
         if specific_power < 380:
             return "GE_2X"
         return "GENERIC_IEC1"          # high specific power → high-wind machine
+
+    # Model-name fallback for older Vestas when rotor/rated are unknown.
+    for token, key in (("V110", "GE_3X"), ("V100", "GE_2X"), ("V120", "GE_3X"),
+                       ("V117", "GE_3X"), ("V126", "GE_3X")):
+        if token in combo:
+            return key
 
     # Rotor-diameter-only heuristic.
     if rotor_m and rotor_m > 145:

@@ -38,6 +38,23 @@ def test_heat_rate_median_robust_to_uri():
     assert feb["ihr_p90"] < feb["ihr_p50"] * 2
 
 
+def test_backtest_gas_modes():
+    import backtest
+    # A small walk-forward: perfect vs live-like (persistence) gas.
+    kw = dict(asof_start="2024-01-01", asof_step_months=6, horizon_months=6, n_sims=300)
+    perfect = backtest.run_backtest("HB_NORTH", gas_mode="perfect", **kw)
+    live = backtest.run_backtest("HB_NORTH", gas_mode="persistence", **kw)
+    assert not perfect.empty and not live.empty
+    # Perfect mode uses realized gas; persistence uses a naive forward.
+    assert (perfect["gas_hat"] == perfect["gas_real"]).all()
+    assert (live["gas_hat"] != live["gas_real"]).any()
+    mp, ml = backtest._metrics(perfect), backtest._metrics(live)
+    # Both produce ordered bands and finite error; gas error only adds noise, so
+    # live MAE should be >= perfect MAE (never better than knowing gas exactly).
+    assert mp["mae_$"] > 0 and ml["mae_$"] >= mp["mae_$"] - 1e-6
+    assert 0.0 <= mp["coverage80"] <= 1.0
+
+
 def test_scenarios_ordered():
     rng = np.random.default_rng(0)
     sims = scenarios.simulate_month(3.5, np.array([8, 9, 10, 11, 50.0]), 0.5,
