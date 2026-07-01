@@ -158,7 +158,8 @@ def apply_region_priors(series: pd.Series, capacity_mw: float, lat=None, lon=Non
 def calibrate_against_actuals(modeled: pd.Series, actual: pd.Series,
                               capacity_mw: float | None = None,
                               monthly: bool = True,
-                              offline_threshold_mw: float | None = None) -> dict:
+                              offline_threshold_mw: float | None = None,
+                              clamp: tuple = (0.5, 1.8)) -> dict:
     """Fit a bias correction from overlapping modeled vs. actual generation.
 
     Aligns the two series on their common timestamps, filters likely
@@ -194,14 +195,15 @@ def calibrate_against_actuals(modeled: pd.Series, actual: pd.Series,
     if len(df) < 24:
         return {"overall_factor": 1.0, "monthly_factors": {}, "n": int(len(df)), "ok": False}
 
-    overall = _clamp(df["act"].sum() / df["mod"].sum() if df["mod"].sum() else 1.0, 0.5, 1.8)
+    lo, hi = clamp
+    overall = _clamp(df["act"].sum() / df["mod"].sum() if df["mod"].sum() else 1.0, lo, hi)
 
     monthly_factors = {}
     if monthly:
         g = df.groupby(df.index.month)
         for mo, chunk in g:
             if chunk["mod"].sum() > 0 and len(chunk) >= 24:
-                monthly_factors[int(mo)] = round(_clamp(chunk["act"].sum() / chunk["mod"].sum(), 0.5, 1.8), 4)
+                monthly_factors[int(mo)] = round(_clamp(chunk["act"].sum() / chunk["mod"].sum(), lo, hi), 4)
 
     corr = float(df["mod"].corr(df["act"])) if df["mod"].std() and df["act"].std() else float("nan")
     mbe = float((df["mod"] - df["act"]).mean())
