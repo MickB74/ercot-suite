@@ -19,6 +19,7 @@ setup_path()
 import _common  # noqa: F401,E402  (path bootstrap)
 
 import streamlit as st  # noqa: E402
+import streamlit.components.v1 as components  # noqa: E402
 
 # The published explainer artifact (price + weather forecast methodology portal).
 EXPLAINER_URL = "https://claude.ai/code/artifact/bb4a11b4-b25d-4c8b-a9cb-147112bd8a7c"
@@ -30,6 +31,12 @@ st.caption("A shareable, client-facing walkthrough of how the ERCOT price and "
 
 st.link_button("Open the methodology portal  ↗", EXPLAINER_URL,
                type="primary", use_container_width=False)
+
+# ── forward price → capture → scarcity → cap (SR-branded, self-contained) ─────
+st.subheader("Forward price & capture — how the projected bill is built")
+_meth = (pathlib.Path(__file__).resolve().parents[1] / "assets"
+         / "price_methodology.html").read_text()
+components.html(_meth, height=1500, scrolling=True)
 
 st.divider()
 

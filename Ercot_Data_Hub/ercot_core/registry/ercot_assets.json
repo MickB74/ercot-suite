@@ -1,6 +1,7 @@
 {
   "Anchor Wind Iii": {
     "resource_name": "ANCHOR_WIND5",
+    "resource_node": "ANCHOR_ALL",
     "project_name": "Anchor Wind Iii",
     "tech": "Wind",
     "capacity_mw": 16.0,
@@ -11,6 +12,7 @@
   },
   "Azalea Springs Solar": {
     "resource_name": "ASCK_SLR_SOLAR1",
+    "resource_node": "ASCK_SLR_RN",
     "tech": "Solar",
     "capacity_mw": 181.0,
     "hub": "Houston",
@@ -22,6 +24,7 @@
   },
   "Blevins Solar": {
     "resource_name": "BLVN_SLR_SOLAR3",
+    "resource_node": "BLVN_RN",
     "project_name": "Blevins Solar",
     "tech": "Solar",
     "capacity_mw": 271.58,
@@ -38,6 +41,7 @@
   },
   "Bynum Solar Project": {
     "resource_name": "BYNM_SLR_SOLAR1",
+    "resource_node": "BYNM_SLR_RN",
     "project_name": "Bynum Solar Project",
     "tech": "Solar",
     "capacity_mw": 56.0,
@@ -48,6 +52,7 @@
   },
   "Diver Solar": {
     "resource_name": "DIVR_SLR_SOLAR2",
+    "resource_node": "DIVR_SLR_RN",
     "project_name": "Diver Solar",
     "tech": "Solar",
     "capacity_mw": 225.59,
@@ -59,6 +64,7 @@
   },
   "Eldora Solar": {
     "resource_name": "DORA_SLR_SOLAR2",
+    "resource_node": "DORA_SLR_RN",
     "project_name": "Eldora Solar",
     "tech": "Solar",
     "capacity_mw": 200.94,
@@ -69,6 +75,7 @@
   },
   "Dry Creek Solar I": {
     "resource_name": "DRCK_SLR_SOLAR1",
+    "resource_node": "DRCK_SLR_RN",
     "project_name": "Dry Creek Solar I",
     "tech": "Solar",
     "capacity_mw": 201.06,
@@ -79,6 +86,7 @@
   },
   "Eliza Solar": {
     "resource_name": "ELZA_SLR_SOLAR1",
+    "resource_node": "ELZA_SLR_RN",
     "project_name": "Eliza Solar",
     "tech": "Solar",
     "capacity_mw": 151.7,
@@ -94,6 +102,7 @@
   },
   "Gaia Solar": {
     "resource_name": "GAIA_SLR_SOLAR1",
+    "resource_node": "GAIA_SLR_RN",
     "project_name": "Gaia Solar",
     "tech": "Solar",
     "capacity_mw": 144.02,
@@ -110,6 +119,7 @@
   },
   "Greyhound Solar": {
     "resource_name": "GRYH_SLR_SOLAR8",
+    "resource_node": "GRYH_SLR_RN",
     "project_name": "Greyhound Solar",
     "tech": "Solar",
     "capacity_mw": 335.45,
@@ -125,6 +135,7 @@
   },
   "Blue Jay Solar": {
     "resource_name": "JKLP_SLR_PV1",
+    "resource_node": "JKLP_SLR_RN",
     "tech": "Solar",
     "capacity_mw": 141.05,
     "hub": "North",
@@ -140,6 +151,7 @@
   },
   "Long Point Solar": {
     "resource_name": "LNP_SOLAR1",
+    "resource_node": "RN_LNP_SLR",
     "tech": "Solar",
     "capacity_mw": 120.7,
     "hub": "Houston",
@@ -156,6 +168,7 @@
   },
   "Midpoint Solar": {
     "resource_name": "MIDP_SLR_SOLAR1",
+    "resource_node": "MIDP_SLR_RN",
     "project_name": "Midpoint Solar",
     "tech": "Solar",
     "capacity_mw": 98.3,
@@ -166,6 +179,7 @@
   },
   "Monte Cristo 1 Wind": {
     "resource_name": "MONTECR1_WIND1",
+    "resource_node": "MONTECR1_RN",
     "project_name": "Monte Cristo 1 Wind",
     "tech": "Wind",
     "capacity_mw": 234.5,
@@ -195,17 +209,19 @@
   },
   "Norton Solar": {
     "resource_name": "NRTN_SLR_SOLAR1",
+    "resource_node": "NRTN_SLR_RN",
+    "project_name": "Norton Solar",
     "tech": "Solar",
     "capacity_mw": 128.48,
     "hub": "West",
     "lat": 31.7924,
     "lon": -100.0826,
     "county": "Runnels",
-    "project_name": "Norton Solar",
     "dc_ac_ratio": 1.27
   },
   "Roseland Solar": {
     "resource_name": "ROSELAND_SOLAR1",
+    "resource_node": "ROSELAND_ALL",
     "tech": "Solar",
     "capacity_mw": 250.0,
     "hub": "North",
@@ -222,6 +238,7 @@
   },
   "Trojan Solar Slf": {
     "resource_name": "TROJ_SLR_PV2",
+    "resource_node": "TROJ_SLR_RN",
     "project_name": "Trojan Solar Slf",
     "tech": "Solar",
     "capacity_mw": 150.59,
@@ -238,6 +255,7 @@
   },
   "Wildwind": {
     "resource_name": "WILDWIND_UNIT1",
+    "resource_node": "WILDWIND_ALL",
     "sced_units": [
       "WILDWIND_UNIT1",
       "WILDWIND_UNIT2",
@@ -261,6 +279,7 @@
   },
   "Markham Solar": {
     "resource_name": "MRKM_SLR_PV1",
+    "resource_node": "MRKM_SLR_RN",
     "project_name": "Markham Solar",
     "tech": "Solar",
     "capacity_mw": 161.0,
@@ -275,6 +294,7 @@
   },
   "Maryneal Solar": {
     "resource_name": "MROW_SLR_SOLAR1",
+    "resource_node": "MROW_SLR_RN",
     "tech": "Solar",
     "capacity_mw": 182.4,
     "hub": "West",
@@ -285,6 +305,7 @@
   },
   "Frye Solar": {
     "resource_name": "FRYE_SLR_UNIT1",
+    "resource_node": "FRYE_SLR_ALL",
     "tech": "Solar",
     "capacity_mw": 200.0,
     "hub": "West",
@@ -301,6 +322,7 @@
   },
   "Ajax Wind": {
     "resource_name": "AJAXWIND_UNIT1",
+    "resource_node": "AJAXWIND_RN",
     "tech": "Wind",
     "capacity_mw": 200.0,
     "hub": "West",
@@ -317,6 +339,7 @@
   },
   "Monte Cristo Wind": {
     "resource_name": "MONTECR1_WIND1",
+    "resource_node": "MONTECR1_RN",
     "tech": "Wind",
     "turbine_type": "VESTAS_V163",
     "capacity_mw": 234.5,
@@ -333,6 +356,7 @@
   },
   "Shaffer Wind": {
     "resource_name": "SHAFFER_UNIT1",
+    "resource_node": "SHAFFER_ALL",
     "tech": "Wind",
     "capacity_mw": 200.0,
     "hub": "South",
@@ -349,6 +373,7 @@
   },
   "Nazareth Solar": {
     "resource_name": "AZSP_SLR_SOLAR1",
+    "resource_node": "AZSP_SLR_RN",
     "tech": "Solar",
     "capacity_mw": 203.0,
     "hub": "West",
@@ -359,6 +384,7 @@
   },
   "Castro Solar": {
     "resource_name": "AZSP_SLR_SOLAR2",
+    "resource_node": "AZSP_SLR_RN",
     "tech": "Solar",
     "capacity_mw": 224.67,
     "hub": "West",
@@ -375,6 +401,7 @@
   },
   "Pine Forest Solar": {
     "resource_name": "PISGAH_SOLAR1",
+    "resource_node": "PISG_RN_ALL",
     "tech": "Solar",
     "capacity_mw": 301.51,
     "hub": "Houston",
@@ -385,6 +412,7 @@
   },
   "Rio Bravo Wind": {
     "resource_name": "CABEZON_WIND1",
+    "resource_node": "CABEZON_ALL",
     "tech": "Wind",
     "capacity_mw": 237.6,
     "hub": "South",
@@ -399,6 +427,7 @@
   },
   "Route 66 Wind": {
     "resource_name": "ROUTE_66_WIND1",
+    "resource_node": "ROUTE66_RN",
     "tech": "Wind",
     "capacity_mw": 150.0,
     "hub": "Pan",
@@ -429,6 +458,7 @@
   },
   "Capricorn Ridge": {
     "resource_name": "CAPRIDGE_WIND_AGG",
+    "resource_node": "CAPRIDGE_ALL",
     "sced_units": [
       "CAPRIDGE_CR1",
       "CAPRIDGE_CR2",
@@ -451,6 +481,7 @@
   },
   "Horse Hollow": {
     "resource_name": "HHOLLOW2_WIND1",
+    "resource_node": "HHOLLW2_WND1",
     "tech": "Wind",
     "capacity_mw": 735.5,
     "hub": "West",
@@ -467,6 +498,7 @@
   },
   "South Plains": {
     "resource_name": "SPLAIN1_WIND1",
+    "resource_node": "SPLAIN1_RN",
     "sced_units": [
       "SPLAIN1_WIND1",
       "SPLAIN1_WIND2",
@@ -489,6 +521,7 @@
   },
   "Green Pastures": {
     "resource_name": "GPASTURE_WIND_I",
+    "resource_node": "GPASTURE_ALL",
     "tech": "Wind",
     "capacity_mw": 300.0,
     "hub": "North",
@@ -505,6 +538,7 @@
   },
   "Hereford Wind": {
     "resource_name": "HRFDWIND_WIND_G",
+    "resource_node": "HRFDWIND_ALL",
     "sced_units": [
       "HRFDWIND_WIND_G",
       "HRFDWIND_WIND_V"
@@ -525,6 +559,7 @@
   },
   "Cameron Wind": {
     "resource_name": "CAMWIND_UNIT1",
+    "resource_node": "CAMWIND_RN",
     "tech": "Wind",
     "capacity_mw": 165.0,
     "hub": "South",
@@ -541,6 +576,7 @@
   },
   "San Roman Wind": {
     "resource_name": "SANROMAN_WIND_1",
+    "resource_node": "RN_SR_WIND1",
     "tech": "Wind",
     "capacity_mw": 93.0,
     "hub": "South",
@@ -557,6 +593,7 @@
   },
   "Tyler Bluff": {
     "resource_name": "TYLRWIND_UNIT1",
+    "resource_node": "TYLRWIND_RN",
     "tech": "Wind",
     "capacity_mw": 120.0,
     "hub": "North",
@@ -573,6 +610,7 @@
   },
   "Flat Top Wind": {
     "resource_name": "FTWIND_UNIT_1",
+    "resource_node": "FTWIND_UNIT1",
     "tech": "Wind",
     "capacity_mw": 200.0,
     "hub": "North",
@@ -589,6 +627,7 @@
   },
   "Bobcat Wind": {
     "resource_name": "BCATWIND_WIND_1",
+    "resource_node": "BCATWD_WD_1",
     "tech": "Wind",
     "capacity_mw": 150.0,
     "hub": "West",
@@ -605,6 +644,7 @@
   },
   "Goat Mountain": {
     "resource_name": "GOAT_GOATWIND",
+    "resource_node": "GOA_GOATWIND",
     "tech": "Wind",
     "capacity_mw": 150.0,
     "hub": "West",
@@ -621,6 +661,7 @@
   },
   "South Ranch Wind": {
     "resource_name": "SRWE1_SRWE2",
+    "resource_node": "SRWE1_UNIT1",
     "tech": "Wind",
     "capacity_mw": 100.0,
     "hub": "South",
@@ -637,6 +678,7 @@
   },
   "Vera Wind": {
     "resource_name": "VERAWIND_UNIT1",
+    "resource_node": "VERAWIND_ALL",
     "sced_units": [
       "VERAWIND_UNIT1",
       "VERAWIND_UNIT2",
@@ -660,6 +702,7 @@
   },
   "Azure Sky Wind": {
     "resource_name": "AZURE_SKY_WIND_AGG",
+    "resource_node": "AZURE_RN",
     "sced_units": [
       "VORTEX_WIND1",
       "VORTEX_WIND2",
@@ -702,6 +745,7 @@
   },
   "Mesquite Star": {
     "resource_name": "WH_WIND_ALL",
+    "resource_node": "WH_WIND_ALL",
     "project_name": "Mesquite Star",
     "tech": "Wind",
     "capacity_mw": 418.9,
@@ -792,6 +836,7 @@
   },
   "Stafford Solar": {
     "resource_name": "STAFFORD_SOLAR_AGG",
+    "resource_node": "BUZI_SLR_RN",
     "project_name": "Stafford Solar",
     "tech": "Solar",
     "capacity_mw": 250.0,
@@ -834,6 +879,7 @@
   },
   "Hornet Solar": {
     "resource_name": "HRNT_SLR_RN",
+    "resource_node": "HRNT_SLR_RN",
     "project_name": "Hornet Solar",
     "tech": "Solar",
     "capacity_mw": 600.0,
@@ -852,6 +898,7 @@
   },
   "Mesquite Star Wind": {
     "resource_name": "WH_WIND_ALL",
+    "resource_node": "WH_WIND_ALL",
     "project_name": "Mesquite Star Wind",
     "tech": "Wind",
     "capacity_mw": 418.9,
@@ -865,6 +912,7 @@
   },
   "Mequite Star Wind": {
     "resource_name": "WH_WIND_ALL",
+    "resource_node": "WH_WIND_ALL",
     "project_name": "Mequite Star Wind",
     "tech": "Wind",
     "capacity_mw": 418.9,
@@ -878,6 +926,7 @@
   },
   "Millers Branch Solar": {
     "resource_name": "MLB_SLR_RN",
+    "resource_node": "MLB_SLR_RN",
     "project_name": "Millers Branch Solar",
     "tech": "Solar",
     "capacity_mw": 318.0,
@@ -896,6 +945,7 @@
   },
   "Castle Gap/Aguayo Wind": {
     "resource_name": "AGUAYO_UNIT1",
+    "resource_node": "AGUAYO_UNIT1",
     "project_name": "Castle Gap/Aguayo Wind",
     "tech": "Wind",
     "capacity_mw": 196.8,
@@ -910,6 +960,7 @@
   },
   "Aguayo Wind": {
     "resource_name": "AGUAYO_UNIT1",
+    "resource_node": "AGUAYO_UNIT1",
     "tech": "Wind",
     "capacity_mw": 196.8,
     "hub": "HB_WEST",

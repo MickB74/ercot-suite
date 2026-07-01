@@ -89,7 +89,20 @@ FORECAST_HORIZON_MONTHS = 120
 
 @st.cache_data(show_spinner=f"Loading {hub_name} price forecast…")
 def _forecast_band(hub_name, horizon, ratio_key, asof_iso):
-    ratios = dict(ratio_key) if ratio_key else 1.0
+    # Hourly-shaped, year-trended capture when the asset has SCED + price shapes:
+    # level anchored to realized, midday belly deepened forward (solar 4%/yr) so
+    # forward capture erodes as the duck curve worsens. Falls back to the static
+    # seasonal ratio when shapes are unavailable.
+    from ercot_core import capture_anchor  # noqa: PLC0415
+    is_w = "wind" in str(a.get("tech", "")).lower()
+    units = [u for u in (a.get("sced_units") or [a.get("resource_name")]) if u]
+    months = [(pd.Timestamp(asof_iso) + pd.DateOffset(months=i)).strftime("%Y-%m")
+              for i in range(int(horizon))]
+    bands = capture_anchor.forward_band_ratios(
+        a["resource_node"], hub=hub_name, units=units, forecast_months=months,
+        midday_trend_pct_per_yr=(0.0 if is_w else 4.0),
+        base_year=pd.Timestamp(asof_iso).year)
+    ratios = bands or (dict(ratio_key) if ratio_key else 1.0)
     return price_forecast.monthly_band(hub_name, asof=asof_iso, horizon_months=horizon,
                                         capture_to_hub=ratios)
 
@@ -237,6 +250,29 @@ with tab_long:
         _bc["cal_month"] = pd.to_datetime(_bc["Month"] + "-01").dt.month
         band_cal = _bc.groupby("cal_month")[["p10", "p50", "p90"]].mean()
         band_last = pd.Period(fwd_band["Month"].max(), freq="M")
+    # Continue the midday-cannibalization trend PAST the engine horizon: the
+    # beyond-horizon months repeat a calendar-month shape (capture frozen at the
+    # in-horizon level), so multiply them by the shaped capture decline per year
+    # (solar only; ratio = shaped_trended ÷ realized base, ≤1 and falling).
+    _decl: dict[str, float] = {}
+    if use_forecast and band_cal is not None:
+        try:
+            from ercot_core import capture_anchor as _ca  # noqa: PLC0415
+            _u = [u for u in (a.get("sced_units") or [a.get("resource_name")]) if u]
+            _bm = [(pd.Timestamp(start_month) + pd.offsets.MonthBegin(i)).strftime("%Y-%m")
+                   for i in range(n_months)]
+            _by = pd.Timestamp(start_month).year
+            _tr = 0.0 if "wind" in str(a.get("tech", "")).lower() else 4.0
+            _shp = _ca.shaped_capture_curve(a["resource_node"], hub=hub_name, units=_u,
+                                            forecast_months=_bm, midday_trend_pct_per_yr=_tr,
+                                            base_year=_by)
+            _real = _ca.monthly_capture_ratio(a["resource_node"], "p50") or {}
+            for _ym, _r in _shp.items():
+                _b = _real.get(int(_ym[5:7]))
+                if _b:
+                    _decl[_ym] = _r / _b
+        except Exception:  # noqa: BLE001 — trend continuation is best-effort
+            _decl = {}
     rows = []
     for i in range(n_months):
         mdate = (pd.Timestamp(start_month) + pd.offsets.MonthBegin(i)).date()
@@ -250,11 +286,12 @@ with tab_long:
             p90 = float(band_idx.at[month_key, "p90"])
         elif band_cal is not None and mdate.month in band_cal.index:
             row = band_cal.loc[mdate.month]
-            p50 = float(row["p50"])
+            _d = _decl.get(month_key, 1.0)            # continuing capture decline
+            p50 = float(row["p50"]) * _d
             months_beyond = max((pd.Period(month_key, "M") - band_last).n, 0)
             widen = 1.0 + 0.5 * (months_beyond / 12.0) ** 0.5
-            p10 = p50 - (p50 - float(row["p10"])) * widen
-            p90 = p50 + (float(row["p90"]) - p50) * widen
+            p10 = p50 - (p50 - float(row["p10"]) * _d) * widen
+            p90 = p50 + (float(row["p90"]) * _d - p50) * widen
         else:
             p50 = float(fwd)
             delta = float(band_manual or 0)

@@ -1,0 +1,109 @@
+<style>
+  :root{
+    --blue:#0069B3;--navy:#001F5F;--green:#88A918;--ink:#63666F;--mut:#848484;
+    --line:#D7E2F2;--pale:#ECF0F9;--card:#fff;
+    --sans:"Calibri","Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  .wrap{max-width:900px;margin:0 auto;padding:0 24px 0;font-family:var(--sans);color:var(--ink);line-height:1.6;font-size:15px;background:#fff}
+  h1,h2,h3{color:var(--blue);font-weight:700;margin:0;text-wrap:balance}
+  .eyebrow{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--green)}
+  .hero{padding:36px 0 22px;border-bottom:2px solid var(--blue)}
+  .hero h1{font-size:28px;margin:10px 0 0;line-height:1.15}
+  .hero p{margin:12px 0 0;max-width:64ch}
+  .num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+  section{margin-top:34px}
+  h2{font-size:19px}
+  .step{display:flex;gap:16px;margin-top:16px}
+  .badge{flex-shrink:0;width:34px;height:34px;border-radius:8px;background:var(--pale);color:var(--blue);
+         font-family:var(--mono);font-weight:700;display:flex;align-items:center;justify-content:center;font-size:15px}
+  .step h3{font-size:15.5px;margin:2px 0 4px}
+  .step p{margin:0;font-size:14px}
+  .step .k{color:var(--navy);font-weight:600}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 20px;margin-top:14px}
+  .flow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:8px 0 4px;font-size:13px}
+  .chip{background:var(--pale);color:var(--blue);border-radius:6px;padding:5px 11px;font-weight:600;white-space:nowrap}
+  .arrow{color:var(--mut)}
+  .note{background:var(--pale);border-radius:10px;padding:14px 18px;margin-top:14px;font-size:13.5px}
+  .note b{color:var(--navy)}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:10px}
+  th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);font-weight:700;padding:0 10px 8px;border-bottom:1px solid var(--line)}
+  td{padding:8px 10px;border-bottom:1px solid var(--line)}
+  td.num{text-align:right;font-family:var(--mono)}
+  tr:last-child td{border-bottom:none}
+  ul{margin:8px 0 0;padding-left:20px}
+  li{margin:0 0 7px}
+  .srfoot{margin-top:36px;background:var(--blue);color:#fff;font-size:11px;padding:9px 18px;border-radius:6px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .srfoot .conf{opacity:.85}
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">SR Inc. · ERCOT forward settlement · methodology</div>
+    <h1>How the forward price &amp; capture forecast is built</h1>
+    <p>The projected bill combines a <span class="k" style="color:#001F5F;font-weight:600">monthly price forecast</span> with a <span class="k" style="color:#001F5F;font-weight:600">per-asset capture model</span> — the second is what turns a hub price into the dollars a specific plant actually earns. Here is each layer, and how summer scarcity and the price cap enter.</p>
+    <div class="flow">
+      <span class="chip">Monthly hub price</span><span class="arrow">×</span>
+      <span class="chip">capture shape</span><span class="arrow">×</span>
+      <span class="chip">generation</span><span class="arrow">−</span>
+      <span class="chip">strike</span><span class="arrow">=</span>
+      <span class="chip" style="background:#001F5F;color:#fff">net settlement</span>
+    </div>
+  </header>
+
+  <section>
+    <h2>The four layers</h2>
+
+    <div class="step"><div class="badge">1</div><div>
+      <h3>Price level — monthly, per hub</h3>
+      <p>Market-implied <span class="k">heat-rate × gas strip + Monte Carlo</span> (the <span class="num">Eroct_forecasts</span> engine) gives each hub a <span class="k">P10 / P50 / P90</span> around-the-clock price per month, out to the liquid gas horizon (~18 months); beyond that we repeat the seasonal shape. <b style="color:#001F5F">This layer is monthly, not hourly</b> — there is no hourly gas strip to forecast against.</p>
+    </div></div>
+
+    <div class="step"><div class="badge">2</div><div>
+      <h3>Capture shape — per asset, hourly</h3>
+      <p>Capture price = generation-weighted price ÷ average price. It is calibrated from each plant's own <span class="k">metered SCED generation × settled price</span> history: a realized seasonal curve (P50 by month), refined by the <span class="k">hour-of-day duck curve</span> so it reflects <em>when</em> the plant runs vs. when price is high. Solar generates midday when prices sag, so its capture sits below 100%.</p>
+    </div></div>
+
+    <div class="step"><div class="badge">3</div><div>
+      <h3>Forward trend — the deepening midday trough</h3>
+      <p>ERCOT solar has grown 8× in five years, pushing midday prices from ~89% to ~54% of the daily average. So forward capture is not held flat — the midday belly is <span class="k">deepened ~4%/yr for solar</span> (0 for wind), and the capture ratio erodes each year rather than freezing at today's level.</p>
+    </div></div>
+
+    <div class="step"><div class="badge">4</div><div>
+      <h3>Scarcity — paired with the price band</h3>
+      <p>Summer value is extreme-tail: the top 1% of Jul–Aug hours carry ~36% of all price, in the 7–8pm ramp. We can't put that in a monthly average, so it lives in the <span class="k">P90 band</span> — the high-price (scarce-summer) scenario is paired with a <span class="k">scarce-day capture shape</span>, so each price percentile gets the capture the asset actually achieves in that scenario.</p>
+    </div></div>
+  </section>
+
+  <section>
+    <h2>The price cap, and why the calibration reflects it</h2>
+    <div class="card">
+      <table>
+        <thead><tr><th>Regime</th><th class="num">Offer cap</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Through 2023</td><td class="num">$9,000</td><td>Hit in Winter Storm Uri (Feb 2021, ~$9,174)</td></tr>
+          <tr><td>2024 → today</td><td class="num">$5,000</td><td>Lowered by SB3; LCAP floor of max($2,000, 50× gas)</td></tr>
+        </tbody>
+      </table>
+      <div class="note">
+        The scarcity calibration uses a <b>recent 3-year lookback</b> and <b>clips prices to the current $5,000 cap</b> — so the scarce-summer scenario reflects today's regime and can never be inflated by a retired $9,000-era spike. Recent realized peaks (2024 $3,768, 2025 $2,038, 2026 $1,341) sit well under the cap.
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Honest limits</h2>
+    <ul>
+      <li><b>Price level is monthly.</b> What's hourly is the <em>capture shape</em> (when you earn), not hourly price discovery — there's no hourly gas strip.</li>
+      <li><b>Scarcity is in P90, not P50.</b> It's a tail event; the expected bill (P50) shouldn't assume a scarce summer.</li>
+      <li><b>Band deltas are bounded.</b> Three years of daily composites is noisy, so the scarce/mild capture swing is clamped to ±25% to keep a bad composite from ever producing a nonsense bill.</li>
+      <li><b>Node vs hub basis</b> is shown separately — hub-settled contracts leave that basis with the generator.</li>
+    </ul>
+  </section>
+
+  <div class="srfoot">
+    <span>Sustainable Business &amp; Enterprise Roundtable © 2026 Sustainability Roundtable, Inc.</span>
+    <span class="conf">Confidential — For use in connection with SR Inc. Services only.</span>
+  </div>
+</div>

@@ -101,18 +101,28 @@ def monthly_band(hub: str, *, asof=None, horizon_months: int = 12,
     atc = curve[curve["block"] == "atc"][["month", "p10", "p50", "p90"]].copy()
     atc["month"] = pd.to_datetime(atc["month"])
     atc = atc.sort_values("month").reset_index(drop=True).head(horizon_months)
+    atc["Month"] = atc["month"].dt.strftime("%Y-%m")
     if isinstance(capture_to_hub, dict) and capture_to_hub:
         import statistics
-        fallback = statistics.median(capture_to_hub.values())
-        ratios = atc["month"].dt.month.map(
-            lambda cm: capture_to_hub.get(cm, fallback))
-        for col in ("p10", "p50", "p90"):
-            atc[col] = atc[col] * ratios
+        vals = list(capture_to_hub.values())
+        per_band = isinstance(vals[0], dict)   # {key: {p10,p50,p90}} — each price
+        #                                        percentile gets its own capture.
+        ym_keyed = all(isinstance(k, str) and "-" in str(k) for k in capture_to_hub)
+        keys = atc["Month"] if ym_keyed else atc["month"].dt.month
+        if per_band:
+            f50 = statistics.median(v.get("p50", 1.0) for v in vals)
+            for col in ("p10", "p50", "p90"):
+                r = keys.map(lambda k: (capture_to_hub.get(k) or {}).get(col, f50))
+                atc[col] = atc[col] * r
+        else:
+            fallback = statistics.median(vals)
+            r = keys.map(lambda k: capture_to_hub.get(k, fallback))
+            for col in ("p10", "p50", "p90"):
+                atc[col] = atc[col] * r
     else:
         ratio = float(capture_to_hub) if capture_to_hub else 1.0
         for col in ("p10", "p50", "p90"):
             atc[col] = atc[col] * ratio
-    atc["Month"] = atc["month"].dt.strftime("%Y-%m")
     return atc[["Month", "month", "p10", "p50", "p90"]]
 
 
