@@ -204,6 +204,17 @@ def _build_merged(gen_df, hub_df, node_df, share):
     return df
 
 
+def _add_settle_price(df: pd.DataFrame, settles_at_node: bool) -> pd.DataFrame:
+    """Add the ``settle_price`` column (node if node-settled, else hub)."""
+    if df.empty:
+        return df
+    if settles_at_node and df["node_price"].notna().any():
+        df["settle_price"] = df["node_price"]
+    else:
+        df["settle_price"] = df["hub_price"]
+    return df
+
+
 # ---------------------------------------------------------------------------
 # Render
 # ---------------------------------------------------------------------------
@@ -261,10 +272,22 @@ def render(
     settles_at_node = not str(settle_loc).upper().startswith("HB_")
 
     # The "price" column the plant settles against
-    if settles_at_node and df["node_price"].notna().any():
-        df["settle_price"] = df["node_price"]
+    df = _add_settle_price(df, settles_at_node)
+
+    # Full-window frame for the inherently multi-month views (monthly trend +
+    # hour×month heatmap). These need every month regardless of the period
+    # picker, otherwise a "Month" selection collapses the heatmap to one row.
+    if start_d <= win_start_d and end_d >= win_end_d:
+        df_full = df  # period already spans the whole window
     else:
-        df["settle_price"] = df["hub_price"]
+        gen_f, hub_f, node_f = _load_intervals(
+            st, hub, analytics, a, terms, win_start_d, win_end_d, share,
+        )
+        df_full = _add_settle_price(
+            _build_merged(gen_f, hub_f, node_f, share), settles_at_node,
+        )
+    if df_full.empty:
+        df_full = df
 
     # ======================================================================
     # 1. KPI row
@@ -342,8 +365,12 @@ def render(
     # 2. Monthly capture ratio trend chart
     # ======================================================================
     st.subheader("Monthly Capture Trend")
+    st.caption("Full settled history — independent of the period selected above.")
 
-    monthly = df.loc[mask_gen].groupby("month_label").apply(
+    full_gen_mask = df_full["mwh"] > 0
+    full_hub_mask = df_full["hub_price"].notna()
+
+    monthly = df_full.loc[full_gen_mask].groupby("month_label").apply(
         lambda g: pd.Series({
             "capture_price": float((g["mwh"] * g["settle_price"]).sum() / g["mwh"].sum())
             if g["mwh"].sum() > 0 else float("nan"),
@@ -353,7 +380,7 @@ def render(
     ).reset_index()
 
     # Hub monthly average
-    hub_monthly = df.loc[hub_mask].groupby("month_label")["hub_price"].mean().reset_index()
+    hub_monthly = df_full.loc[full_hub_mask].groupby("month_label")["hub_price"].mean().reset_index()
     hub_monthly.columns = ["month_label", "hub_avg"]
     monthly = monthly.merge(hub_monthly, on="month_label", how="left")
     monthly["capture_ratio"] = 100.0 * monthly["capture_price"] / monthly["hub_avg"]
@@ -494,56 +521,55 @@ def render(
     # 4. Capture heatmap (hour x month)
     # ======================================================================
     st.subheader("Capture Heatmap")
-    st.caption("Average capture ratio by hour of day and month.  "
-               "Green = capturing above the grid average; red = below.")
+    st.caption("Average capture ratio by hour of day and month over the full "
+               "settled history.  Green = capturing above that month's grid "
+               "average; grey ≈ 100%; red = below.")
 
-    # Build pivot: rows=month, cols=hour, values=capture ratio
-    hm = df.loc[mask_gen].copy()
-    if not hm.empty and hub_mask.any():
-        # Hub average per month for the denominator
-        hub_mo_avg = df.loc[hub_mask].groupby("month")["hub_price"].mean()
+    # Build pivot: rows=calendar month (YYYY-MM), cols=hour, values=capture ratio
+    hm = df_full.loc[full_gen_mask].copy()
+    if len(hm) > 0 and full_hub_mask.any():
+        # Hub average per calendar month for the denominator
+        hub_mo_avg = df_full.loc[full_hub_mask].groupby("month_label")["hub_price"].mean()
 
-        # Gen-weighted capture per hour-month bucket
+        # Gen-weighted capture per hour × month bucket
         hm["mwh_x_price"] = hm["mwh"] * hm["settle_price"]
-        piv_num = hm.pivot_table(values="mwh_x_price", index="month", columns="hour", aggfunc="sum")
-        piv_den = hm.pivot_table(values="mwh", index="month", columns="hour", aggfunc="sum")
+        piv_num = hm.pivot_table(values="mwh_x_price", index="month_label",
+                                 columns="hour", aggfunc="sum")
+        piv_den = hm.pivot_table(values="mwh", index="month_label",
+                                 columns="hour", aggfunc="sum")
         piv_cap = piv_num / piv_den  # capture price per bucket
 
-        # Divide by the monthly hub average to get capture ratio
+        # Divide by that month's hub average to get capture ratio (%)
         piv_ratio = piv_cap.copy()
         for mo in piv_ratio.index:
-            if mo in hub_mo_avg.index and hub_mo_avg[mo] != 0:
-                piv_ratio.loc[mo] = 100.0 * piv_ratio.loc[mo] / hub_mo_avg[mo]
-            else:
-                piv_ratio.loc[mo] = np.nan
+            avg = hub_mo_avg.get(mo, np.nan)
+            piv_ratio.loc[mo] = (100.0 * piv_ratio.loc[mo] / avg
+                                 if pd.notna(avg) and avg != 0 else np.nan)
 
-        # Ensure full 0-23 columns and sort
-        piv_ratio = piv_ratio.reindex(columns=range(24))
-        piv_ratio = piv_ratio.sort_index()
+        # Full 0-23 columns, chronological rows
+        piv_ratio = piv_ratio.reindex(columns=range(24)).sort_index()
 
-        # Month labels for y-axis
-        month_labels = [calendar.month_abbr[m] if m in piv_ratio.index else ""
-                        for m in piv_ratio.index]
-
+        n_rows = len(piv_ratio)
         fig_hm = go.Figure(data=go.Heatmap(
             z=piv_ratio.values,
             x=[str(h) for h in range(24)],
-            y=month_labels,
+            y=list(piv_ratio.index),
             colorscale=[
                 [0.0, branding.BAD],
                 [0.5, "#888888"],
                 [1.0, branding.GOOD],
             ],
             zmid=100,
+            xgap=1, ygap=1,
             colorbar=dict(title="Capture %"),
             hovertemplate="Hour %{x}, %{y}<br>Capture: %{z:.1f}%<extra></extra>",
         ))
 
         fig_hm.update_layout(
-            height=max(280, 40 * len(piv_ratio)),
+            height=min(900, max(260, 30 * n_rows + 120)),
             margin=dict(t=20, b=10),
             xaxis=dict(title="Hour of day (CPT)", dtick=1),
-            yaxis=dict(title="Month", autorange="reversed"),
+            yaxis=dict(title="Month", autorange="reversed", type="category"),
         )
         st.plotly_chart(fig_hm, use_container_width=True)
     else:

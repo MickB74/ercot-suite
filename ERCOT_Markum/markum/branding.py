@@ -90,6 +90,23 @@ _CSS = f"""
     border-top: 1px solid {SR_BLUE_PALE}; padding-top: .6rem;
   }}
   .markum-foot b {{ color: {SR_DARK_GREY}; }}
+
+  /* Dark-mode overrides — Streamlit theme aware (data-theme on <html>) */
+  :root[data-theme="dark"] div[data-testid="stMetric"] {{
+    background: rgba(255,255,255,0.06) !important;
+    border-color: rgba(255,255,255,0.14) !important;
+  }}
+  :root[data-theme="dark"] div[data-testid="stMetricValue"],
+  :root[data-theme="dark"] div[data-testid="stMetricValue"] > div {{
+    color: #E8ECF2 !important;
+  }}
+  :root[data-theme="dark"] .portal-foot {{
+    border-color: rgba(255,255,255,0.14) !important;
+  }}
+  :root[data-theme="dark"] .portal-foot,
+  :root[data-theme="dark"] .portal-foot b {{
+    color: rgba(255,255,255,0.65) !important;
+  }}
 </style>
 """
 

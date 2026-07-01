@@ -59,7 +59,8 @@ def test_system_config_from_asset():
         "lat": 33.1, "lon": -99.2, "tracking_type": "single_axis",
         "dc_ac_ratio": 1.45, "solar_gcr": 0.28,
     })
-    assert cfg.capacity_kw_dc == 161000.0
+    # capacity_mw is the AC/nameplate rating; DC size = AC * dc_ac_ratio.
+    assert cfg.capacity_kw_dc == 161_000.0 * 1.45
     assert cfg.array_type == "1-Axis Tracker"
     assert abs(cfg.dc_ac_ratio - 1.45) < 1e-9
     assert abs(cfg.gcr - 0.28) < 1e-9
