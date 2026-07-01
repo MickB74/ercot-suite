@@ -119,6 +119,38 @@ def monthly_cf_shape(lat=None, lon=None, hub_name=None, table=None) -> dict | No
     return cf.get(hub) if hub else None
 
 
+def region_for(lat=None, lon=None, hub_name=None) -> str | None:
+    """ERCOT wind region for a site, splitting South into coast vs inland
+    (coastal sea-breeze/jet behaves very differently from RGV/inland).
+    Coordinates are authoritative (match how the prior was learned); the
+    trading-hub label is only a fallback when coords are absent."""
+    hub = infer_hub(lat, lon) or normalize_hub(hub_name)
+    if hub == "SOUTH":
+        lon_f = _as_float(lon)
+        if lon_f is not None:
+            return "SOUTH_COAST" if lon_f > -98.2 else "SOUTH_INLAND"
+    return hub
+
+
+def ws_scale_for(lat=None, lon=None, hub_name=None, table=None):
+    """Learned hub-height wind-speed correction for a site → {month: factor}.
+
+    Reads the region priors written by ``build_ws_scale.py``. Falls back to the
+    region annual scalar, then the global default, then 1.0. Pass the result to
+    ``wind_power.run_wind(ws_scale=...)``."""
+    table = table or load_table()
+    if not isinstance(table, dict):
+        return 1.0
+    region = region_for(lat, lon, hub_name)
+    month = table.get("region_ws_scale_month", {}) or {}
+    if region and region in month:
+        return {int(m): float(v) for m, v in month[region].items()}
+    annual = table.get("region_ws_scale", {}) or {}
+    if region and region in annual:
+        return float(annual[region])
+    return float(table.get("ws_scale_default", 1.0) or 1.0)
+
+
 def apply_sced_bias(series: pd.Series, hub_name=None, lat=None, lon=None, table=None) -> pd.Series:
     """Apply SCED-learned month-hour (or hour-of-day) residual multipliers."""
     table = table or load_table()
@@ -161,7 +193,8 @@ def apply_region_priors(series: pd.Series, capacity_mw: float, lat=None, lon=Non
 def calibrate_against_actuals(modeled: pd.Series, actual: pd.Series,
                               capacity_mw: float | None = None,
                               monthly: bool = True,
-                              offline_threshold_mw: float | None = None) -> dict:
+                              offline_threshold_mw: float | None = None,
+                              clamp: tuple = (0.5, 1.8)) -> dict:
     """Fit a bias correction from overlapping modeled vs. actual generation.
 
     Aligns the two series on their common timestamps, filters likely
@@ -196,14 +229,15 @@ def calibrate_against_actuals(modeled: pd.Series, actual: pd.Series,
     if len(df) < 24:
         return {"overall_factor": 1.0, "monthly_factors": {}, "n": int(len(df)), "ok": False}
 
-    overall = _clamp(df["act"].sum() / df["mod"].sum() if df["mod"].sum() else 1.0, 0.5, 1.8)
+    lo, hi = clamp
+    overall = _clamp(df["act"].sum() / df["mod"].sum() if df["mod"].sum() else 1.0, lo, hi)
 
     monthly_factors = {}
     if monthly:
         g = df.groupby(df.index.month)
         for mo, chunk in g:
             if chunk["mod"].sum() > 0 and len(chunk) >= 24:
-                monthly_factors[int(mo)] = round(_clamp(chunk["act"].sum() / chunk["mod"].sum(), 0.5, 1.8), 4)
+                monthly_factors[int(mo)] = round(_clamp(chunk["act"].sum() / chunk["mod"].sum(), lo, hi), 4)
 
     corr = float(df["mod"].corr(df["act"])) if df["mod"].std() and df["act"].std() else float("nan")
     mbe = float((df["mod"] - df["act"]).mean())

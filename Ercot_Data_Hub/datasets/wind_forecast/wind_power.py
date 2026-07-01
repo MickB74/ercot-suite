@@ -343,12 +343,18 @@ def _windpowerlib_fraction(ws_corrected, segment: TurbineSpec):
 
 def run_wind(weather: WeatherResult, fleet: FleetConfig,
              use_windpowerlib: bool = False,
-             fallback_alpha: float = 0.20) -> pd.DataFrame:
+             fallback_alpha: float = 0.20,
+             ws_scale=1.0) -> pd.DataFrame:
     """Run the wind model → hourly DataFrame indexed by local time.
 
     Columns: ``ws_hub`` (mean across segments, m/s), ``alpha`` (shear exponent),
     ``air_density`` (kg/m³), ``gross_mw`` (before losses), ``net_mw`` (after
     losses). One column ``mw__<label>`` per segment is also returned (net).
+
+    ``ws_scale`` multiplies the hub-height wind speed before the power curve — a
+    physically-correct correction for reanalysis wind that under-resolves
+    hub-height speed. May be a scalar or a ``{month: factor}`` mapping for a
+    seasonal correction (see ``wind_calibration.ws_scale_for``).
     """
     df = weather.data
     idx = df.index
@@ -362,8 +368,17 @@ def run_wind(weather: WeatherResult, fleet: FleetConfig,
     rho_keep = None
     total_cap = fleet.capacity_mw or 1.0
 
+    if isinstance(ws_scale, dict):
+        _mult = pd.Series(
+            [float(ws_scale.get(m, ws_scale.get(str(m), 1.0))) for m in idx.month],
+            index=idx)
+    else:
+        _mult = float(ws_scale)
+
     for seg in fleet.segments:
         ws_hub, alpha = hub_height_wind(df, seg.hub_height_m, fallback_alpha=fallback_alpha)
+        if isinstance(_mult, pd.Series) or _mult != 1.0:
+            ws_hub = ws_hub * _mult
         rho = air_density(df["temp_c"].to_numpy(), df["pressure_pa"].to_numpy(),
                           hub_height_m=seg.hub_height_m)
         ws_corr = power_curves.density_correct_speed(ws_hub.to_numpy(), rho, seg.curve_key)

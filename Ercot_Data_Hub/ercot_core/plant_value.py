@@ -488,17 +488,26 @@ def _load_or_run_wind(asset: dict, year: str, use_cache: bool) -> tuple[pd.DataF
 
     start, end, _ = _wind_year_range(year)
     wx = wp.fetch_weather_era5(float(asset["lat"]), float(asset["lon"]), start, end)
-    raw = wp.run_wind(wx, fc)
+
+    # Speed-space bias correction BEFORE the power curve, from the learned
+    # per-region seasonal prior (build_ws_scale.py). This fixes ERA5's hub-wind
+    # under-resolution physically; because it does the level correction, we drop
+    # the crude post-hoc region energy multiplier (use_bias=False) to avoid
+    # double-counting, keeping only the SCED hour-shape priors.
+    ws_k = cal.ws_scale_for(lat=float(asset["lat"]), lon=float(asset["lon"]),
+                            hub_name=asset.get("hub"))
+    raw = wp.run_wind(wx, fc, ws_scale=ws_k)
+    meta["ws_scale"] = ws_k
 
     # run_wind returns raw physics; the engine is designed to layer calibration
-    # on top (see wind_power's module docstring). (1) Region/SCED priors correct
-    # the hub-level bias with no actuals. (2) If this plant has metered SCED
-    # output, anchor the whole profile to it so the cached typical year reflects
-    # realized availability/curtailment rather than raw physics — without this
-    # step a high-CF North-hub site like Azure Sky reads ~21% CF instead of ~39%.
+    # on top (see wind_power's module docstring). (1) The ws_scale prior + SCED
+    # hour-shape priors correct the hub-level bias with no actuals. (2) If this
+    # plant has metered SCED output, anchor the whole profile to it so the cached
+    # typical year reflects realized availability/curtailment rather than raw
+    # physics — without it a high-CF North site like Azure reads ~21% not ~39%.
     net = cal.apply_region_priors(raw["net_mw"], capacity_mw=fcap,
                                   lat=float(asset["lat"]), lon=float(asset["lon"]),
-                                  hub_name=asset.get("hub"))
+                                  hub_name=asset.get("hub"), use_bias=False)
     cf = (net / fcap).clip(lower=0.0) if fcap else net * 0.0
     nameplate_mw = float(asset["capacity_mw"])
 

@@ -116,6 +116,40 @@ def monthly_cf_shape(lat=None, lon=None, hub_name=None, table=None) -> dict | No
     return cf.get(hub) if hub else None
 
 
+def region_for(lat=None, lon=None, hub_name=None) -> str | None:
+    """ERCOT wind region for a site, splitting South into coast vs inland.
+
+    Coastal wind (sea-breeze / low-level jet timing) behaves very differently
+    from RGV/inland, so they carry separate ws_scale priors. Coordinates are
+    authoritative (they define the wind regime and match how the prior was
+    learned); the trading-hub label is only a fallback when coords are absent."""
+    hub = infer_hub(lat, lon) or normalize_hub(hub_name)
+    if hub == "SOUTH":
+        lon_f = _as_float(lon)
+        if lon_f is not None:
+            return "SOUTH_COAST" if lon_f > -98.2 else "SOUTH_INLAND"
+    return hub
+
+
+def ws_scale_for(lat=None, lon=None, hub_name=None, table=None):
+    """Learned hub-height wind-speed correction for a site → {month: factor}.
+
+    Reads the region priors written by ``build_ws_scale.py``. Falls back to the
+    region annual scalar, then the global default, then 1.0 (no correction).
+    Apply by passing to ``wind_power.run_wind(ws_scale=...)``."""
+    table = table or load_table()
+    if not isinstance(table, dict):
+        return 1.0
+    region = region_for(lat, lon, hub_name)
+    month = table.get("region_ws_scale_month", {}) or {}
+    if region and region in month:
+        return {int(m): float(v) for m, v in month[region].items()}
+    annual = table.get("region_ws_scale", {}) or {}
+    if region and region in annual:
+        return float(annual[region])
+    return float(table.get("ws_scale_default", 1.0) or 1.0)
+
+
 def apply_sced_bias(series: pd.Series, hub_name=None, lat=None, lon=None, table=None) -> pd.Series:
     """Apply SCED-learned month-hour (or hour-of-day) residual multipliers."""
     table = table or load_table()

@@ -196,9 +196,18 @@ def _era5_cached(lat, lon, start, end) -> wp.WeatherResult:
         return wp.WeatherResult(data=df, metadata={"latitude": lat, "longitude": lon,
                                 "altitude": 0.0}, label=f"ERA5 {start}→{end}",
                                 latitude=lat, longitude=lon, sources=("era5",))
-    w = wp.fetch_weather_era5(lat, lon, start, end)
-    w.data.to_parquet(key)
-    return w
+    # Open-Meteo's free archive rate-limits bursty use; retry with backoff.
+    import time
+    last = None
+    for attempt in range(5):
+        try:
+            w = wp.fetch_weather_era5(lat, lon, start, end)
+            w.data.to_parquet(key)
+            return w
+        except Exception as e:  # noqa: BLE001
+            last = e
+            time.sleep(3 * (attempt + 1))
+    raise last
 
 
 def model_hourly(site: SiteSpec, start, end, *, use_region_prior: bool = True,

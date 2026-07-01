@@ -1,0 +1,791 @@
+[
+  {
+    "plant": "ALGODON",
+    "uswtdb_name": "El Algodon Alto Wind Farm",
+    "lat": 28.0005,
+    "lon": -97.7124,
+    "uswtdb_cap": 200.0,
+    "sced_peak": 187.0,
+    "region": "SOUTH_COAST",
+    "units": [
+      "ALGODON_UNIT1",
+      "ALGODON_UNIT2"
+    ]
+  },
+  {
+    "plant": "ANACACHO_ANA",
+    "uswtdb_name": "Anacacho",
+    "lat": 29.1902,
+    "lon": -100.1921,
+    "uswtdb_cap": 99.0,
+    "sced_peak": 98.0,
+    "region": "SOUTH_INLAND",
+    "units": [
+      "ANACACHO_ANA"
+    ]
+  },
+  {
+    "plant": "APPALOSA",
+    "uswtdb_name": "Appaloosa Run",
+    "lat": 31.1629,
+    "lon": -101.8317,
+    "uswtdb_cap": 172.0,
+    "sced_peak": 172.0,
+    "region": "WEST",
+    "units": [
+      "APPALOSA_UNIT1",
+      "APPALOSA_UNIT2"
+    ]
+  },
+  {
+    "plant": "ASTRA",
+    "uswtdb_name": "Falvez Astra",
+    "lat": 34.7795,
+    "lon": -102.0519,
+    "uswtdb_cap": 163.0,
+    "sced_peak": 143.0,
+    "region": "PAN",
+    "units": [
+      "ASTRA_UNIT1"
+    ]
+  },
+  {
+    "plant": "BCATWIND",
+    "uswtdb_name": "Bobcat Bluff",
+    "lat": 33.5035,
+    "lon": -98.5787,
+    "uswtdb_cap": 162.0,
+    "sced_peak": 157.0,
+    "region": "NORTH",
+    "units": [
+      "BCATWIND_WIND_1"
+    ]
+  },
+  {
+    "plant": "BLSUMMIT",
+    "uswtdb_name": "Blue Summit III",
+    "lat": 34.1789,
+    "lon": -99.5535,
+    "uswtdb_cap": 200.0,
+    "sced_peak": 239.0,
+    "region": "WEST",
+    "units": [
+      "BLSUMMIT_BLSMT1_5",
+      "BLSUMMIT_BLSMT1_6",
+      "BLSUMMIT_UNIT2_17",
+      "BLSUMMIT_UNIT2_25"
+    ]
+  },
+  {
+    "plant": "BRAZ",
+    "uswtdb_name": "Brazos Wind Ranch",
+    "lat": 32.9439,
+    "lon": -101.3267,
+    "uswtdb_cap": 160.0,
+    "sced_peak": 181.0,
+    "region": "WEST",
+    "units": [
+      "BRAZ_WND_WND1",
+      "BRAZ_WND_WND2"
+    ]
+  },
+  {
+    "plant": "BRISCOE",
+    "uswtdb_name": "Briscoe",
+    "lat": 34.3756,
+    "lon": -101.3102,
+    "uswtdb_cap": 150.0,
+    "sced_peak": 120.0,
+    "region": "PAN",
+    "units": [
+      "BRISCOE_WIND"
+    ]
+  },
+  {
+    "plant": "BUCKTHRN",
+    "uswtdb_name": "Buckthorn",
+    "lat": 32.3665,
+    "lon": -98.3969,
+    "uswtdb_cap": 100.0,
+    "sced_peak": 99.0,
+    "region": "NORTH",
+    "units": [
+      "BUCKTHRN_UNIT1",
+      "BUCKTHRN_UNIT2"
+    ]
+  },
+  {
+    "plant": "BULLCRK",
+    "uswtdb_name": "Bull Creek",
+    "lat": 32.932,
+    "lon": -101.5803,
+    "uswtdb_cap": 180.0,
+    "sced_peak": 172.0,
+    "region": "WEST",
+    "units": [
+      "BULLCRK_WND1",
+      "BULLCRK_WND2"
+    ]
+  },
+  {
+    "plant": "CAMWIND",
+    "uswtdb_name": "Cameron",
+    "lat": 26.1928,
+    "lon": -97.4852,
+    "uswtdb_cap": 165.0,
+    "sced_peak": 149.0,
+    "region": "SOUTH_COAST",
+    "units": [
+      "CAMWIND_UNIT1"
+    ]
+  },
+  {
+    "plant": "CEDROHIL",
+    "uswtdb_name": "Cedro Hill",
+    "lat": 27.5763,
+    "lon": -98.9088,
+    "uswtdb_cap": 150.0,
+    "sced_peak": 154.0,
+    "region": "SOUTH_INLAND",
+    "units": [
+      "CEDROHIL_CHW1",
+      "CEDROHIL_CHW2"
+    ]
+  },
+  {
+    "plant": "CFLATS",
+    "uswtdb_name": "Cactus Flats",
+    "lat": 31.1111,
+    "lon": -100.0176,
+    "uswtdb_cap": 148.0,
+    "sced_peak": 145.0,
+    "region": "WEST",
+    "units": [
+      "CFLATS_U1"
+    ]
+  },
+  {
+    "plant": "CHALUPA",
+    "uswtdb_name": "La Chalupa",
+    "lat": 26.2457,
+    "lon": -97.507,
+    "uswtdb_cap": 198.0,
+    "sced_peak": 195.0,
+    "region": "SOUTH_COAST",
+    "units": [
+      "CHALUPA_UNIT1",
+      "CHALUPA_UNIT2"
+    ]
+  },
+  {
+    "plant": "CHAMPION",
+    "uswtdb_name": "Champion",
+    "lat": 32.3922,
+    "lon": -100.611,
+    "uswtdb_cap": 126.0,
+    "sced_peak": 122.0,
+    "region": "WEST",
+    "units": [
+      "CHAMPION_UNIT1",
+      "CHAMPION_UNIT2",
+      "CHAMPION_UNIT3"
+    ]
+  },
+  {
+    "plant": "COYOTE_W",
+    "uswtdb_name": "Coyote",
+    "lat": 32.8526,
+    "lon": -100.8657,
+    "uswtdb_cap": 189.0,
+    "sced_peak": 223.0,
+    "region": "WEST",
+    "units": [
+      "COYOTE_W_UNIT1",
+      "COYOTE_W_UNIT2",
+      "COYOTE_W_UNIT3"
+    ]
+  },
+  {
+    "plant": "CRANELL",
+    "uswtdb_name": "Cranell",
+    "lat": 28.1908,
+    "lon": -97.4324,
+    "uswtdb_cap": 220.0,
+    "sced_peak": 195.0,
+    "region": "SOUTH_COAST",
+    "units": [
+      "CRANELL_UNIT1"
+    ]
+  },
+  {
+    "plant": "CRAWFISH",
+    "uswtdb_name": "Crawfish Wind Project (Prairie Switch)",
+    "lat": 29.1611,
+    "lon": -96.1461,
+    "uswtdb_cap": 163.0,
+    "sced_peak": 159.0,
+    "region": "HOUSTON",
+    "units": [
+      "CRAWFISH_UNIT1"
+    ]
+  },
+  {
+    "plant": "ELB_ELBCREEK",
+    "uswtdb_name": "Elbow Creek Wind Farm",
+    "lat": 32.1702,
+    "lon": -101.4141,
+    "uswtdb_cap": 122.0,
+    "sced_peak": 117.0,
+    "region": "WEST",
+    "units": [
+      "ELB_ELBCREEK"
+    ]
+  },
+  {
+    "plant": "FLUVANNA",
+    "uswtdb_name": "Fluvanna I",
+    "lat": 32.8856,
+    "lon": -101.1154,
+    "uswtdb_cap": 155.0,
+    "sced_peak": 153.0,
+    "region": "WEST",
+    "units": [
+      "FLUVANNA_UNIT1",
+      "FLUVANNA_UNIT2"
+    ]
+  },
+  {
+    "plant": "GOPHER",
+    "uswtdb_name": "Gopher Creek Wind Farm",
+    "lat": 32.8788,
+    "lon": -101.2336,
+    "uswtdb_cap": 158.0,
+    "sced_peak": 155.0,
+    "region": "WEST",
+    "units": [
+      "GOPHER_UNIT1",
+      "GOPHER_UNIT2"
+    ]
+  },
+  {
+    "plant": "GPASTURE",
+    "uswtdb_name": "Green Pastures I",
+    "lat": 33.6445,
+    "lon": -99.3929,
+    "uswtdb_cap": 150.0,
+    "sced_peak": 124.0,
+    "region": "WEST",
+    "units": [
+      "GPASTURE_WIND_I"
+    ]
+  },
+  {
+    "plant": "GRANDVW1",
+    "uswtdb_name": "Grandview I",
+    "lat": 35.2584,
+    "lon": -101.1939,
+    "uswtdb_cap": 211.0,
+    "sced_peak": 205.0,
+    "region": "PAN",
+    "units": [
+      "GRANDVW1_GV1A",
+      "GRANDVW1_GV1B"
+    ]
+  },
+  {
+    "plant": "GRIF_TRL",
+    "uswtdb_name": "Griffin Trail Wind",
+    "lat": 33.6103,
+    "lon": -99.5764,
+    "uswtdb_cap": 226.0,
+    "sced_peak": 214.0,
+    "region": "WEST",
+    "units": [
+      "GRIF_TRL_UNIT1",
+      "GRIF_TRL_UNIT2"
+    ]
+  },
+  {
+    "plant": "GUNMTN",
+    "uswtdb_name": "Gunsight",
+    "lat": 32.4864,
+    "lon": -101.4483,
+    "uswtdb_cap": 120.0,
+    "sced_peak": 115.0,
+    "region": "WEST",
+    "units": [
+      "GUNMTN_G1"
+    ]
+  },
+  {
+    "plant": "HHGT_CALLAHAN",
+    "uswtdb_name": "Callahan Divide",
+    "lat": 32.3208,
+    "lon": -100.0052,
+    "uswtdb_cap": 114.0,
+    "sced_peak": 120.0,
+    "region": "WEST",
+    "units": [
+      "HHGT_CALLAHAN"
+    ]
+  },
+  {
+    "plant": "HHGT_HHOLLOW1",
+    "uswtdb_name": "Horse Hollow III",
+    "lat": 32.2761,
+    "lon": -100.2761,
+    "uswtdb_cap": 224.0,
+    "sced_peak": 215.0,
+    "region": "WEST",
+    "units": [
+      "HHGT_HHOLLOW1"
+    ]
+  },
+  {
+    "plant": "HORSECRK",
+    "uswtdb_name": "Horse Creek Wind",
+    "lat": 33.3581,
+    "lon": -99.5415,
+    "uswtdb_cap": 230.0,
+    "sced_peak": 228.0,
+    "region": "WEST",
+    "units": [
+      "HORSECRK_UNIT1",
+      "HORSECRK_UNIT2"
+    ]
+  },
+  {
+    "plant": "KEECHI",
+    "uswtdb_name": "Keechi",
+    "lat": 33.1485,
+    "lon": -98.1641,
+    "uswtdb_cap": 110.0,
+    "sced_peak": 105.0,
+    "region": "NORTH",
+    "units": [
+      "KEECHI_U1"
+    ]
+  },
+  {
+    "plant": "LACY_CRK",
+    "uswtdb_name": "Lacy Creek",
+    "lat": 31.6797,
+    "lon": -101.2829,
+    "uswtdb_cap": 301.0,
+    "sced_peak": 301.0,
+    "region": "WEST",
+    "units": [
+      "LACY_CRK_UNIT1",
+      "LACY_CRK_UNIT2",
+      "LACY_CRK_UNIT3",
+      "LACY_CRK_UNIT4"
+    ]
+  },
+  {
+    "plant": "LGD_LANGFORD",
+    "uswtdb_name": "Langford",
+    "lat": 31.1242,
+    "lon": -100.6636,
+    "uswtdb_cap": 160.0,
+    "sced_peak": 157.0,
+    "region": "WEST",
+    "units": [
+      "LGD_LANGFORD"
+    ]
+  },
+  {
+    "plant": "LNCRK",
+    "uswtdb_name": "Lone Star II",
+    "lat": 32.5324,
+    "lon": -99.5109,
+    "uswtdb_cap": 156.0,
+    "sced_peak": 143.0,
+    "region": "WEST",
+    "units": [
+      "LNCRK_G83"
+    ]
+  },
+  {
+    "plant": "LOCKETT",
+    "uswtdb_name": "Lockett",
+    "lat": 34.0801,
+    "lon": -99.2508,
+    "uswtdb_cap": 184.0,
+    "sced_peak": 184.0,
+    "region": "WEST",
+    "units": [
+      "LOCKETT_UNIT1"
+    ]
+  },
+  {
+    "plant": "MARIAH",
+    "uswtdb_name": "Mariah North Wind",
+    "lat": 34.7161,
+    "lon": -102.7105,
+    "uswtdb_cap": 230.0,
+    "sced_peak": 225.0,
+    "region": "PAN",
+    "units": [
+      "MARIAH_NORTE1",
+      "MARIAH_NORTE2"
+    ]
+  },
+  {
+    "plant": "MARYNEAL",
+    "uswtdb_name": "Maryneal",
+    "lat": 32.2015,
+    "lon": -100.4673,
+    "uswtdb_cap": 182.0,
+    "sced_peak": 172.0,
+    "region": "WEST",
+    "units": [
+      "MARYNEAL_UNIT1"
+    ]
+  },
+  {
+    "plant": "MESQCRK",
+    "uswtdb_name": "Mesquite Creek",
+    "lat": 32.7159,
+    "lon": -101.7478,
+    "uswtdb_cap": 211.0,
+    "sced_peak": 172.0,
+    "region": "WEST",
+    "units": [
+      "MESQCRK_WND1",
+      "MESQCRK_WND2"
+    ]
+  },
+  {
+    "plant": "MESTENO",
+    "uswtdb_name": "Mesteno",
+    "lat": 26.5258,
+    "lon": -98.7502,
+    "uswtdb_cap": 202.0,
+    "sced_peak": 196.0,
+    "region": "SOUTH_INLAND",
+    "units": [
+      "MESTENO_UNIT_1"
+    ]
+  },
+  {
+    "plant": "NWF",
+    "uswtdb_name": "Noble Great Plains",
+    "lat": 36.4746,
+    "lon": -101.3642,
+    "uswtdb_cap": 114.0,
+    "sced_peak": 124.0,
+    "region": "PAN",
+    "units": [
+      "NWF_NWF1",
+      "NWF_NWF2"
+    ]
+  },
+  {
+    "plant": "PC_NORTH_PANTHER1",
+    "uswtdb_name": "Panther Creek I",
+    "lat": 32.0289,
+    "lon": -101.4228,
+    "uswtdb_cap": 154.0,
+    "sced_peak": 147.0,
+    "region": "WEST",
+    "units": [
+      "PC_NORTH_PANTHER1"
+    ]
+  },
+  {
+    "plant": "PC_SOUTH",
+    "uswtdb_name": "Panther Creek III",
+    "lat": 31.9923,
+    "lon": -101.1167,
+    "uswtdb_cap": 213.0,
+    "sced_peak": 212.0,
+    "region": "WEST",
+    "units": [
+      "PC_SOUTH_PANTH31",
+      "PC_SOUTH_PANTH32"
+    ]
+  },
+  {
+    "plant": "PRIDDY",
+    "uswtdb_name": "Priddy",
+    "lat": 31.5767,
+    "lon": -98.4846,
+    "uswtdb_cap": 302.0,
+    "sced_peak": 294.0,
+    "region": "NORTH",
+    "units": [
+      "PRIDDY_UNIT1",
+      "PRIDDY_UNIT2"
+    ]
+  },
+  {
+    "plant": "PYR",
+    "uswtdb_name": "Pyron (Roscoe III)",
+    "lat": 32.5915,
+    "lon": -100.6741,
+    "uswtdb_cap": 266.0,
+    "sced_peak": 259.0,
+    "region": "WEST",
+    "units": [
+      "PYR_PYRON1",
+      "PYR_PYRON2"
+    ]
+  },
+  {
+    "plant": "RANCHERO",
+    "uswtdb_name": "Ranchero",
+    "lat": 31.0154,
+    "lon": -101.7186,
+    "uswtdb_cap": 300.0,
+    "sced_peak": 295.0,
+    "region": "WEST",
+    "units": [
+      "RANCHERO_UNIT1",
+      "RANCHERO_UNIT2"
+    ]
+  },
+  {
+    "plant": "RDCANYON",
+    "uswtdb_name": "Red Canyon Wind Energy",
+    "lat": 32.9595,
+    "lon": -101.2237,
+    "uswtdb_cap": 84.0,
+    "sced_peak": 87.0,
+    "region": "WEST",
+    "units": [
+      "RDCANYON_RDCNY1"
+    ]
+  },
+  {
+    "plant": "RELOJ",
+    "uswtdb_name": "Reloj del Sol",
+    "lat": 27.1179,
+    "lon": -99.2889,
+    "uswtdb_cap": 209.0,
+    "sced_peak": 195.0,
+    "region": "SOUTH_INLAND",
+    "units": [
+      "RELOJ_UNIT1",
+      "RELOJ_UNIT2",
+      "RELOJ_UNIT3",
+      "RELOJ_UNIT4"
+    ]
+  },
+  {
+    "plant": "ROUTE",
+    "uswtdb_name": "Route 66",
+    "lat": 35.1868,
+    "lon": -101.4603,
+    "uswtdb_cap": 150.0,
+    "sced_peak": 146.0,
+    "region": "PAN",
+    "units": [
+      "ROUTE_66_WIND1"
+    ]
+  },
+  {
+    "plant": "RSNAKE",
+    "uswtdb_name": "Rattlesnake",
+    "lat": 31.7231,
+    "lon": -101.4456,
+    "uswtdb_cap": 207.0,
+    "sced_peak": 166.0,
+    "region": "WEST",
+    "units": [
+      "RSNAKE_G1",
+      "RSNAKE_G2"
+    ]
+  },
+  {
+    "plant": "SAGEDRAW",
+    "uswtdb_name": "Sage Draw",
+    "lat": 33.3125,
+    "lon": -101.5754,
+    "uswtdb_cap": 338.0,
+    "sced_peak": 328.0,
+    "region": "WEST",
+    "units": [
+      "SAGEDRAW_UNIT1",
+      "SAGEDRAW_UNIT2"
+    ]
+  },
+  {
+    "plant": "SALTFORK",
+    "uswtdb_name": "Salt Fork",
+    "lat": 35.1722,
+    "lon": -100.934,
+    "uswtdb_cap": 174.0,
+    "sced_peak": 172.0,
+    "region": "PAN",
+    "units": [
+      "SALTFORK_UNIT1",
+      "SALTFORK_UNIT2"
+    ]
+  },
+  {
+    "plant": "SANROMAN",
+    "uswtdb_name": "San Roman",
+    "lat": 26.1112,
+    "lon": -97.3689,
+    "uswtdb_cap": 93.0,
+    "sced_peak": 89.0,
+    "region": "SOUTH_COAST",
+    "units": [
+      "SANROMAN_WIND_1"
+    ]
+  },
+  {
+    "plant": "SENATEWD",
+    "uswtdb_name": "Senate",
+    "lat": 33.1981,
+    "lon": -98.3636,
+    "uswtdb_cap": 150.0,
+    "sced_peak": 141.0,
+    "region": "NORTH",
+    "units": [
+      "SENATEWD_UNIT1"
+    ]
+  },
+  {
+    "plant": "SHAMROCK",
+    "uswtdb_name": "Shamrock Wind Facility (White Mesa Wind III)",
+    "lat": 30.9424,
+    "lon": -101.5894,
+    "uswtdb_cap": 224.0,
+    "sced_peak": 222.0,
+    "region": "WEST",
+    "units": [
+      "SHAMROCK_UNIT1",
+      "SHAMROCK_UNIT2"
+    ]
+  },
+  {
+    "plant": "SHANNONW",
+    "uswtdb_name": "Shannon",
+    "lat": 33.5076,
+    "lon": -98.3723,
+    "uswtdb_cap": 204.0,
+    "sced_peak": 196.0,
+    "region": "NORTH",
+    "units": [
+      "SHANNONW_UNIT_1"
+    ]
+  },
+  {
+    "plant": "SSPURTWO",
+    "uswtdb_name": "Spinning Spur 2",
+    "lat": 35.3077,
+    "lon": -102.595,
+    "uswtdb_cap": 161.0,
+    "sced_peak": 135.0,
+    "region": "PAN",
+    "units": [
+      "SSPURTWO_WIND_1"
+    ]
+  },
+  {
+    "plant": "STELLA",
+    "uswtdb_name": "Stella",
+    "lat": 26.9136,
+    "lon": -97.625,
+    "uswtdb_cap": 201.0,
+    "sced_peak": 195.0,
+    "region": "SOUTH_COAST",
+    "units": [
+      "STELLA_UNIT1"
+    ]
+  },
+  {
+    "plant": "STWF",
+    "uswtdb_name": "Sweetwater Phase II",
+    "lat": 32.3335,
+    "lon": -100.3735,
+    "uswtdb_cap": 99.0,
+    "sced_peak": 94.0,
+    "region": "WEST",
+    "units": [
+      "STWF_T1"
+    ]
+  },
+  {
+    "plant": "TAHOKA",
+    "uswtdb_name": "Tahoka Wind",
+    "lat": 33.1559,
+    "lon": -101.6916,
+    "uswtdb_cap": 300.0,
+    "sced_peak": 296.0,
+    "region": "WEST",
+    "units": [
+      "TAHOKA_UNIT_1",
+      "TAHOKA_UNIT_2"
+    ]
+  },
+  {
+    "plant": "TRENT",
+    "uswtdb_name": "Trent Mesa",
+    "lat": 32.4355,
+    "lon": -100.2305,
+    "uswtdb_cap": 124.0,
+    "sced_peak": 114.0,
+    "region": "WEST",
+    "units": [
+      "TRENT_UNIT_1B",
+      "TRENT_UNIT_2",
+      "TRENT_UNIT_3A",
+      "TRENT_UNIT_3B"
+    ]
+  },
+  {
+    "plant": "TRINITY",
+    "uswtdb_name": "Trinity Hills",
+    "lat": 33.405,
+    "lon": -98.68,
+    "uswtdb_cap": 198.0,
+    "sced_peak": 192.0,
+    "region": "WEST",
+    "units": [
+      "TRINITY_TH1_BUS1",
+      "TRINITY_TH1_BUS2"
+    ]
+  },
+  {
+    "plant": "TYLRWIND",
+    "uswtdb_name": "Tyler Bluff",
+    "lat": 33.6992,
+    "lon": -97.3707,
+    "uswtdb_cap": 126.0,
+    "sced_peak": 121.0,
+    "region": "NORTH",
+    "units": [
+      "TYLRWIND_UNIT1"
+    ]
+  },
+  {
+    "plant": "WHMESA",
+    "uswtdb_name": "White Mesa",
+    "lat": 30.9093,
+    "lon": -101.2746,
+    "uswtdb_cap": 508.0,
+    "sced_peak": 498.0,
+    "region": "WEST",
+    "units": [
+      "WHMESA_UNIT1",
+      "WHMESA_UNIT2_23",
+      "WHMESA_UNIT2_28",
+      "WHMESA_UNIT3_23",
+      "WHMESA_UNIT3_28"
+    ]
+  },
+  {
+    "plant": "WNDTHST2",
+    "uswtdb_name": "Windthorst-2",
+    "lat": 33.5011,
+    "lon": -98.5004,
+    "uswtdb_cap": 64.0,
+    "sced_peak": 65.0,
+    "region": "NORTH",
+    "units": [
+      "WNDTHST2_UNIT1"
+    ]
+  }
+]
