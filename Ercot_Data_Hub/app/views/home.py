@@ -109,6 +109,11 @@ cards = [
         ("Rows", _fmt(s.get("rows", 0))),
         ("Range", f"{s.get('start','—')} → {s.get('end','—')}"),
     ]),
+    ("node_prices", "📍", lambda s: [
+        ("Nodes", _fmt(s.get("nodes", 0))),
+        ("Rows", _fmt(s.get("rows", 0))),
+        ("Range", f"{s.get('start','—')} → {s.get('end','—')}"),
+    ]),
     ("plant_sced", "🏭", lambda s: [
         ("Resources", _fmt(s.get("resources", 0))),
         ("Cached SCED days", _fmt(s.get("disclosure_days", 0))),

@@ -71,6 +71,13 @@ def _jobs() -> dict[str, Job]:
             note="Incremental ERCOT API pull — always fetches the latest when run "
                  "(re-pulls the recent overlap + any gap).",
         ),
+        "node_prices": Job(
+            "node_prices", "Resource-node prices (RTM 15-min)",
+            "system_gen_by_fuel", "update_node_prices.py", [],
+            note="Incremental archive pull of RT15 SPP at every tracked resource "
+                 "node (feeds the portals + scorecard). Re-pulls the recent "
+                 "overlap + any gap; --full to rebuild from 2024.",
+        ),
         "plant_sced": Job(
             "plant_sced", "Plant-level SCED (registry refresh)",
             "plant_sced", "fetch_plants.py", ["--refresh-registry"],
@@ -235,6 +242,22 @@ def status() -> dict:
         except Exception as e:
             hp["error"] = str(e)
     out["hub_prices"] = hp
+
+    # node_prices — yearly resource-node SPP parquets
+    npx = {"rows": 0, "nodes": 0, "start": None, "end": None, "files": 0}
+    npx_files = sorted(paths.NODE_DATA_DIR.glob("node_price_*.parquet"))
+    npx["files"] = len(npx_files)
+    if npx_files:
+        try:
+            frames = [pd.read_parquet(f, columns=["location", "interval_start"])
+                      for f in npx_files]
+            allrows = pd.concat(frames, ignore_index=True)
+            ist = pd.to_datetime(allrows["interval_start"])
+            npx.update({"rows": len(allrows), "nodes": allrows["location"].nunique(),
+                        "start": str(ist.min()), "end": str(ist.max())})
+        except Exception as e:  # noqa: BLE001
+            npx["error"] = str(e)
+    out["node_prices"] = npx
 
     # plant_sced — registry + cached disclosure days + per-plant files
     ps = {"resources": 0, "disclosure_days": 0, "plant_files": 0}
