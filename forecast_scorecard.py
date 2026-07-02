@@ -25,6 +25,7 @@ HUB = SUITE / "Ercot_Data_Hub"
 PY = str(HUB / ".venv/bin/python")
 GENDIR = HUB / "data/system_gen/node_data"
 ANCHDIR = HUB / "data/eia_anchor"
+EIA923DIR = HUB / "data/eia923"
 OUTDIR = HUB / "data/scorecard"; OUTDIR.mkdir(exist_ok=True)
 
 # (portal dir, package) — package is the dir holding contract.py
@@ -83,6 +84,37 @@ def actual_monthly(node, units, share):
     return g.groupby("Month")["mwh"].sum() * share
 
 
+def _load_eia_lake():
+    frames = []
+    for yr in (2024, 2025, 2026):
+        f = EIA923DIR / f"eia923_all_{yr}.parquet"
+        if f.exists():
+            frames.append(pd.read_parquet(
+                f, columns=["year", "month", "plant_id", "prime_mover", "netgen_mwh"]))
+    if not frames:
+        return pd.DataFrame()
+    e = pd.concat(frames, ignore_index=True)
+    e["Month"] = e["year"].astype(str) + "-" + e["month"].astype(int).astype(str).str.zfill(2)
+    return e
+
+
+_EIA = _load_eia_lake()
+
+
+def eia_monthly(eids, share):
+    """EIA-923 wind net generation per month × share.
+
+    For WIND, EIA-923 (revenue-meter net generation) is the truth: SCED
+    telemetry systematically under-reads wind (fleet EIA/SCED ≈ 1.03–1.17), so
+    scoring against SCED would penalize a correct EIA-grounded anchor. Solar
+    SCED ≈ EIA, so solar keeps using SCED (timelier, no ~2-month EIA lag).
+    """
+    if _EIA.empty or not eids:
+        return pd.Series(dtype=float)
+    e = _EIA[(_EIA["plant_id"].isin(eids)) & (_EIA["prime_mover"] == "WT")]
+    return e.groupby("Month")["netgen_mwh"].sum() * share
+
+
 rows, summaries = [], []
 for d, pkg in PORTALS:
     a = portal_asset(d, pkg)
@@ -102,7 +134,18 @@ for d, pkg in PORTALS:
     if not cap_full or not cf50:
         summaries.append({"asset": name, "node": node, "flags": "anchor missing cap/cf"})
         continue
-    actual = actual_monthly(node, a.get("units"), share)
+    # Truth source: EIA-923 for wind (SCED under-reads it), SCED for solar
+    # (matches EIA and is timelier). Wind falls back to SCED only for recent
+    # months EIA hasn't published yet.
+    eids = anc.get("eia_plant_ids") or []
+    sced_a = actual_monthly(node, a.get("units"), share)
+    if tech == "wind":
+        eia_a = eia_monthly(eids, share)
+        actual = eia_a.combine_first(sced_a) if not eia_a.empty else sced_a
+        truth = "EIA-923" if not eia_a.empty else "SCED (no EIA)"
+    else:
+        actual = sced_a
+        truth = "SCED"
 
     # ---- score expected (fixed grounding) vs actual, per month ----
     biases = []
@@ -115,7 +158,7 @@ for d, pkg in PORTALS:
         exp = cf50[m] * cap_full * share * days * 24.0
         bias = (exp - act) / act * 100.0
         rows.append({"asset": name, "node": node, "tech": tech, "month": mo,
-                     "expected_mwh": round(exp), "actual_mwh": round(act),
+                     "truth": truth, "expected_mwh": round(exp), "actual_mwh": round(act),
                      "bias_pct": round(bias, 1),
                      "cf_actual": round(act / (cap_full * share * days * 24.0), 3)})
         biases.append(bias)
@@ -141,7 +184,8 @@ for d, pkg in PORTALS:
     if peak_cf_dc > CF_CEIL[tech]:
         flags.append(f"peak CF {peak_cf_dc:.0%} vs DC nameplate > {CF_CEIL[tech]:.0%} ({tech} non-physical?)")
 
-    summaries.append({"asset": name, "node": node, "tech": tech, "n_months": len(biases),
+    summaries.append({"asset": name, "node": node, "tech": tech, "truth": truth,
+                      "n_months": len(biases),
                       "median_bias_%": round(med, 1) if biases else None,
                       "mape_%": round(mape, 1) if biases else None,
                       "cap_reg": cap_reg, "cap_anchor": round(cap_full, 1),
