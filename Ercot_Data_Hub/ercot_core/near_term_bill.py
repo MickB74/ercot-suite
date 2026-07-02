@@ -417,6 +417,22 @@ def render_near_term_tab(
         tuple(a.get("sced_units") or ()),
     )
 
+    # SCED→EIA meter correction: the calibration above is fit to SCED, which
+    # under-reads some wind plants vs the EIA-923 revenue meter the invoice
+    # settles on. Lift the SCED-fit factor to the EIA truth so the ERA5-driven,
+    # UNgrounded cards — prior-month + MTD fallback — match the meter (and stay
+    # consistent with current-month actuals, which route through
+    # compute_settlement and are already uplifted). Forecast-month levels are
+    # re-grounded to the EIA anchor P50 downstream, so this only rescales their
+    # daily shape (cancels at month-normalization) — no double-count. 1.0 = solar.
+    from ercot_core import sced_uplift as _su  # noqa: PLC0415
+    _sced_uplift = _su.factor(a.get("resource_node"))
+    if _sced_uplift != 1.0:
+        cal_factor = cal_factor * _sced_uplift
+        st.caption(f"↑ **{_sced_uplift:.3f}× SCED→EIA meter correction** applied — "
+                   f"this plant's SCED telemetry under-reads vs its EIA-923 revenue "
+                   f"meter (the basis the invoice settles on).")
+
     # ── bias-correct the forecast wind product to the ERA5 baseline ──────────
     # cal_factor is fit on ERA5 archive winds; the forecast API (and GEFS) run
     # hotter, so applying cal_factor to raw forecast winds over-predicts. Scale

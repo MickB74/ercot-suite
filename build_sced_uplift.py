@@ -27,6 +27,7 @@ OUT = HUB / "ercot_core/registry/sced_uplift.json"   # version-controlled config
 MIN_MONTHS = 3
 RAMP_FRAC = 0.20          # drop months where SCED < 20% of the asset's max month
 CLAMP = (1.0, 1.5)
+MATERIAL = 1.01           # snap sub-1% ratios to 1.0 (within SCED↔EIA noise, no signal)
 
 PORTALS = [
     ("ERCOT_Markum", "markum"), ("ERCOT_Azure_Sky", "azuresky"),
@@ -119,6 +120,8 @@ for d, pkg in PORTALS:
         s = float(sum(sced[m] for m in full)); e = float(sum(ee[m] for m in full))
         raw = e / s if s else 1.0
         fac = max(CLAMP[0], min(CLAMP[1], raw))
+        if fac < MATERIAL:               # within noise → no correction
+            fac = 1.0
         registry[node] = {"factor": round(fac, 4), "tech": tech,
                           "n_months": len(full), "span": f"{min(full)}..{max(full)}",
                           "raw_ratio": round(raw, 4), "method": "sum(EIA)/sum(SCED)"}

@@ -24,7 +24,7 @@
     "method": "sum(EIA)/sum(SCED)"
   },
   "HRNT_SLR_RN": {
-    "factor": 1.0019,
+    "factor": 1.0,
     "tech": "solar",
     "n_months": 12,
     "span": "2025-04..2026-03",
@@ -39,7 +39,7 @@
     "method": "insufficient overlap (default 1.0)"
   },
   "WH_WIND_ALL": {
-    "factor": 1.0044,
+    "factor": 1.0,
     "tech": "wind",
     "n_months": 26,
     "span": "2024-02..2026-03",
@@ -47,7 +47,7 @@
     "method": "sum(EIA)/sum(SCED)"
   },
   "BUZI_SLR_RN": {
-    "factor": 1.0006,
+    "factor": 1.0,
     "tech": "solar",
     "n_months": 6,
     "span": "2025-10..2026-03",
@@ -63,7 +63,7 @@
     "method": "sum(EIA)/sum(SCED)"
   },
   "AGUAYO_UNIT1": {
-    "factor": 1.0004,
+    "factor": 1.0,
     "tech": "wind",
     "n_months": 25,
     "span": "2024-02..2026-03",
