@@ -21,6 +21,7 @@ to drive these same jobs with live log output.
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 from dataclasses import dataclass, field
@@ -28,6 +29,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 DATASETS = ROOT / "datasets"
+HERE = Path(__file__).resolve()
+UPDATE_LOG_DIR = ROOT / "logs" / "updates"   # detached-run logs + status files
 
 # Ensure ercot_core importable for the status helpers below.
 sys.path.insert(0, str(ROOT))
@@ -176,6 +179,92 @@ def run_job(key: str, extra_args: list[str] | None = None, echo: bool = True) ->
     return rc
 
 
+# --------------------------------------------------------------------------- #
+# Detached runs — survive the caller (e.g. the Streamlit page navigating away).
+# A job is launched as its own session-leader process writing to a log file; a
+# sidecar status.json tracks state so any later page load can reconcile it.
+# --------------------------------------------------------------------------- #
+def _job_files(key: str) -> tuple[Path, Path]:
+    UPDATE_LOG_DIR.mkdir(parents=True, exist_ok=True)
+    return (UPDATE_LOG_DIR / f"{key}.log", UPDATE_LOG_DIR / f"{key}.status.json")
+
+
+def _now_iso() -> str:
+    from ercot_core import tz
+    return tz.now_central().isoformat(timespec="seconds")
+
+
+def _pid_alive(pid) -> bool:
+    try:
+        os.kill(int(pid), 0)
+    except (OSError, ValueError, TypeError):
+        return False
+    return True
+
+
+def launch_detached(key: str, extra_args: list[str] | None = None) -> int:
+    """Start a job in its own process/session (survives the caller). Returns pid.
+
+    Output streams to ``logs/updates/<key>.log``; ``<key>.status.json`` tracks
+    state. The child re-invokes this module's ``_detached`` entry so it reuses the
+    same ESTALE-retry + credential-env path as an interactive run.
+    """
+    if key not in JOBS:
+        raise KeyError(key)
+    log_p, status_p = _job_files(key)
+    cmd = [sys.executable, str(HERE), "_detached", key, *(extra_args or [])]
+    logf = open(log_p, "w")  # noqa: SIM115 — handed to the child; closed on its exit
+    try:
+        proc = subprocess.Popen(
+            cmd, cwd=str(ROOT), env=_subprocess_env(),
+            stdout=logf, stderr=subprocess.STDOUT,
+            start_new_session=True,   # detach from the caller's session/controlling tty
+        )
+    finally:
+        logf.close()  # the child inherited the fd; our copy isn't needed
+    status_p.write_text(json.dumps(
+        {"key": key, "pid": proc.pid, "state": "running", "started": _now_iso()}))
+    return proc.pid
+
+
+def job_state(key: str) -> tuple[str, dict]:
+    """('idle'|'running'|'done'|'failed'|'unknown', info). Reconciles a stale
+    'running' status (pid gone but no completion written) to 'unknown'."""
+    _, status_p = _job_files(key)
+    if not status_p.exists():
+        return "idle", {}
+    try:
+        info = json.loads(status_p.read_text())
+    except (ValueError, OSError):
+        return "idle", {}
+    if info.get("state") == "running":
+        if _pid_alive(info.get("pid")):
+            return "running", info
+        return "unknown", info    # process ended without recording a result
+    return info.get("state", "idle"), info
+
+
+def job_log_tail(key: str, n: int = 500) -> str:
+    log_p, _ = _job_files(key)
+    if not log_p.exists():
+        return ""
+    try:
+        return "\n".join(log_p.read_text(errors="replace").splitlines()[-n:])
+    except OSError:
+        return ""
+
+
+def _finish_detached(key: str, rc: int) -> None:
+    _, status_p = _job_files(key)
+    try:
+        info = json.loads(status_p.read_text())
+    except (ValueError, OSError):
+        info = {"key": key}
+    info.update({"state": "done" if rc == 0 else "failed", "rc": rc,
+                 "finished": _now_iso()})
+    status_p.write_text(json.dumps(info))
+
+
 def _subprocess_env() -> dict:
     import os
     env = dict(os.environ)
@@ -243,18 +332,21 @@ def status() -> dict:
             hp["error"] = str(e)
     out["hub_prices"] = hp
 
-    # node_prices — yearly resource-node SPP parquets
+    # node_prices — yearly resource-node SPP parquets. Cheap: row counts from
+    # parquet metadata (no data read); range/nodes from just the first & latest
+    # year files (the lake is millions of rows — never concat it for a status).
     npx = {"rows": 0, "nodes": 0, "start": None, "end": None, "files": 0}
     npx_files = sorted(paths.NODE_DATA_DIR.glob("node_price_*.parquet"))
     npx["files"] = len(npx_files)
     if npx_files:
         try:
-            frames = [pd.read_parquet(f, columns=["location", "interval_start"])
-                      for f in npx_files]
-            allrows = pd.concat(frames, ignore_index=True)
-            ist = pd.to_datetime(allrows["interval_start"])
-            npx.update({"rows": len(allrows), "nodes": allrows["location"].nunique(),
-                        "start": str(ist.min()), "end": str(ist.max())})
+            import pyarrow.parquet as _pq
+            npx["rows"] = sum(_pq.ParquetFile(str(f)).metadata.num_rows for f in npx_files)
+            _first = pd.read_parquet(npx_files[0], columns=["interval_start"])
+            _last = pd.read_parquet(npx_files[-1], columns=["interval_start", "location"])
+            npx["start"] = str(pd.to_datetime(_first["interval_start"]).min())
+            npx["end"] = str(pd.to_datetime(_last["interval_start"]).max())
+            npx["nodes"] = int(_last["location"].nunique())
         except Exception as e:  # noqa: BLE001
             npx["error"] = str(e)
     out["node_prices"] = npx
@@ -303,6 +395,17 @@ def main(argv=None) -> int:
     if cmd == "status":
         print(json.dumps(status(), indent=2, default=str))
         return 0
+
+    if cmd == "_detached":   # internal: the child launched by launch_detached()
+        if not rest or rest[0] not in JOBS:
+            print(f"_detached needs a known job key; got {rest}")
+            return 2
+        key, extra = rest[0], rest[1:]
+        print(f"# {JOBS[key].label} ({key}) — detached run @ {_now_iso()}", flush=True)
+        rc = run_job(key, extra, echo=True)
+        _finish_detached(key, rc)
+        print(f"\n# {'✓ done' if rc == 0 else '✗ failed'} (rc={rc}) @ {_now_iso()}", flush=True)
+        return rc
 
     if cmd == "update":
         keys = rest or list(JOBS)

@@ -80,11 +80,6 @@ with st.expander("🔑 ERCOT API credentials (shared by all datasets)",
             st.rerun()
 
 # --------------------------------------------------------------------------
-# Live-run target (set by the per-dataset buttons below)
-# --------------------------------------------------------------------------
-run_target = st.session_state.pop("_run_target", None)
-
-# --------------------------------------------------------------------------
 # Dataset status cards
 # --------------------------------------------------------------------------
 st.subheader("Datasets")
@@ -132,19 +127,60 @@ for col, (key, icon, rows_fn) in zip(cols, cards):
         for label, val in rows_fn(snap.get(key, {})):
             st.markdown(f"**{label}:** {val}")
         st.caption(job.note)
-        if st.button(f"Update", key=f"btn_{key}", use_container_width=True):
-            st.session_state["_run_target"] = key
+        _st, _ = orchestrate.job_state(key)
+        _busy = _st == "running"
+        if st.button("⏳ Running…" if _busy else "Update", key=f"btn_{key}",
+                     use_container_width=True, disabled=_busy):
+            orchestrate.launch_detached(key)
+            st.toast(f"Started {job.label} in the background.")
             st.rerun()
 
 st.divider()
 c1, c2 = st.columns([1, 3])
 with c1:
     if st.button("⟳ Update ALL datasets", type="primary", use_container_width=True):
-        st.session_state["_run_target"] = "__all__"
+        for _k in [_c[0] for _c in cards]:
+            if orchestrate.job_state(_k)[0] != "running":
+                orchestrate.launch_detached(_k)
+        st.toast("Started all dataset updates in the background.")
         st.rerun()
 with c2:
-    st.caption("Each updater runs as a subprocess with live logs below. "
-               "Hub-price first-run backfill and EIA-923 downloads can take a while.")
+    st.caption("Each updater runs **in the background** — you can leave this page "
+               "or close the tab and it keeps running. Track it in **Update jobs** "
+               "below. Hub-price backfill & EIA-923 downloads can take a while.")
+
+# --------------------------------------------------------------------------
+# Update jobs — background (detached) runs; survive leaving the page. Tail logs.
+# --------------------------------------------------------------------------
+_job_keys = [_c[0] for _c in cards]
+_states = {k: orchestrate.job_state(k) for k in _job_keys}
+_running_now = [k for k, (s, _) in _states.items() if s == "running"]
+if any(s != "idle" for s, _ in _states.values()):
+    st.markdown("##### ⚙️ Update jobs")
+    _b1, _b2, _b3 = st.columns([1, 1, 3])
+    if _b1.button("🔄 Refresh", use_container_width=True):
+        st.cache_data.clear()
+        st.rerun()
+    _auto = _b2.checkbox("Auto 3s", value=False,
+                         help="Auto-refresh this view while a job is running")
+    _b3.caption("Detached runs — leaving this page or closing the tab won't stop "
+                "them. Come back anytime and Refresh.")
+    _ICON = {"running": "🟢", "done": "✅", "failed": "❌", "unknown": "⚠️"}
+    for k in _job_keys:
+        s, info = _states[k]
+        if s == "idle":
+            continue
+        head = f"{_ICON.get(s, '•')} **{orchestrate.JOBS[k].label}** — {s}"
+        if s in ("done", "failed") and info.get("rc") is not None:
+            head += f" (rc={info['rc']})"
+        _when = info.get("finished") or info.get("started")
+        if _when:
+            head += f"  ·  {_when}"
+        with st.expander(head, expanded=(s in ("running", "failed", "unknown"))):
+            st.code(orchestrate.job_log_tail(k) or "… (starting up)", language="text")
+    if _auto and _running_now:
+        time.sleep(3)
+        st.rerun()
 
 # --------------------------------------------------------------------------
 # Settlement portals directory
@@ -362,15 +398,3 @@ for _i in range(0, len(_shown), _PER_ROW):
                 st.toast(f"Launching {_p['name']} on port {_p['port']}…")
                 st.rerun()
 
-# --------------------------------------------------------------------------
-# Run + stream logs
-# --------------------------------------------------------------------------
-if run_target:
-    st.divider()
-    keys = list(orchestrate.JOBS) if run_target == "__all__" else [run_target]
-    for k in keys:
-        with st.status(f"Updating {orchestrate.JOBS[k].label}…", expanded=True):
-            _common.run_with_logs(st, k)
-    st.cache_data.clear()
-    if st.button("↻ Refresh status"):
-        st.rerun()
