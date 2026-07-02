@@ -70,6 +70,8 @@ nav = st.navigation({
         st.Page(f"{P}/15_Invoice_Validation.py", title="Invoice Validation", icon="✅"),
         st.Page(f"{P}/8_Reconciliation.py", title="Reconciliation", icon="🔁"),
         st.Page(f"{P}/9_Fleet_Reconciliation.py", title="Fleet Reconciliation", icon="🛰️"),
+        st.Page(f"{P}/26_Forecast_Scorecard.py", title="Forecast Scorecard",
+                icon="📋", url_path="forecast-scorecard"),
     ],
     # Onboard a new project and manage the registry it feeds.
     "Build a Project": [
