@@ -978,6 +978,63 @@ def render_near_term_tab(
                 f"(generation-weighted, {_hist}{_prelim}). {_bearer}"
             )
 
+        # ── per-month capture detail ────────────────────────────────────────
+        # The figures above cover the realized window as a whole; this breaks
+        # capture out for every month shown. Realized / retrocast / MTD months
+        # use real generation-weighted capture vs the mean daily price. Forecast
+        # months carry a flat capture-adjusted forward P50, so an intraday ratio
+        # would be a trivial 100% — instead we show the forward P50 as the
+        # capture price and this plant's TYPICAL capture for that calendar month
+        # (from SCED history); the mean grid is then implied (capture ÷ ratio).
+        try:
+            from ercot_core import capture_anchor as _cap_anch  # noqa: PLC0415
+            _seasonal = _cap_anch.monthly_capture_ratio(
+                a.get("resource_node") or "", "p50") or {}
+        except Exception:  # noqa: BLE001 — informational; never block the page
+            _seasonal = {}
+        _real_kinds = {"retrocast", "actual", "mtd_est"}
+        _mlab = all_df["date"].map(lambda d: d.strftime("%Y-%m"))
+        _cap_rows = []
+        for _ym in sorted(_mlab.unique()):
+            _md = all_df[_mlab == _ym]
+            _mwh_m = float(_md["mwh"].sum())
+            if _mwh_m <= 0:
+                continue
+            _mo = int(_ym[5:7])
+            _rr = _md[_md["kind"].isin(_real_kinds) & _md["mwh"].gt(0) & _md["price"].notna()]
+            if not _rr.empty and _rr["mwh"].sum() > 0:
+                _cp = float(_rr["net"].sum() / _rr["mwh"].sum()) + strike
+                _mg = float(_rr["price"].mean())
+                _cr = 100.0 * _cp / _mg if _mg else float("nan")
+                _basis = "realized"
+            else:
+                _cp = float((fwd_price_by_month or {}).get(_ym, fwd_price))
+                _cr = 100.0 * float(_seasonal[_mo]) if _mo in _seasonal else float("nan")
+                _mg = (_cp / (_cr / 100.0)) if (pd.notna(_cr) and _cr) else float("nan")
+                _basis = "forward · typical capture"
+            _cap_rows.append((_ym, _mwh_m, _cp, _mg, _cr, _basis))
+
+        if _cap_rows:
+            def _m(v, spec):
+                return spec.format(v) if pd.notna(v) else "—"
+            _cap_df = pd.DataFrame([{
+                "Month":            r[0],
+                "Capture $/MWh":    _m(r[2], "${:,.2f}"),
+                "Mean grid $/MWh":  _m(r[3], "${:,.2f}"),
+                "Capture ratio":    _m(r[4], "{:,.0f}%"),
+                "MWh":              _m(r[1], "{:,.0f}"),
+                "Basis":            r[5],
+            } for r in _cap_rows])
+            st.markdown("**Monthly capture detail**")
+            st.dataframe(_cap_df, hide_index=True, use_container_width=True)
+            st.caption(
+                f"Realized / retrocast months: generation-weighted capture vs the "
+                f"mean daily {_loc_lbl} price. Forecast months: the capture-adjusted "
+                f"forward P50 (capture price) and this plant's typical {tech} capture "
+                f"for that calendar month (SCED history); mean grid is implied "
+                f"(capture ÷ ratio)."
+            )
+
     # ── chart ─────────────────────────────────────────────────────────────────
     from plotly.subplots import make_subplots as _make_subplots
 
