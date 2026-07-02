@@ -88,7 +88,8 @@ def node_units(resource_node: str) -> pd.DataFrame:
 def node_generation_mwh(gen_df: pd.DataFrame, resource_node: str,
                         units: list[str] | None = None,
                         mw_scale: float = 1.0,
-                        mw_cap: float | None = None) -> pd.DataFrame:
+                        mw_cap: float | None = None,
+                        sced_uplift: float = 1.0) -> pd.DataFrame:
     """Node-level MWh per 15-min interval (sum the chosen units, MW -> MWh).
 
     `units` limits which SCED resource names are summed (e.g. exclude the
@@ -97,7 +98,11 @@ def node_generation_mwh(gen_df: pd.DataFrame, resource_node: str,
     `mw_scale` rescales the summed node MW (1.0 = as-metered; 0.5 = a 50%
     pro-rata PPA share; 1.5 = model a 1.5x larger plant with the same shape).
     `mw_cap`, if given, then clips each interval to a contracted capacity
-    (as-available up to the cap). Scaling is applied before the cap.
+    (as-available up to the cap).
+
+    `sced_uplift` scales the metered MW to correct SCED's systematic under-read
+    of wind vs the EIA-923 revenue meter (see :mod:`ercot_core.sced_uplift`);
+    1.0 = as-metered (solar/default). Order: share → uplift → nameplate cap.
     """
     if gen_df is None or gen_df.empty:
         return pd.DataFrame(columns=["interval_start", "mw", "mwh"])
@@ -110,6 +115,8 @@ def node_generation_mwh(gen_df: pd.DataFrame, resource_node: str,
     g = g.groupby("interval_start", as_index=False)["mw"].sum()
     if mw_scale != 1.0:
         g["mw"] = g["mw"] * mw_scale
+    if sced_uplift and sced_uplift != 1.0:
+        g["mw"] = g["mw"] * float(sced_uplift)
     if mw_cap is not None:
         g["mw"] = g["mw"].clip(upper=mw_cap)
     g["mwh"] = g["mw"] * INTERVAL_HOURS
@@ -164,6 +171,7 @@ def compute_settlement(
     rec_per_mwh: float = 0.0,
     escalation_pct: float = 0.0,
     escalation_base_year: int | None = None,
+    sced_uplift: float | None = None,
 ) -> dict:
     """Interval-level settlement + summary for one asset.
 
@@ -188,8 +196,15 @@ def compute_settlement(
 
     Returns {"intervals", "summary"}.
     """
+    # SCED→EIA uplift: None = auto-look up the per-asset factor (wind under-reads
+    # on SCED; solar/unknown = 1.0). Pass an explicit value to override/disable.
+    if sced_uplift is None:
+        from ercot_core import sced_uplift as _su  # noqa: PLC0415 (avoid import cycle at top)
+        uplift = _su.factor(resource_node)
+    else:
+        uplift = float(sced_uplift)
     gen = node_generation_mwh(gen_df, resource_node, units=units,
-                              mw_scale=mw_scale, mw_cap=mw_cap)
+                              mw_scale=mw_scale, mw_cap=mw_cap, sced_uplift=uplift)
     df = _join_price(gen, _price_series(price_df, ref_location, market), market, "price")
 
     # Only intervals with both generation and a reference price settle.
@@ -257,6 +272,7 @@ def compute_settlement(
         "reference": ref_location,
         "market": market,
         "ppa_price": ppa_price,
+        "sced_uplift": round(float(uplift), 4),   # SCED→EIA wind correction (1.0 = as-metered)
         "intervals": int(len(df)),
         "total_mwh": total_mwh,
         "capture_price": (merchant / total_mwh) if total_mwh else 0.0,  # gen-weighted market $/MWh

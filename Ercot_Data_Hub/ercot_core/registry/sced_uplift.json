@@ -1,0 +1,73 @@
+{
+  "MRKM_SLR_RN": {
+    "factor": 1.0,
+    "tech": "solar",
+    "n_months": 17,
+    "span": "2024-11..2026-03",
+    "raw_ratio": 0.9997,
+    "method": "sum(EIA)/sum(SCED)"
+  },
+  "AZURE_SKY_WIND_AGG": {
+    "factor": 1.0135,
+    "tech": "wind",
+    "n_months": 26,
+    "span": "2024-02..2026-03",
+    "raw_ratio": 1.0135,
+    "method": "sum(EIA)/sum(SCED)"
+  },
+  "MIRASOLE_GEN": {
+    "factor": 1.0,
+    "tech": "wind",
+    "n_months": 26,
+    "span": "2024-02..2026-03",
+    "raw_ratio": 0.9979,
+    "method": "sum(EIA)/sum(SCED)"
+  },
+  "HRNT_SLR_RN": {
+    "factor": 1.0019,
+    "tech": "solar",
+    "n_months": 12,
+    "span": "2025-04..2026-03",
+    "raw_ratio": 1.0019,
+    "method": "sum(EIA)/sum(SCED)"
+  },
+  "MLB_SLR_RN": {
+    "factor": 1.0,
+    "tech": "solar",
+    "n_months": 2,
+    "span": "",
+    "method": "insufficient overlap (default 1.0)"
+  },
+  "WH_WIND_ALL": {
+    "factor": 1.0044,
+    "tech": "wind",
+    "n_months": 26,
+    "span": "2024-02..2026-03",
+    "raw_ratio": 1.0044,
+    "method": "sum(EIA)/sum(SCED)"
+  },
+  "BUZI_SLR_RN": {
+    "factor": 1.0006,
+    "tech": "solar",
+    "n_months": 6,
+    "span": "2025-10..2026-03",
+    "raw_ratio": 1.0006,
+    "method": "sum(EIA)/sum(SCED)"
+  },
+  "RN_RTS1": {
+    "factor": 1.0928,
+    "tech": "wind",
+    "n_months": 26,
+    "span": "2024-02..2026-03",
+    "raw_ratio": 1.0928,
+    "method": "sum(EIA)/sum(SCED)"
+  },
+  "AGUAYO_UNIT1": {
+    "factor": 1.0004,
+    "tech": "wind",
+    "n_months": 25,
+    "span": "2024-02..2026-03",
+    "raw_ratio": 1.0004,
+    "method": "sum(EIA)/sum(SCED)"
+  }
+}
